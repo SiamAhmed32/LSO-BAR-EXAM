@@ -23,3 +23,15 @@ enum UserRole {
   USER
   ADMIN
 }
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}
