@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ReduxProvider from '@/store/provider/ReduxProvider';
+import { UserProvider } from '@/components/context/UserContext';
 
 export const metadata: Metadata = {
 	title: 'Frontend Template',
@@ -16,7 +17,9 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={`bg-primaryBg text-primaryText antialiased`}>
 				<ReduxProvider>
-					{children}
+					<UserProvider user={null}>
+						{children}
+					</UserProvider>
 				</ReduxProvider>
 			</body>
 		</html>
