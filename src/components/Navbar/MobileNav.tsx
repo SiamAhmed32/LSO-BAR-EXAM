@@ -1,11 +1,96 @@
-import React from 'react'
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Menu, X, User, ShoppingCart } from 'lucide-react';
+import { navDataLeft } from '../data/navConfig';
 
 const MobileNav = () => {
-  return (
-    <div>
-      mobile nav
-    </div>
-  )
-}
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
-export default MobileNav
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleLoginClick = () => {
+    router.push('/login');
+  };
+
+  const handleCartClick = () => {
+    router.push('/cart');
+  };
+
+  return (
+    <>
+      {/* Icons and Hamburger - Always visible on tablet/mobile */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Login and Cart Icons with primary color background */}
+        <button 
+          onClick={handleLoginClick}
+          className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
+          aria-label="Login"
+        >
+          <User className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
+        <button 
+          onClick={handleCartClick}
+          className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
+          aria-label="Cart"
+        >
+          <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
+        
+        {/* Hamburger Button */}
+        <button
+          onClick={toggleMenu}
+          className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isOpen ? (
+            <X className="w-6 h-6 text-primaryText" />
+          ) : (
+            <Menu className="w-6 h-6 text-primaryText" />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Menu Content - Slides in from right, full width on mobile/tablet */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="p-4">
+          {/* Close Button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+              aria-label="Close menu"
+            >
+              <X className="w-6 h-6 text-primaryText" />
+            </button>
+          </div>
+
+          {/* Left Navigation Items */}
+          <ul className="space-y-2">
+            {navDataLeft.map((navData) => (
+              <li key={navData.status}>
+                <button
+                  onClick={toggleMenu}
+                  className="w-full text-left text-primaryColor font-bold text-base px-4 py-3 rounded-md hover:bg-gray-100 transition-colors"
+                >
+                  {navData.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default MobileNav;

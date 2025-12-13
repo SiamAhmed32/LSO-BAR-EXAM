@@ -1,6 +1,7 @@
 import React from 'react';
 
 type FormInputProps = {
+  id?: string;
   name?: string;
   type?: string;
   value: string;
@@ -11,6 +12,7 @@ type FormInputProps = {
 };
 
 const FormInput = ({
+  id,
   name,
   type = 'text',
   value,
@@ -21,6 +23,7 @@ const FormInput = ({
 }: FormInputProps) => {
   return (
     <input
+      id={id}
       name={name}
       type={type}
       value={value}

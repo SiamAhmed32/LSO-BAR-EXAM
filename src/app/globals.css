@@ -7,6 +7,8 @@
 	--primaryBg: #f5f5f2;
 	--primaryCard: #ffffff;
 	--primaryText: #424141;
+	--primaryColor: #c2185b;
+	--logoPink: #c2185b;
 	--buttonHover: #f44842;
 	--tagHover: #f44842;
 	--borderBg: #ddd;
@@ -23,6 +25,8 @@
 	--color-primaryBg: var(--primaryBg);
 	--color-primaryCard: var(--primaryCard);
 	--color-primaryText: var(--primaryText);
+	--color-primaryColor: var(--primaryColor);
+	--color-logoPink: var(--logoPink);
 	--color-buttonHover: var(--buttonHover);
 	--color-tagHover: var(--tagHover);
 	--color-borderBg: var(--borderBg);
