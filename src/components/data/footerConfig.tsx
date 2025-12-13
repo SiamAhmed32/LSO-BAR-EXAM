@@ -14,7 +14,7 @@ export const footerData = {
         { label: "Home", href: "/" },
         { label: "About", href: "/about" },
         { label: "Services", href: "/services" },
-        { label: "Contact", href: "/contact" },
+        { label: "Contact Us", href: "/contact" },
       ]
     },
   ],
