@@ -1,0 +1,48 @@
+==================== Api call 
+
+const propertyData = await getAll({ path: 'properties', limit: 6 });
+const propertyTypeData = await getAll({ path: 'propertytypes', limit: 999 });
+const propertyLocationsData = await getAll({ path: 'locations', limit: 999 });
+
+
+===================== search params 
+
+	const location = await searchParams?.location;
+	const propertyType = await searchParams?.propertyType;
+	const propertyStatus = await searchParams?.propertyStatus;
+
+	const propertyData = await getAll({
+		path: 'properties',
+		limit: 4,
+		location,
+		propertyType,
+		propertyStatus,
+	});
+
+======================== id page
+
+const SinglePropertyPage = async ({ params }: { params: { id: string } }) => {
+  // console.log('Dynamic params:', params);
+
+  const { id } = params;
+
+  const propertyData = await getById({ path: 'properties', id });
+
+  return (
+    <Layout>
+      <SinglePropertyPageComponent propertyData={propertyData} />
+    </Layout>
+  );
+};
+
+export default SinglePropertyPage;
+
+
+
+
+
+
+
+
+
+
