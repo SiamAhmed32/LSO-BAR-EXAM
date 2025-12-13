@@ -1,12 +1,11 @@
-import React from 'react'
-import { Hero } from './Hero'
+import React from "react";
+import { Hero } from "./Hero";
+import { Layout } from "../Layout";
 
-type Props = {}
+type Props = {};
 
 const HomePage = (props: Props) => {
-  return (
-    <Hero />
-  )
-}
+  return <Hero />;
+};
 
-export default HomePage
+export default HomePage;

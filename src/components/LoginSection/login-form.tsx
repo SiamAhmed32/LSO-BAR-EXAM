@@ -2,9 +2,13 @@
 
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { cn } from '@/lib/utils';
 import FormInput from '@/components/shared/FormInput';
 import Label from '@/components/shared/Label';
+import { useLoginMutation } from '@/store/services/authApi';
+import { useDispatch } from 'react-redux';
+import { login as loginAction } from '@/store/slices/authSlice';
 
 interface LoginFormProps extends React.ComponentProps<'div'> {
   className?: string;
@@ -14,11 +18,41 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login:', { email, password });
+    console.log('Login Form - Submitting:', { email, password });
+
+    try {
+      const result = await login({ email, password }).unwrap();
+      console.log('Login Form - Success Response:', result);
+      
+      // Handle session-based auth (Next.js API uses cookies, not tokens)
+      if (result.success) {
+        // For session-based auth, we don't need to store a token
+        // The session cookie is automatically set by the API
+        console.log('Login Form - Login successful, redirecting...');
+        toast.success('Login successful!');
+        // Redirect to home page
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else if (result.token) {
+        // Fallback: if token is provided, use token-based auth
+        dispatch(loginAction({ token: result.token, refreshToken: result.refreshToken }));
+        console.log('Login Form - Token stored in Redux and localStorage');
+        toast.success('Login successful!');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      }
+    } catch (error: any) {
+      console.error('Login Form - Error:', error);
+      console.error('Login Form - Error Data:', error?.data);
+      toast.error(error?.data?.error || error?.data?.message || 'Login failed. Please try again.');
+    }
   };
 
   return (
@@ -93,9 +127,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               <div className="flex flex-col gap-3">
                 <button
                   type="submit"
-                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity"
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Login
+                  {isLoading ? 'Logging in...' : 'Login'}
                 </button>
                 {/* <button
                   type="button"

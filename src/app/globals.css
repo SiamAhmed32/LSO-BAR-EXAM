@@ -50,6 +50,21 @@
 body {
 	font-family: var(--font-primary);
 }
+
+/* Hero Image Float Animation */
+@keyframes float {
+	0%, 100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-20px);
+	}
+}
+
+.animate-float {
+	animation: float 6s ease-in-out infinite;
+}
+
 /* SWIPER JS CSS */
 .swiper-pagination-bullet {
 	/* background-color: var(--color-borderBg) !important; */

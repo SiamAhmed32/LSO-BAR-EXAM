@@ -2,15 +2,19 @@
 
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 import { cn } from '@/lib/utils';
 import FormInput from '@/components/shared/FormInput';
 import Label from '@/components/shared/Label';
+import { useRegisterMutation } from '@/store/services/authApi';
 
 interface RegisterFormProps extends React.ComponentProps<'div'> {
   className?: string;
 }
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [username, setUsername] = useState('');
@@ -18,6 +22,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
@@ -37,7 +42,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate password match
@@ -46,8 +51,22 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
       return;
     }
 
-    // Handle registration logic here
-    console.log('Register:', { username, email, password });
+    console.log('Register Form - Submitting:', { username, email, password });
+
+    try {
+      const result = await register({ username, email, password }).unwrap();
+      console.log('Register Form - Success Response:', result);
+      
+      // Show success toast and redirect to login
+      toast.success('Registration successful! Please login.');
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+    } catch (error: any) {
+      console.error('Register Form - Error:', error);
+      console.error('Register Form - Error Data:', error?.data);
+      toast.error(error?.data?.error || error?.data?.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -160,10 +179,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
               <div className="flex flex-col gap-3">
                 <button
                   type="submit"
-                  disabled={!!passwordError}
+                  disabled={!!passwordError || isLoading}
                   className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Register
+                  {isLoading ? 'Registering...' : 'Register'}
                 </button>
                 {/* <button
                   type="button"
