@@ -1,42 +1,24 @@
 'use client';
 
 import Container from '@/components/shared/Container';
-import ButtonPrimary from '@/components/shared/ButtonPrimary';
 import React from 'react';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
 	return (
-		<section className="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 py-12 sm:py-16 md:py-20 lg:py-24">
+		// <section className="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 py-12 sm:py-16 md:py-20 lg:py-24">
+		<section className="bg-primaryColor py-12 sm:py-16 md:py-20 lg:py-24">
 			<Container>
 				<div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 xl:gap-16">
 					{/* Left Side - Text Content */}
 					<div className="flex-1 text-center lg:text-left">
-						<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primaryText mb-4 sm:mb-6 leading-tight">
-							Quality, Accessible Bar Exam Prep Materials
+						<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+							<span className='text-secColor'>LSO</span>
+							 <span className='text-black'>BAR EXAM</span>
 						</h1>
-						<p className="text-lg sm:text-xl md:text-2xl text-primaryText opacity-80 mb-6 sm:mb-8 lg:mb-10">
-							Prepare for the Ontario Bar Exams
+						<p className="text-lg sm:text-xl md:text-2xl text-white opacity-90">
+							LAW SOCIETY OF ONTARIO BAR EXAM
 						</p>
-						
-						{/* Buttons */}
-						<div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center lg:justify-start">
-							<ButtonPrimary
-								href="/"
-								icon={<ArrowRight className="w-5 h-5" />}
-								iconPosition="right"
-								className="bg-primaryColor text-white border-primaryColor hover:bg-button-dark hover:border-button-dark px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold rounded-md"
-							>
-								Try Free Mini Exams
-							</ButtonPrimary>
-							<ButtonPrimary
-								href="/"
-								className="bg-white text-primaryColor border-2 border-primaryColor hover:bg-primaryColor hover:text-white px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold rounded-md"
-							>
-								Buy Questions
-							</ButtonPrimary>
-						</div>
 					</div>
 
 					{/* Right Side - Hero Image with Circular Cutout Animation */}

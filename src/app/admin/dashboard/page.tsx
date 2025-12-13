@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box } from '@/components/ui';
+
 import {
 	Users,
 	DollarSign,
@@ -12,6 +12,7 @@ import {
 	BarChart3,
 	Activity,
 } from 'lucide-react';
+import { Box } from '@/components';
 
 const AdminDashboard = () => {
 	const stats = [

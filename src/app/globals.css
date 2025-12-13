@@ -7,13 +7,14 @@
 	--primaryBg: #f5f5f2;
 	--primaryCard: #ffffff;
 	--primaryText: #424141;
-	--primaryColor: #c2185b;
-	--logoPink: #c2185b;
-	--buttonHover: #f44842;
-	--tagHover: #f44842;
+	--primaryColor: #C65375;
+	--logoPink: #C65375;
+	--buttonHover: #C65375;
+	--tagHover: #C65375;
 	--borderBg: #ddd;
 	--button: #C25072;
 	--button-dark: #8d304c;
+	--secColor: #D7B06C;
 	--font-primary: 'Lora', serif;
 	--font-secondary: 'Newsreader', serif;
 	--sectionGapLg: 64px;
@@ -32,6 +33,7 @@
 	--color-borderBg: var(--borderBg);
 	--color-button: var(--button);
 	--color-button-dark: var(--button-dark);
+	--color-secColor: var(--secColor);
 	--font-primary: var(--font-primary);
 	--font-secondary: var(--font-secondary);
 	--spacing-sectionGapLg: var(--sectionGapLg);
