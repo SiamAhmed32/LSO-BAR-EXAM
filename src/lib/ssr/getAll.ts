@@ -6,8 +6,8 @@ type GetAllProps = {
 	path: string;
 	page?: number;
 	location?: string;
-	propertyType?: string;
-	propertyStatus?: string;
+	category?: string;
+	itemStatus?: string;
 };
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND;
 
@@ -16,8 +16,8 @@ async function getAll({
 	sort = '-createdAt',
 	status = 'published',
 	location = '',
-	propertyType = '',
-	propertyStatus = '',
+	category = '',
+	itemStatus = '',
 	path,
 	page = 1,
 }: GetAllProps) {
@@ -37,11 +37,11 @@ async function getAll({
 		sort,
 		page: page.toString(),
 		location,
-		propertyType,
-		listingType: propertyStatus,
+		category,
+		listingType: itemStatus,
 	});
 
-	// Always add the published status (assuming this is for published properties)
+	// Always add the published status
 	params.append('status', 'published');
 
 	const api = `${BASE_URL}/${path}?${params.toString()}`;

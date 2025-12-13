@@ -1,48 +1,39 @@
-==================== Api call 
+==================== API Call Examples
 
-const propertyData = await getAll({ path: 'properties', limit: 6 });
-const propertyTypeData = await getAll({ path: 'propertytypes', limit: 999 });
-const propertyLocationsData = await getAll({ path: 'locations', limit: 999 });
+// Fetching data with getAll helper
+const data = await getAll({ path: 'items', limit: 6 });
+const categoryData = await getAll({ path: 'categories', limit: 999 });
+const locationData = await getAll({ path: 'locations', limit: 999 });
 
 
-===================== search params 
+===================== Search Params Example
 
 	const location = await searchParams?.location;
-	const propertyType = await searchParams?.propertyType;
-	const propertyStatus = await searchParams?.propertyStatus;
+	const category = await searchParams?.category;
+	const status = await searchParams?.status;
 
-	const propertyData = await getAll({
-		path: 'properties',
+	const filteredData = await getAll({
+		path: 'items',
 		limit: 4,
 		location,
-		propertyType,
-		propertyStatus,
+		category,
+		status,
 	});
 
-======================== id page
+======================== Dynamic ID Page Example
 
-const SinglePropertyPage = async ({ params }: { params: { id: string } }) => {
+const SingleItemPage = async ({ params }: { params: { id: string } }) => {
   // console.log('Dynamic params:', params);
 
   const { id } = params;
 
-  const propertyData = await getById({ path: 'properties', id });
+  const itemData = await getById({ path: 'items', id });
 
   return (
     <Layout>
-      <SinglePropertyPageComponent propertyData={propertyData} />
+      <SingleItemComponent itemData={itemData} />
     </Layout>
   );
 };
 
-export default SinglePropertyPage;
-
-
-
-
-
-
-
-
-
-
+export default SingleItemPage;

@@ -18,7 +18,7 @@ async function getById({ id, path }: GetByIdProps) {
     headers['authorization'] = `Bearer ${token}`; // Bearer prefix (adjust if not needed)
   }
 
-  const api = `${BASE_URL}/${path}/${id}`; // Fetching a specific property by its `id`
+  const api = `${BASE_URL}/${path}/${id}`; // Fetching a specific item by its `id`
 
   const res = await fetch(api, {
     next: { revalidate: 60 }, // ISR with 60-second revalidation
