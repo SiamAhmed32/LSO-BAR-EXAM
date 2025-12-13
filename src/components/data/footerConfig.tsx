@@ -4,36 +4,36 @@ import { Facebook, Instagram, Twitter, Linkedin, MapPin, Phone, Mail } from 'luc
 
 export const footerData = {
   companyInfo: {
-    name: "RealTor",
-    description: "Helping you find the perfect property for over 15 years. \nYour dream home is just a click away."
+    name: "Your Company",
+    description: "Your company description here."
   },
   sections: [
     {
       title: "Quick Links",
       links: [
         { label: "Home", href: "/" },
-        { label: "Buy", href: "buy" },
-        { label: "Rent", href: "rent" },
-        { label: "All Properties", href: "all-properties" },
+        { label: "About", href: "/about" },
+        { label: "Services", href: "/services" },
+        { label: "Contact", href: "/contact" },
       ]
     },
   ],
   contactInfo: [
     {
       type: 'address',
-      value: "House 88, 17/A\nBanani, Dhaka 1213",
+      value: "Your Address Here",
       icon: MapPin
     },
     {
       type: 'phone',
-      value: "(+880) 1828-398-225",
-      href: "tel:+8801828398225",
+      value: "+1 (555) 000-0000",
+      href: "tel:+15550000000",
       icon: Phone
     },
     {
       type: 'email',
-      value: "info@thinkcrypt.io",
-      href: "mailto:info@thinkcrypt.io",
+      value: "contact@example.com",
+      href: "mailto:contact@example.com",
       icon: Mail
     }
   ],
@@ -48,5 +48,5 @@ export const footerData = {
     { label: "Terms of Service", href: "/terms-of-service" },
     { label: "Cookie Policy", href: "/cookie-policy" }
   ],
-  copyright: "© 2025 MINT Homes. All rights reserved."
+  copyright: "© 2025 Your Company. All rights reserved."
 };

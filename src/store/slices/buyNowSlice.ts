@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const CART_NAME = 'DDONG_QUICK_CART_ONE';
+const CART_NAME = 'APP_QUICK_CART';
 
 export type CartItem = {
 	uniqueId: string;

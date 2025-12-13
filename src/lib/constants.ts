@@ -11,8 +11,8 @@ export const SECTION_PADDING = '100px';
 export const takaSign = '৳';
 export const dollarSign = '$';
 
-export const propertyStatus = [
-	{ name: 'For Buy', _id: 'buy' },
-	{ name: 'For Sale', _id: 'sale' },
-	{ name: 'For Rent', _id: 'rent' },
+export const itemStatus = [
+	{ name: 'Active', _id: 'active' },
+	{ name: 'Pending', _id: 'pending' },
+	{ name: 'Inactive', _id: 'inactive' },
 ];
