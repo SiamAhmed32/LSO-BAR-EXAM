@@ -1,6 +1,7 @@
 export type NavItemLeft = {
   title: string;
   status: string;
+  href: string;
 };
 
 export type NavItemRight = {
@@ -9,10 +10,11 @@ export type NavItemRight = {
 };
 
 export const navDataLeft: NavItemLeft[] = [
-  { title: "Practice Questions", status: "Practice Questions" },
-  { title: "Exam tutoring", status: "Exam tutoring" },
-  { title: "FAQ", status: "FAQ" },
-  { title: "Contact", status: "Contact" },
+  { title: "Home", status: "Home", href:'/' },
+  { title: "Practice Questions", status: "Practice Questions", href:'/' },
+  { title: "Exam tutoring", status: "Exam tutoring", href: '/' },
+  { title: "FAQ", status: "FAQ", href:'/' },
+  { title: "Contact", status: "Contact" , href:'/contact'},
 ]
 // Practice Questions, Exam tutoring, FAQ, Contact, Login, Cart
 
