@@ -45,21 +45,6 @@ const menuItems = [
 		icon: ShoppingCart,
 	},
 	{
-		title: 'Products',
-		href: '/admin/products',
-		icon: Package,
-	},
-	{
-		title: 'Analytics',
-		href: '/admin/analytics',
-		icon: BarChart3,
-	},
-	{
-		title: 'Reports',
-		href: '/admin/reports',
-		icon: FileText,
-	},
-	{
 		title: 'Settings',
 		href: '/admin/settings',
 		icon: Settings,
