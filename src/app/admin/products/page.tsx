@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box } from '@/components/reusables';
+import { Box } from '@/components/ui';
 import { Package } from 'lucide-react';
 
 const AdminProducts = () => {

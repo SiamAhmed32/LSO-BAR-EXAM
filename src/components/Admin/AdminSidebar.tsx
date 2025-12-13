@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box } from '../reusables';
+import { Box } from '../ui';
 import { cn } from '@/lib/utils';
 import AdminCustomButton from './AdminCustomButton';
 import {
