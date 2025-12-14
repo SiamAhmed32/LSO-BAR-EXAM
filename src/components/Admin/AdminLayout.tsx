@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box } from '../ui';
+import { Box } from '../shared';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 

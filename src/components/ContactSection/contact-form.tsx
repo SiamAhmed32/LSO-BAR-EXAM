@@ -7,6 +7,7 @@ import FormTextarea from '@/components/shared/FormTextarea';
 import Label from '@/components/shared/Label';
 import ButtonPrimary from '@/components/shared/ButtonPrimary';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface ContactFormProps extends React.ComponentProps<'div'> {
   className?: string;
@@ -91,41 +92,88 @@ export function ContactForm({ className, ...props }: ContactFormProps) {
       message: 'Sending your message...',
     });
 
+    // Console log for debugging - payload being sent
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+    };
+    console.log('📤 Contact Form - Submitting Payload:', payload);
+    console.log('📊 Contact Form - Payload Details:', {
+      name: formData.name,
+      nameLength: formData.name.length,
+      email: formData.email,
+      messageLength: formData.message.length,
+      messagePreview: formData.message.substring(0, 50) + (formData.message.length > 50 ? '...' : ''),
+    });
+
     try {
+      console.log('🌐 Contact Form - Sending request to /api/contact');
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
+      console.log('📥 Contact Form - Response Status:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📥 Contact Form - Response Data:', data);
 
       if (response.ok) {
+        console.log('✅ Contact Form - Success!', {
+          success: data.success,
+          message: data.message,
+          contactId: data.data?.contactInfo?.id,
+          timestamp: data.data?.contactInfo?.createdAt,
+        });
+        
         setStatus({
           type: 'success',
           message: data.message || 'Your message has been sent successfully!',
         });
         
+        // Show toast notification
+        toast.success(data.message || 'Your message has been sent successfully!');
+        
         // Reset form on success
+        console.log('🔄 Contact Form - Resetting form');
         setFormData({
           name: '',
           email: '',
           message: '',
         });
       } else {
+        console.error('❌ Contact Form - Error Response:', {
+          status: response.status,
+          error: data.error,
+          message: data.message,
+          details: data.details,
+        });
+        
+        const errorMessage = data.message || data.error || 'Failed to send message. Please try again.';
         setStatus({
           type: 'error',
-          message: data.message || data.error || 'Failed to send message. Please try again.',
+          message: errorMessage,
         });
+        toast.error(errorMessage);
       }
     } catch (error) {
-      console.error('Contact form error:', error);
+      console.error('❌ Contact Form - Network/Request Error:', error);
+      console.error('❌ Contact Form - Error Details:', {
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      
+      const errorMessage = 'Network error. Please check your connection and try again.';
       setStatus({
         type: 'error',
-        message: 'Network error. Please check your connection and try again.',
+        message: errorMessage,
       });
+      toast.error(errorMessage);
     }
   };
 

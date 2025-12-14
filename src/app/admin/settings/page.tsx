@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box } from '@/components/ui';
+import { Box } from '@/components/shared';
 import { Settings } from 'lucide-react';
 
 const AdminSettings = () => {

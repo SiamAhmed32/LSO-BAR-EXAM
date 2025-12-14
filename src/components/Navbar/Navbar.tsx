@@ -25,7 +25,7 @@ const Navbar = () => {
                 <li key={navData.status}>
                   <Link
                     href={navData.href}
-                    className="text-primaryText font-bold text-xs sm:text-sm md:text-base lg:text-md xl:text-base px-2 sm:px-3 md:px-3 lg:px-2 xl:px-4 py-1 sm:py-2 whitespace-nowrap duration-300 hover:text-primaryColor cursor-pointer"
+                    className="text-primaryText font-bold text-xs sm:text-sm md:text-base lg:text-md xl:text-xl px-2 sm:px-3 md:px-3 lg:px-2 xl:px-4 py-1 sm:py-2 whitespace-nowrap duration-300 hover:text-primaryColor cursor-pointer"
                   >
                     {navData.title}
                   </Link>
@@ -41,7 +41,7 @@ const Navbar = () => {
                 <li key={navData.url}>
                   <Link
                     href={navData.url}
-                    className="text-primaryText font-bold text-xs sm:text-sm md:text-base lg:text-md xl:text-base px-2 sm:px-3 md:px-3 lg:px-2 xl:px-4 py-1 sm:py-2 whitespace-nowrap duration-300 hover:text-primaryColor cursor-pointer"
+                    className="text-primaryText font-bold text-xs sm:text-sm md:text-base lg:text-md xl:text-xl px-2 sm:px-3 md:px-3 lg:px-2 xl:px-4 py-1 sm:py-2 whitespace-nowrap duration-300 hover:text-primaryColor cursor-pointer"
                   >
                     {navData.title}
                   </Link>

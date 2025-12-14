@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box } from '../ui';
+import { Box } from '../shared';
 import { Plus, X } from 'lucide-react';
 import AdminCustomButton from './AdminCustomButton';
 

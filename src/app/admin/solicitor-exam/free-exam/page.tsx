@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box } from '@/components/ui';
+import { Box } from '@/components/shared';
 import { AdminTable, Column, AdminDialog, ExamForm, Question, AdminCustomButton } from '@/components/Admin';
 import { BookOpen, Edit, Trash2, Eye } from 'lucide-react';
 

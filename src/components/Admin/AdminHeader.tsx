@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box } from '../ui';
+import { Box } from '../shared';
 import { Menu, Bell, Search, User } from 'lucide-react';
 import AdminCustomButton from './AdminCustomButton';
 

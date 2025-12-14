@@ -13,7 +13,7 @@ export const navDataLeft: NavItemLeft[] = [
   { title: "Home", status: "Home", href:'/' },
   { title: "Practice Questions", status: "Practice Questions", href:'/' },
   { title: "Exam tutoring", status: "Exam tutoring", href: '/' },
-  { title: "FAQ", status: "FAQ", href:'/' },
+  { title: "FAQ", status: "FAQ", href:'/faq' },
   { title: "Contact", status: "Contact" , href:'/contact'},
 ]
 // Practice Questions, Exam tutoring, FAQ, Contact, Login, Cart

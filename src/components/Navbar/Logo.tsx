@@ -17,7 +17,7 @@ const Logo = () => {
 				<span className="text-2xl font-bold text-black ml-2">BAR EXAM</span>
 			</div>
 			{/* Subtitle */}
-			<div className="text-xs text-black mt-0.5">
+			<div className="text-xs md:text-base whitespace-nowrap text-black mt-0.5">
 				LAW SOCIETY OF ONTARIO BAR EXAM
 			</div>
 		</div>
