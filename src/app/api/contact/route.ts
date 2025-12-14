@@ -7,36 +7,24 @@ import { contactValidationSchema } from "@/validation/contact.validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-   try {
-     console.log('📥 Contact API - Request received');
-     
-     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || request.headers.get('x-real-ip') || '127.0.0.1';
-     console.log('🔒 Contact API - Rate limiting check for IP:', ip);
-     
-     const { success } = await ratelimit.limit(ip);
-     console.log('🔒 Contact API - Rate limit result:', { success, ip });
-     
-     if (!success) {
-       console.warn('⚠️ Contact API - Rate limit exceeded for IP:', ip);
-       return NextResponse.json(
-         { error: 'Too many requests', message: 'Please try again later.' },
-         { status: 429 }
-       );
-     }
-     
-     const body = await request.json();
-     console.log('📦 Contact API - Request body received:', {
-       name: body.name,
-       email: body.email,
-       messageLength: body.message?.length,
-       messagePreview: body.message?.substring(0, 50) + (body.message?.length > 50 ? '...' : ''),
-     });
-     
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0] ||
+      request.headers.get("x-real-ip") ||
+      "127.0.0.1";
+    const { success } = await ratelimit.limit(ip);
+    if (!success) {
+      console.warn("⚠️ Contact API - Rate limit exceeded for IP:", ip);
+      return NextResponse.json(
+        { error: "Too many requests", message: "Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    const body = await request.json();
     const result = contactValidationSchema.safeParse(body);
-    console.log('✅ Contact API - Validation result:', { success: result.success });
 
     if (!result.success) {
-      console.error('❌ Contact API - Validation failed:', result.error.errors);
       return NextResponse.json(
         {
           error: "Invalid data",
@@ -48,10 +36,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const { name, email, message } = result.data;
-    console.log('✅ Contact API - Validated data:', { name, email, messageLength: message.length });
 
-    // Store contact in database
-    console.log('💾 Contact API - Saving to database...');
     const contactInfo = await prisma.contact.create({
       data: {
         name,
@@ -59,12 +44,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message,
         isRead: false,
       },
-    });
-    console.log('💾 Contact API - Contact saved successfully:', {
-      id: contactInfo.id,
-      name: contactInfo.name,
-      email: contactInfo.email,
-      createdAt: contactInfo.createdAt,
     });
 
     // Send confirmation email to user
@@ -195,14 +174,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
 
     // Wait for all emails to be sent (or fail gracefully)
-    console.log('📧 Contact API - Sending emails...');
-    const emailResults = await Promise.allSettled(emailPromises);
-    console.log('📧 Contact API - Email results:', {
-      userEmail: emailResults[0].status,
-      adminEmail: emailResults[1].status,
-    });
+    await Promise.allSettled(emailPromises);
 
-    console.log('✅ Contact API - Successfully processed contact form submission');
     return NextResponse.json(
       {
         success: true,
@@ -222,11 +195,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   } catch (error) {
     console.error("❌ Contact API - Error:", error);
-    console.error("❌ Contact API - Error details:", {
-      errorType: error instanceof Error ? error.constructor.name : typeof error,
-      errorMessage: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-    });
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         return NextResponse.json(
@@ -252,25 +220,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 // GET all contact for admin
 export async function GET(request: NextRequest): Promise<NextResponse> {
-   //only admin can access this
-   const session = await getSession();
-   if (!session || session.role !== "ADMIN") {
-     return NextResponse.json(
-       {
-         error: "Unauthorized",
-         message: "You are not authorized to access this resource",
-       },
-       { status: 401 }
-     );
-   }
-   const { success } = await ratelimit.limit(session.id);
-   if (!success) {
-     return NextResponse.json(
-       { error: 'Too many requests', message: 'Please try again later.' },
-       { status: 429 }
-     );
-   }
-   try {
+  //only admin can access this
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") {
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+        message: "You are not authorized to access this resource",
+      },
+      { status: 401 }
+    );
+  }
+  const { success } = await ratelimit.limit(session.id);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again later." },
+      { status: 429 }
+    );
+  }
+  try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
@@ -318,4 +286,3 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 }
-
