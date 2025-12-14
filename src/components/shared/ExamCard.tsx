@@ -16,7 +16,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 	href,
 }) => {
 	return (
-		<div className="bg-primaryCard rounded-lg border border-borderBg shadow-sm p-6 sm:p-8 flex flex-col h-full">
+		<div className="bg-primaryColor/3 rounded-lg border border-borderBg shadow-sm p-6 sm:p-8 flex flex-col h-full">
 			{/* Title */}
 			<h3 className="text-xl sm:text-2xl font-bold text-primaryText mb-6">
 				{title}
