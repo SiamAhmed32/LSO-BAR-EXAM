@@ -15,7 +15,7 @@ const FreePractice = (props: Props) => {
           Free Exam Questions
         </SectionHeading>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-[75%] mx-auto">
           <ExamCard
             title="50 Barrister Questions"
             features={[

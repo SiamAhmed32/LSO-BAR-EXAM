@@ -37,7 +37,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 			{/* CTA Button */}
 			<Link
 				href={href}
-				className="w-full bg-primaryColor text-white font-bold py-3 px-4 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base"
+				className="w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base"
 			>
 				{buttonText}
 			</Link>
