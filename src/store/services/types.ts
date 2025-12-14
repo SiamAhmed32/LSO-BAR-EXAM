@@ -1,5 +1,9 @@
 export type LoginPayloadType = {
-	token: string;
+	success?: boolean;
+	message?: string;
+	userId?: string;
+	role?: string;
+	token?: string;
 	refreshToken?: string;
 };
 

@@ -12,6 +12,7 @@ interface ButtonPrimaryProps {
 	type?: 'button' | 'submit' | 'reset';
 	onClick?: () => void;
 	isLoading?: boolean;
+	disabled?: boolean;
 }
 
 const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
@@ -23,6 +24,7 @@ const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
 	iconClassName = '',
 	type = 'submit',
 	isLoading,
+	disabled,
 	onClick,
 }) => {
 	const buttonContent = (
@@ -52,10 +54,11 @@ const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
 	return (
 		<button
 			type={type}
-			disabled={isLoading}
+			disabled={disabled || isLoading}
 			onClick={onClick}
 			className={cn(
-				`flex items-center justify-center gap-2 px-4 py-2 bg-button text-white hover:bg-button-dark transition border-0 cursor-pointer ${className}`
+				`flex items-center justify-center gap-2 px-4 py-2 bg-button text-white hover:bg-button-dark transition border-0 cursor-pointer ${className}`,
+				(disabled || isLoading) && 'opacity-50 cursor-not-allowed'
 			)}
 		>
 			{isLoading ? (

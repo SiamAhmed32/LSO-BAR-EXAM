@@ -10,6 +10,7 @@ type FormTextareaProps = {
   rows?: number;
   className?: string;
   required?: boolean;
+  disabled?: boolean;
 };
 
 const FormTextarea = ({
@@ -21,6 +22,7 @@ const FormTextarea = ({
   rows = 4,
   className = '',
   required = false,
+  disabled = false,
 }: FormTextareaProps) => {
   return (
     <textarea
@@ -31,6 +33,7 @@ const FormTextarea = ({
       placeholder={placeholder}
       rows={rows}
       required={required}
+      disabled={disabled}
       className={`border border-borderBg rounded-none focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button px-4 py-3 w-full text-foreground ${className}`}
     />
   );
