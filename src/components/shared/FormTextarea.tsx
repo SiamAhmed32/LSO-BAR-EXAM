@@ -1,35 +1,39 @@
+// components/FormTextarea.tsx
 import React from 'react';
 
-type FormInputProps = {
+type FormTextareaProps = {
+  id?: string;
   name?: string;
-  type?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder: string;
-  required?: boolean;
+  rows?: number;
   className?: string;
+  required?: boolean;
 };
 
-const FormInput = ({
+const FormTextarea = ({
+  id,
   name,
-  type = 'text',
   value,
   onChange,
   placeholder,
-  required = false,
+  rows = 4,
   className = '',
-}: FormInputProps) => {
+  required = false,
+}: FormTextareaProps) => {
   return (
-    <input
+    <textarea
+      id={id}
       name={name}
-      type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      rows={rows}
       required={required}
       className={`border border-borderBg rounded-none focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button px-4 py-3 w-full text-foreground ${className}`}
     />
   );
 };
 
-export default FormInput;
+export default FormTextarea;

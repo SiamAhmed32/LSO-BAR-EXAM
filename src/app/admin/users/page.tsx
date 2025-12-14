@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box } from '@/components/ui';
+import { Box } from '@/components/shared';
 import { Users } from 'lucide-react';
 
 const AdminUsers = () => {

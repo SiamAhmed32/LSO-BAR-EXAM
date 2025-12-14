@@ -1,7 +1,19 @@
-import { TOKEN_NAME } from '@/lib/constants';
+import { TOKEN_NAME, URL } from '@/lib/constants';
 import { LoginBodyType, LoginPayloadType } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND;
+
+// Get BASE_URL with proper fallback - ensure it's always a valid backend URL
+const envBackend = process.env.NEXT_PUBLIC_BACKEND;
+const fallbackUrl = 'http://localhost:5000';
+const BASE_URL = envBackend || URL.api || fallbackUrl;
+
+// Note: If using Next.js API routes, localhost:3000 is correct
+// If using a separate backend server, use a different port (e.g., localhost:5000)
+
+console.log('AuthApi - NEXT_PUBLIC_BACKEND env:', envBackend);
+console.log('AuthApi - URL.api:', URL.api);
+console.log('AuthApi - Final BASE_URL:', BASE_URL);
+
 const tags = ['self'];
 
 // src/store/types.ts
@@ -31,22 +43,22 @@ export const authApi = createApi({
 	}),
 	tagTypes: tags,
 	endpoints: builder => ({
-		// ✅ login matches old file (auth/login)
+		// ✅ login uses Next.js API route
 		login: builder.mutation<LoginPayloadType, LoginBodyType>({
 			query: ({ email, password }) => ({
-				url: `user-api/auth/login`,
+				url: `/api/auth/login`,
 				method: 'POST',
 				body: { email, password },
 			}),
 			invalidatesTags: ['self'],
 		}),
 
-		// ✅ register matches old file (auth/register)
+		// ✅ register uses Next.js API route (signup) and maps username to name
 		register: builder.mutation<any, any>({
-			query: body => ({
-				url: `user-api/auth/register`,
+			query: ({ username, email, password }) => ({
+				url: `/api/auth/signup`,
 				method: 'POST',
-				body,
+				body: { name: username, email, password }, // Map username to name for API
 			}),
 			invalidatesTags: ['self'],
 		}),
