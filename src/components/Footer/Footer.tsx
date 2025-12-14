@@ -6,7 +6,7 @@ import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from 'luc
 
 const Footer = () => {
 	return (
-		<footer className="bg-primaryText text-white">
+		<footer className="bg-primaryColor/4  text-primaryText">
 			<Container>
 				<div className="py-12 sm:py-16 md:py-20">
 					{/* Main Footer Content */}
@@ -16,7 +16,7 @@ const Footer = () => {
 							<Link href="/" className="inline-block mb-4">
 								<Logo />
 							</Link>
-							<p className="text-sm text-gray-300 leading-relaxed mb-4">
+							<p className="text-sm text-primaryText leading-relaxed mb-4">
 								Quality, accessible bar exam prep materials aligned with the 2025-2026 LSO Barrister and Solicitor indexing materials.
 							</p>
 							{/* Social Links */}
@@ -59,7 +59,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Practice Questions
 									</Link>
@@ -67,7 +67,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Exam Tutoring
 									</Link>
@@ -75,7 +75,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/faq"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										FAQ
 									</Link>
@@ -83,7 +83,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/contact"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Contact Us
 									</Link>
@@ -98,7 +98,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Free Mini Exams
 									</Link>
@@ -106,7 +106,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Barrister Exam Sets
 									</Link>
@@ -114,7 +114,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										Solicitor Exam Sets
 									</Link>
@@ -122,7 +122,7 @@ const Footer = () => {
 								<li>
 									<Link
 										href="/"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primarytext hover:text-secColor transition-colors"
 									>
 										Professional Responsibility
 									</Link>
@@ -138,7 +138,7 @@ const Footer = () => {
 									<Mail className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
 									<a
 										href="mailto:support@lsbarexam.com"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										support@lsbarexam.com
 									</a>
@@ -147,14 +147,14 @@ const Footer = () => {
 									<Phone className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
 									<a
 										href="tel:+15551234567"
-										className="text-sm text-gray-300 hover:text-secColor transition-colors"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
 										+1 (555) 123-4567
 									</a>
 								</li>
 								<li className="flex items-start gap-3">
 									<MapPin className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
-									<span className="text-sm text-gray-300">
+									<span className="text-sm text-primaryText">
 										Ontario, Canada
 									</span>
 								</li>
@@ -166,7 +166,7 @@ const Footer = () => {
 					<div className="border-t border-gray-700 pt-6 sm:pt-8">
 						<div className="flex flex-col sm:flex-row justify-between items-center gap-4">
 							{/* Copyright */}
-							<p className="text-sm text-gray-400 text-center sm:text-left">
+							<p className="text-sm text-primaryText text-center sm:text-left">
 								© {new Date().getFullYear()} LSO Bar Exam. All rights reserved.
 							</p>
 
@@ -174,19 +174,19 @@ const Footer = () => {
 							<div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
 								<Link
 									href="/privacy-policy"
-									className="text-sm text-gray-400 hover:text-secColor transition-colors"
+									className="text-sm text-primaryText hover:text-secColor transition-colors"
 								>
 									Privacy Policy
 								</Link>
 								<Link
 									href="/terms-of-service"
-									className="text-sm text-gray-400 hover:text-secColor transition-colors"
+									className="text-sm text-primaryText hover:text-secColor transition-colors"
 								>
 									Terms of Service
 								</Link>
 								<Link
 									href="/cookie-policy"
-									className="text-sm text-gray-400 hover:text-secColor transition-colors"
+									className="text-sm text-primaryText hover:text-secColor transition-colors"
 								>
 									Cookie Policy
 								</Link>
