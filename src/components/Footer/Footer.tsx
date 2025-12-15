@@ -24,28 +24,28 @@ const Footer = () => {
 								<a
 									href="#"
 									aria-label="Facebook"
-									className="w-10 h-10 rounded-full bg-white/10 hover:bg-primaryColor flex items-center justify-center transition-colors"
+									className="w-10 h-10 rounded-full bg-white/10 hover:bg-secColor flex items-center justify-center transition-colors"
 								>
 									<Facebook className="w-5 h-5" />
 								</a>
 								<a
 									href="#"
 									aria-label="Instagram"
-									className="w-10 h-10 rounded-full bg-white/10 hover:bg-primaryColor flex items-center justify-center transition-colors"
+									className="w-10 h-10 rounded-full bg-white/10 hover:bg-secColor flex items-center justify-center transition-colors"
 								>
 									<Instagram className="w-5 h-5" />
 								</a>
 								<a
 									href="#"
 									aria-label="Twitter"
-									className="w-10 h-10 rounded-full bg-white/10 hover:bg-primaryColor flex items-center justify-center transition-colors"
+									className="w-10 h-10 rounded-full bg-white/10 hover:bg-secColor flex items-center justify-center transition-colors"
 								>
 									<Twitter className="w-5 h-5" />
 								</a>
 								<a
 									href="#"
 									aria-label="LinkedIn"
-									className="w-10 h-10 rounded-full bg-white/10 hover:bg-primaryColor flex items-center justify-center transition-colors"
+									className="w-10 h-10 rounded-full bg-white/10 hover:bg-secColor flex items-center justify-center transition-colors"
 								>
 									<Linkedin className="w-5 h-5" />
 								</a>
@@ -163,7 +163,7 @@ const Footer = () => {
 					</div>
 
 					{/* Bottom Bar */}
-					<div className="border-t border-gray-700 pt-6 sm:pt-8">
+					<div className="border-t border-secColor pt-6 sm:pt-8">
 						<div className="flex flex-col sm:flex-row justify-between items-center gap-4">
 							{/* Copyright */}
 							<p className="text-sm text-primaryText text-center sm:text-left">

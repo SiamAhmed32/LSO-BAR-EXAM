@@ -9,7 +9,8 @@ type Props = {};
 
 const FreePractice = (props: Props) => {
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-primaryBg">
+    // <section className="py-12 sm:py-16 md:py-12 lg:py-12 ">
+    <section className="py-12">
       <Container>
         <SectionHeading className="text-center mb-10 sm:mb-12 md:mb-16 text-primaryText">
           Free Exam Questions
@@ -24,7 +25,7 @@ const FreePractice = (props: Props) => {
               "Answers wit Explanations",
             ]}
             buttonText="Begin 50 Barrister Questions"
-            href="/"
+            href="/barrister-free-exam"
           />
           <ExamCard
             title="50 Solicitor Questions"
@@ -34,7 +35,7 @@ const FreePractice = (props: Props) => {
               "Answers wit Explanations",
             ]}
             buttonText="Begin 50 Solicitor Questions"
-            href="/"
+            href="/solicitor-free-exam"
           />
         </div>
       </Container>

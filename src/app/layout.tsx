@@ -4,22 +4,25 @@ import ReduxProvider from '@/store/provider/ReduxProvider';
 import { UserProvider } from '@/components/context/UserContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getSession } from '@/lib/server/session';
 
 export const metadata: Metadata = {
 	title: 'Frontend Template',
 	description: 'A Next.js starter template',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const user = await getSession();
+
 	return (
 		<html lang='en'>
 			<body className={`bg-primaryBg text-primaryText antialiased`}>
 				<ReduxProvider>
-					<UserProvider user={null}>
+					<UserProvider user={user}>
 						{children}
 						<ToastContainer
 							position="top-right"

@@ -13,7 +13,7 @@ const Container: React.FC<ContainerProps> = ({
 }) => {
 	return (
 		<div
-			className={cn('container mx-auto px-[8px]', className)}
+			className={cn('container mx-auto px-[12px] md:px-[16px]', className)}
 			{...props}
 		>
 			{children}

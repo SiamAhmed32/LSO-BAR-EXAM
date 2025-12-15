@@ -82,7 +82,9 @@ const MobileNav = () => {
                   onClick={toggleMenu}
                   className="w-full text-left text-primaryColor font-bold text-base px-4 py-3 rounded-md hover:bg-gray-100 transition-colors"
                 >
+                  <Link href={navData.href}>
                   {navData.title}
+                  </Link>
                 </button>
               </li>
             ))}
