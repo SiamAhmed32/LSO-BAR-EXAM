@@ -4,6 +4,7 @@ import { Layout } from "../Layout";
 import WhoPage from "./WhoWeAre/WhoPage";
 import BarExamTutoringPage from "./BarExamTutoring/BarExamTutoringPage";
 import FreePractice from "./FreePractices/FreePractice";
+import PaidPage from "./PaidPractices/PaidPage";
 
 type Props = {};
 
@@ -13,7 +14,8 @@ const HomePage = (props: Props) => {
       <Hero />
       <WhoPage />
       <BarExamTutoringPage />
-      <FreePractice/>
+      <FreePractice />
+      <PaidPage />
     </>
   );
 };

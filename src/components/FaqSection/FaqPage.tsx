@@ -14,7 +14,7 @@ type Props = {};
 
 const FaqPage = (props: Props) => {
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-primaryBg">
+    <section className="py-24  lg:py-24 bg-primaryBg">
       <Container>
         <div className="max-w-4xl mx-auto">
           {/* Page Heading */}
