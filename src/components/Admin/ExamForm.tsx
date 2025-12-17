@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box } from '../shared';
 import { Plus, X } from 'lucide-react';
 import AdminCustomButton from './AdminCustomButton';
@@ -37,6 +37,20 @@ const ExamForm: React.FC<ExamFormProps> = ({
 			{ id: Date.now().toString() + '-2', text: '', isCorrect: false },
 		]
 	);
+
+	// Update form when initialData changes (for editing)
+	useEffect(() => {
+		if (initialData) {
+			setQuestionText(initialData.question);
+			setOptions(initialData.options);
+		} else {
+			setQuestionText('');
+			setOptions([
+				{ id: Date.now().toString() + '-1', text: '', isCorrect: false },
+				{ id: Date.now().toString() + '-2', text: '', isCorrect: false },
+			]);
+		}
+	}, [initialData]);
 
 	const addOption = () => {
 		setOptions([
@@ -176,7 +190,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
 					variant='primary'
 					size='lg'
 				>
-					Create Question
+					{initialData ? 'Update Question' : 'Create Question'}
 				</AdminCustomButton>
 			</Box>
 		</form>
