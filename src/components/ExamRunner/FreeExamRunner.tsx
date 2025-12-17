@@ -1,23 +1,34 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Container from "@/components/shared/Container";
 import { FreeQuestion } from "@/components/data/freeExamQuestions";
 import { Bookmark, CheckCircle } from "lucide-react";
+import ExamTimer from "./ExamTimer";
+import { examApi } from "@/lib/api/examApi";
 
 type FreeExamRunnerProps = {
   title: string;
   questions: FreeQuestion[];
+  duration?: string; // e.g., "2 hours", "4 hours"
+  examType?: "barrister" | "solicitor";
+  examSet?: "set-a" | "set-b";
 };
 
 const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
   title,
   questions,
+  duration,
+  examType,
+  examSet,
 }) => {
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | undefined>>(
     {}
   );
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
+  const [isFinished, setIsFinished] = useState(false);
 
   const storageKey = useMemo(
     () => `free-exam-${title.toLowerCase().replace(/\s+/g, "-")}`,
@@ -34,49 +45,75 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     );
   }, [answers]);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage ONLY when questions are loaded and available
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't hydrate if questions are not loaded yet
+    if (!questions || questions.length === 0) return;
+    
     try {
       const raw = window.localStorage.getItem(storageKey);
-      if (!raw) return;
+      if (!raw) {
+        console.log('💾 No localStorage data found for:', storageKey);
+        return;
+      }
+      
       const parsed = JSON.parse(raw) as {
         answers?: Record<number, string>;
         bookmarked?: number[];
         currentIndex?: number;
       };
-      if (parsed.answers) setAnswers(parsed.answers);
-      if (parsed.bookmarked)
-        setBookmarked(new Set(parsed.bookmarked.filter((id) => Number.isFinite(id))));
+      
+      console.log('💾 Loading from localStorage:', { storageKey, parsed, questionsCount: questions.length });
+      
+      // Restore answers
+      if (parsed.answers && Object.keys(parsed.answers).length > 0) {
+        setAnswers(parsed.answers);
+        console.log('✅ Restored answers:', parsed.answers);
+      }
+      
+      // Restore bookmarks
+      if (parsed.bookmarked && parsed.bookmarked.length > 0) {
+        const bookmarkedSet = new Set(parsed.bookmarked.filter((id) => Number.isFinite(id)));
+        setBookmarked(bookmarkedSet);
+        console.log('✅ Restored bookmarks:', Array.from(bookmarkedSet));
+      }
+      
+      // Restore current index
       if (
         Number.isInteger(parsed.currentIndex) &&
         parsed.currentIndex! >= 0 &&
         parsed.currentIndex! < questions.length
       ) {
         setCurrentIndex(parsed.currentIndex!);
+        console.log('✅ Restored current index:', parsed.currentIndex);
       }
-    } catch (_e) {
-      // fail silently
+    } catch (error) {
+      console.error('❌ Error loading from localStorage:', error);
     }
+    // Only run when questions are actually loaded (not just when length changes)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKey, questions.length]);
+  }, [storageKey, questions]);
 
-  // Persist to localStorage when state changes
+  // Persist to localStorage when state changes (only if questions are loaded)
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't save if questions are not loaded yet
+    if (!questions || questions.length === 0) return;
+    
     try {
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify({
-          answers,
-          bookmarked: Array.from(bookmarked),
-          currentIndex,
-        })
-      );
-    } catch (_e) {
-      // fail silently
+      const dataToSave = {
+        answers,
+        bookmarked: Array.from(bookmarked),
+        currentIndex,
+      };
+      
+      window.localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      console.log('💾 Saved to localStorage:', { storageKey, dataToSave });
+    } catch (error) {
+      console.error('❌ Error saving to localStorage:', error);
     }
-  }, [answers, bookmarked, currentIndex, storageKey]);
+  }, [answers, bookmarked, currentIndex, storageKey, questions]);
 
   const goTo = (idx: number) => {
     if (idx >= 0 && idx < questions.length) setCurrentIndex(idx);
@@ -107,18 +144,85 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     }
   };
 
+  const finishExam = async () => {
+    setIsFinished(true);
+    
+    // Fetch original API questions with correct answers
+    let apiQuestions: any[] = [];
+    try {
+      const response = await examApi.getQuestions(
+        examType || "barrister",
+        examSet || "set-a",
+        1,
+        200
+      );
+      apiQuestions = response.questions;
+    } catch (error) {
+      console.error("Failed to fetch questions for grading:", error);
+    }
+    
+    // Calculate results
+    const totalQuestions = questions.length;
+    const answeredCount = Object.keys(answers).filter(
+      (key) => answers[Number(key)] !== undefined
+    ).length;
+    
+    // Build results URL with query params
+    const resultsParams = new URLSearchParams({
+      examType: examType || "barrister",
+      examSet: examSet || "set-a",
+      total: totalQuestions.toString(),
+      answered: answeredCount.toString(),
+      title: title,
+    });
+    
+    // Store answers and correct answers in sessionStorage for results page
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        `exam-results-${examType}-${examSet}`,
+        JSON.stringify({
+          answers,
+          questions: questions.map((q) => ({
+            id: q.id,
+            text: q.text,
+            category: q.category,
+            options: q.options,
+          })),
+          apiQuestions, // Store original API questions with isCorrect flags
+        })
+      );
+    }
+    
+    router.push(`/exam-results?${resultsParams.toString()}`);
+  };
+
+  const handleTimeUp = () => {
+    // Auto-finish when time runs out
+    finishExam();
+  };
+
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-primaryBg min-h-screen">
       <Container>
         <div className="flex flex-col gap-8">
           {/* Heading */}
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primaryText">
-              {title}
-            </h1>
-            <p className="text-primaryText/80 text-sm sm:text-base">
-              Question {currentIndex + 1} of {questions.length}
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primaryText">
+                {title}
+              </h1>
+              <p className="text-primaryText/80 text-sm sm:text-base">
+                Question {currentIndex + 1} of {questions.length}
+              </p>
+            </div>
+            {duration && (
+              <ExamTimer
+                duration={duration}
+                onTimeUp={handleTimeUp}
+                examKey={storageKey}
+                isFinished={isFinished}
+              />
+            )}
           </div>
 
           {/* Question navigation */}
@@ -223,20 +327,31 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
             <div className="mt-6 flex justify-between gap-3">
               <button
                 onClick={prevQuestion}
-                disabled={currentIndex === 0}
+                disabled={currentIndex === 0 || isFinished}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-secColor text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Back</span>
               </button>
 
-              <button
-                onClick={nextQuestion}
-                disabled={currentIndex === questions.length - 1}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primaryColor text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span>Next</span>
-                <CheckCircle className="h-4 w-4" />
-              </button>
+              {currentIndex === questions.length - 1 ? (
+                <button
+                  onClick={finishExam}
+                  disabled={isFinished}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primaryColor text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>Finish Test</span>
+                  <CheckCircle className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={nextQuestion}
+                  disabled={isFinished}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primaryColor text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>Next</span>
+                  <CheckCircle className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

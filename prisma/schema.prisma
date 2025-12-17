@@ -16,6 +16,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  cart      Cart?
+
+  @@index([email])
   @@map("users")
 }
 
@@ -55,13 +58,20 @@ model Exam {
   id          String      @id @default(uuid())
   examType    ExamType
   pricingType PricingType
+  price       Float?
+  examTime    String?
   examSet     ExamSet?
   title       String?
   description String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  
   questions   Question[]
+  cart        Cart?
 
+  @@index([examType])
+  @@index([pricingType])
+  @@index([examSet])
   @@unique([examType, pricingType, examSet])
   @@map("exams")
 }
@@ -72,9 +82,12 @@ model Question {
   question  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   options   Option[]
-
+  cartItems Item[]
+  
+  @@index([examId])
   @@map("questions")
 }
 
@@ -84,8 +97,42 @@ model Option {
   text       String
   isCorrect  Boolean  @default(false)
   createdAt  DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt  DateTime @updatedAt
+  
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
+  @@index([questionId])
   @@map("options")
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String   @unique 
+  examId    String   @unique 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  items     Item[]
+
+  @@index([userId])
+  @@index([examId])
+  @@map("carts")
+}
+
+model Item {
+  id         String   @id @default(uuid())
+  cartId     String
+  questionId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, questionId])
+  @@index([cartId])
+  @@index([questionId])
+  @@map("items")
 }

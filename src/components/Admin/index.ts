@@ -8,5 +8,6 @@ export { default as AdminCustomButton } from './AdminCustomButton';
 export { default as TableSkeleton } from './TableSkeleton';
 export { default as ConfirmModal } from './ConfirmModal';
 export { default as ViewQuestionModal } from './ViewQuestionModal';
+export { default as ExamSettingsForm } from './ExamSettingsForm';
 export type { Column } from './AdminTable';
 export type { Question, Option } from './ExamForm';

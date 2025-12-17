@@ -88,6 +88,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             pricingType: exam.pricingType,
             title: exam.title,
             description: exam.description,
+            price: exam.price,
+            examTime: exam.examTime,
           },
           questions,
           pagination: {
@@ -266,6 +268,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
           examSet: EXAM_SET,
           title: result.data.title,
           description: result.data.description,
+          price: result.data.price,
+          examTime: result.data.examTime || null,
         },
       });
     } else {
@@ -274,6 +278,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         data: {
           title: result.data.title,
           description: result.data.description,
+          price: result.data.price,
+          examTime: result.data.examTime || null,
         },
       });
     }
