@@ -7,21 +7,15 @@ import { NextRequest, NextResponse } from "next/server";
 const EXAM_TYPE = "SOLICITOR";
 const PRICING_TYPE = "FREE";
 
-// GET all questions for solicitor free exam
+// GET all questions for solicitor free exam (public access)
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const session = await getSession();
-    if (!session || session.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          error: "Unauthorized",
-          message: "You are not authorized to access this resource",
-        },
-        { status: 401 }
-      );
-    }
-
-    const { success } = await ratelimit.limit(session.id);
+    // Rate limiting using IP address for guest users
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0] ||
+      request.headers.get("x-real-ip") ||
+      "127.0.0.1";
+    const { success } = await ratelimit.limit(ip);
     if (!success) {
       return NextResponse.json(
         { error: "Too many requests", message: "Please try again later." },

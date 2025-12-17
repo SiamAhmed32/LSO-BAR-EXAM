@@ -7,15 +7,15 @@ import { NextRequest, NextResponse } from "next/server";
 const EXAM_TYPE = "BARRISTER";
 const PRICING_TYPE = "PAID";
 
-// GET all questions for barrister paid exam
+// GET all questions for barrister paid exam (requires login)
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getSession();
-    if (!session || session.role !== "ADMIN") {
+    if (!session) {
       return NextResponse.json(
         {
           error: "Unauthorized",
-          message: "You are not authorized to access this resource",
+          message: "Please login to access paid exam questions",
         },
         { status: 401 }
       );
