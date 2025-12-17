@@ -12,6 +12,7 @@ import type { FreeQuestion } from "@/components/data/freeExamQuestions";
 
 const BarristerSetBStartPage = () => {
   const [questions, setQuestions] = useState<FreeQuestion[]>([]);
+  const [duration, setDuration] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,10 @@ const BarristerSetBStartPage = () => {
 
         if (!isMounted) return;
         setQuestions(transformed);
+        // Set duration from exam metadata
+        if (response.exam?.examTime) {
+          setDuration(response.exam.examTime);
+        }
       } catch (err: any) {
         if (!isMounted) return;
         console.error("Barrister Set B - Failed to load questions:", err);
@@ -72,7 +77,13 @@ const BarristerSetBStartPage = () => {
 
   return (
     <Layout>
-      <FreeExamRunner title="Barrister Exam Set B" questions={questions} />
+      <FreeExamRunner
+        title="Barrister Exam Set B"
+        questions={questions}
+        duration={duration}
+        examType="barrister"
+        examSet="set-b"
+      />
     </Layout>
   );
 };

@@ -28,3 +28,11 @@ export const transformApiQuestionsToFreeQuestions = (
   return apiQuestions.map((q, index) => transformApiQuestionToFreeQuestion(q, index));
 };
 
+/**
+ * Get correct answer ID for a question
+ */
+export const getCorrectAnswerId = (apiQuestion: ApiQuestion): string | null => {
+  const correctOption = apiQuestion.options.find((opt) => opt.isCorrect);
+  return correctOption?.id || null;
+};
+

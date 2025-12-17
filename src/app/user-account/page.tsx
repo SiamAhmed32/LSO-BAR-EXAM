@@ -13,6 +13,11 @@ const page = async (props: Props) => {
     redirect("/login");
   }
 
+  // If admin somehow hits user-account, send them to admin dashboard
+  if (user.role === "ADMIN") {
+    redirect("/admin/dashboard");
+  }
+
   return (
     <Layout>
       <UserAccPage />

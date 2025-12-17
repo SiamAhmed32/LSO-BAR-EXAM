@@ -12,6 +12,7 @@ import type { FreeQuestion } from "@/components/data/freeExamQuestions";
 
 const SolicitorSetAStartPage = () => {
   const [questions, setQuestions] = useState<FreeQuestion[]>([]);
+  const [duration, setDuration] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,10 @@ const SolicitorSetAStartPage = () => {
 
         if (!isMounted) return;
         setQuestions(transformed);
+        // Set duration from exam metadata
+        if (response.exam?.examTime) {
+          setDuration(response.exam.examTime);
+        }
       } catch (err: any) {
         if (!isMounted) return;
         console.error("Solicitor Set A - Failed to load questions:", err);
@@ -72,7 +77,13 @@ const SolicitorSetAStartPage = () => {
 
   return (
     <Layout>
-      <FreeExamRunner title="Solicitor Exam Set A" questions={questions} />
+      <FreeExamRunner
+        title="Solicitor Exam Set A"
+        questions={questions}
+        duration={duration}
+        examType="solicitor"
+        examSet="set-a"
+      />
     </Layout>
   );
 };

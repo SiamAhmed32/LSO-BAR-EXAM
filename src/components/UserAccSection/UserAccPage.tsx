@@ -6,6 +6,7 @@ import AccountSidebar from "./AccountSidebar";
 import AccountDetails from "./AccountDetails";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
+import { type CartItem } from "@/store/slices/cartSlice";
 import Link from "next/link";
 
 type Props = {};
@@ -57,7 +58,7 @@ const UserAccPage = (props: Props) => {
                 </p>
               ) : (
                 <div className="mt-4 space-y-4">
-                  {cartItems.map((item) => (
+                  {cartItems.map((item: CartItem) => (
                     <div
                       key={item.uniqueId}
                       className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-borderBg rounded-lg bg-primaryCard p-4"

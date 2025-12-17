@@ -230,5 +230,21 @@ export const examApi = {
       throw new Error(error.message || 'Failed to update exam settings');
     }
   },
+
+  // Get exam metadata (price, duration) - Public endpoint, no auth required
+  async getExamMetadata(): Promise<Record<string, { price: number; examTime: string }>> {
+    const response = await fetch('/api/exams/metadata', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch exam metadata');
+    }
+
+    const result = await response.json();
+    return result.data;
+  },
 };
 

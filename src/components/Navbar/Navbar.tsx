@@ -11,7 +11,7 @@ import { useUser } from "../context";
 import CartSidebar from "../shared/CartSidebar";
 
 const Navbar = () => {
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, role } = useUser();
 
   const handleLogout = async () => {
     try {
@@ -61,8 +61,8 @@ const Navbar = () => {
             ) : (
               <Link
                 type="button"
-                href="/user-account"
-                className="bg-primaryColor text-white inline-flex items-center gap-2 px-4 py-2 rounded-md font-bold text-sm md:text-base hover:opacity-80 transition whitespace-nowrap " 
+                href={role === "ADMIN" ? "/admin/dashboard" : "/user-account"}
+                className="bg-primaryColor text-white inline-flex items-center gap-2 px-4 py-2 rounded-md font-bold text-sm md:text-base hover:opacity-80 transition whitespace-nowrap "
               >
                 <User className="w-4 h-4" />
                 <span>My Account</span>

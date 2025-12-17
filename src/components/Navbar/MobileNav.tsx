@@ -6,17 +6,28 @@ import { useRouter } from 'next/navigation';
 import { Menu, X, User } from 'lucide-react';
 import { navDataLeft } from '../data/navConfig';
 import CartSidebar from '../shared/CartSidebar';
+import { useUser } from '../context';
 
 const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { isAuthenticated, role } = useUser();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLoginClick = () => {
-    router.push('/login');
+  const handleAccountClick = () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    if (role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/user-account');
+    }
   };
 
 
@@ -25,10 +36,10 @@ const MobileNav = () => {
       {/* Icons and Hamburger - Always visible on tablet/mobile */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Login and Cart Icons with primary color background */}
-        <button 
-          onClick={handleLoginClick}
+        <button
+          onClick={handleAccountClick}
           className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
-          aria-label="Login"
+          aria-label={isAuthenticated ? 'My Account' : 'Login'}
         >
           <User className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
