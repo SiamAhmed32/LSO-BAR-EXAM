@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Menu, X, User, ShoppingCart } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { navDataLeft } from '../data/navConfig';
+import CartSidebar from '../shared/CartSidebar';
 
 const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,9 +19,6 @@ const MobileNav = () => {
     router.push('/login');
   };
 
-  const handleCartClick = () => {
-    router.push('/cart');
-  };
 
   return (
     <>
@@ -34,13 +32,7 @@ const MobileNav = () => {
         >
           <User className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
-        <button 
-          onClick={handleCartClick}
-          className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
-          aria-label="Cart"
-        >
-          <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
+        <CartSidebar iconSize="w-4 h-4 sm:w-5 sm:h-5" />
         
         {/* Hamburger Button */}
         <button
