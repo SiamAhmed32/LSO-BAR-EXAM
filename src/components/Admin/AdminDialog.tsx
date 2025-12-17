@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '../shared';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
@@ -23,7 +23,23 @@ const AdminDialog: React.FC<AdminDialogProps> = ({
 	className,
 	size = 'md',
 }) => {
-	if (!isOpen) return null;
+	const [isAnimating, setIsAnimating] = useState(false);
+	const [shouldRender, setShouldRender] = useState(false);
+
+	useEffect(() => {
+		if (isOpen) {
+			setShouldRender(true);
+			// Trigger animation after render
+			setTimeout(() => setIsAnimating(true), 10);
+		} else {
+			setIsAnimating(false);
+			// Remove from DOM after animation
+			const timer = setTimeout(() => setShouldRender(false), 300);
+			return () => clearTimeout(timer);
+		}
+	}, [isOpen]);
+
+	if (!shouldRender) return null;
 
 	const sizeClasses = {
 		sm: 'max-w-md',
@@ -36,14 +52,20 @@ const AdminDialog: React.FC<AdminDialogProps> = ({
 		<>
 			{/* Overlay */}
 			<div
-				className='fixed inset-0 bg-black/50 bg-opacity-50 z-50 flex items-center justify-center p-4'
+				className={cn(
+					'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity duration-300',
+					isAnimating ? 'opacity-100' : 'opacity-0'
+				)}
 				onClick={onClose}
 			>
 				{/* Dialog */}
 				<Box
 					className={cn(
-						'bg-primaryCard rounded-lg shadow-xl w-full',
+						'bg-primaryCard rounded-lg shadow-xl w-full transition-all duration-300',
 						sizeClasses[size],
+						isAnimating
+							? 'opacity-100 scale-100 translate-y-0'
+							: 'opacity-0 scale-95 translate-y-4',
 						className
 					)}
 					onClick={(e) => e.stopPropagation()}

@@ -1,50 +1,120 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box } from '@/components/shared';
-import { AdminTable, Column, AdminDialog, ExamForm, Question, AdminCustomButton } from '@/components/Admin';
+import { AdminTable, Column, AdminDialog, ExamForm, Question, AdminCustomButton, TableSkeleton, ConfirmModal, ViewQuestionModal } from '@/components/Admin';
 import { BookOpen, Edit, Trash2, Eye } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { examApi, convertApiQuestionToQuestion } from '@/lib/api/examApi';
 
 const SolicitorPaidExam = () => {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [questions, setQuestions] = useState<Question[]>([
-		{
-			id: '1',
-			question: 'What are the key responsibilities of a solicitor in client representation?',
-			options: [
-				{ id: '1-1', text: 'Court advocacy only', isCorrect: false },
-				{ id: '1-2', text: 'Legal advice and document preparation', isCorrect: true },
-				{ id: '1-3', text: 'Judicial decisions', isCorrect: false },
-				{ id: '1-4', text: 'Law enforcement', isCorrect: false },
-			],
-		},
-	]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+	const [questions, setQuestions] = useState<Question[]>([]);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+	const [questionToView, setQuestionToView] = useState<Question | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pagination, setPagination] = useState<any>(null);
+	const pageLimit = 10;
+
+	const fetchQuestions = useCallback(async () => {
+		try {
+			setIsLoading(true);
+			const response = await examApi.getQuestions('solicitor', 'paid', currentPage, pageLimit);
+			const convertedQuestions = response.questions.map(convertApiQuestionToQuestion);
+			setQuestions(convertedQuestions);
+			setPagination(response.pagination);
+		} catch (error) {
+			console.error('Error fetching questions:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to load questions');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [currentPage, pageLimit]);
+
+	// Fetch questions on mount and when page changes
+	useEffect(() => {
+		fetchQuestions();
+	}, [fetchQuestions]);
+
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page);
+	};
 
 	const handleCreateQuestion = () => {
+		setEditingQuestion(null);
 		setIsDialogOpen(true);
 	};
 
 	const handleCloseDialog = () => {
 		setIsDialogOpen(false);
+		setEditingQuestion(null);
 	};
 
-	const handleSubmitQuestion = (question: Question) => {
-		setQuestions([...questions, question]);
-		setIsDialogOpen(false);
+	const handleSubmitQuestion = async (question: Question) => {
+		try {
+			if (editingQuestion) {
+				// Update existing question
+				await examApi.updateQuestion('solicitor', 'paid', editingQuestion.id, question);
+				toast.success('Question updated successfully');
+			} else {
+				// Create new question
+				await examApi.createQuestion('solicitor', 'paid', question);
+				toast.success('Question created successfully');
+			}
+			setIsDialogOpen(false);
+			setEditingQuestion(null);
+			// Refresh questions list (stay on current page)
+			await fetchQuestions();
+		} catch (error) {
+			console.error('Error saving question:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to save question');
+		}
 	};
 
 	const handleEdit = (question: Question) => {
-		console.log('Edit question:', question.id);
+		setEditingQuestion(question);
+		setIsDialogOpen(true);
 	};
 
 	const handleDelete = (question: Question) => {
-		if (confirm(`Are you sure you want to delete this question?`)) {
-			setQuestions(questions.filter((q) => q.id !== question.id));
+		setQuestionToDelete(question);
+		setIsDeleteModalOpen(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!questionToDelete) return;
+
+		try {
+			setIsDeleting(true);
+			await examApi.deleteQuestion('solicitor', 'paid', questionToDelete.id);
+			toast.success('Question deleted successfully');
+			setIsDeleteModalOpen(false);
+			setQuestionToDelete(null);
+			// Refresh questions list (stay on current page)
+			await fetchQuestions();
+		} catch (error) {
+			console.error('Error deleting question:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to delete question');
+		} finally {
+			setIsDeleting(false);
+		}
+	};
+
+	const handleCloseDeleteModal = () => {
+		if (!isDeleting) {
+			setIsDeleteModalOpen(false);
+			setQuestionToDelete(null);
 		}
 	};
 
 	const handleView = (question: Question) => {
-		console.log('View question:', question.id);
+		setQuestionToView(question);
+		setIsViewModalOpen(true);
 	};
 
 	const columns: Column<Question>[] = [
@@ -135,23 +205,62 @@ const SolicitorPaidExam = () => {
 				</p>
 			</Box>
 
-			<AdminTable
-				data={questions}
-				columns={columns}
-				onCreate={handleCreateQuestion}
-				createButtonText='Create Question'
-				emptyMessage='No questions available. Create your first question to get started.'
-			/>
+			{isLoading ? (
+				<TableSkeleton columns={columns.length} rows={5} />
+			) : (
+				<AdminTable
+					data={questions}
+					columns={columns}
+					onCreate={handleCreateQuestion}
+					createButtonText='Create Question'
+					emptyMessage='No questions available. Create your first question to get started.'
+					pagination={pagination}
+					onPageChange={handlePageChange}
+					fixedHeight={true}
+					tableHeight='600px'
+				/>
+			)}
 
-			{/* Create Question Dialog */}
+			{/* Create/Edit Question Dialog */}
 			<AdminDialog
 				isOpen={isDialogOpen}
 				onClose={handleCloseDialog}
-				title='Create New Question'
+				title={editingQuestion ? 'Edit Question' : 'Create New Question'}
 				size='lg'
 			>
-				<ExamForm onSubmit={handleSubmitQuestion} onCancel={handleCloseDialog} />
+				<ExamForm
+					onSubmit={handleSubmitQuestion}
+					onCancel={handleCloseDialog}
+					initialData={editingQuestion || undefined}
+				/>
 			</AdminDialog>
+
+			{/* Delete Confirmation Modal */}
+			<ConfirmModal
+				isOpen={isDeleteModalOpen}
+				onClose={handleCloseDeleteModal}
+				onConfirm={handleConfirmDelete}
+				title='Delete Question'
+				message={`Are you sure you want to delete this question? This action cannot be undone.${
+					questionToDelete
+						? `\n\n"${questionToDelete.question.substring(0, 100)}${questionToDelete.question.length > 100 ? '...' : ''}"`
+						: ''
+				}`}
+				confirmText='Delete'
+				cancelText='Cancel'
+				variant='danger'
+				isLoading={isDeleting}
+			/>
+
+			{/* View Question Modal */}
+			<ViewQuestionModal
+				isOpen={isViewModalOpen}
+				onClose={() => {
+					setIsViewModalOpen(false);
+					setQuestionToView(null);
+				}}
+				question={questionToView}
+			/>
 		</Box>
 	);
 };
