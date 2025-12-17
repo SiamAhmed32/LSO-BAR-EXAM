@@ -7,7 +7,7 @@ import { BookOpen, Edit, Trash2, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { examApi, convertApiQuestionToQuestion } from '@/lib/api/examApi';
 
-const SolicitorFreeExam = () => {
+const SolicitorPaidExam = () => {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -24,7 +24,7 @@ const SolicitorFreeExam = () => {
 	const fetchQuestions = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const response = await examApi.getQuestions('solicitor', 'free', currentPage, pageLimit);
+			const response = await examApi.getQuestions('solicitor', 'set-b', currentPage, pageLimit);
 			const convertedQuestions = response.questions.map(convertApiQuestionToQuestion);
 			setQuestions(convertedQuestions);
 			setPagination(response.pagination);
@@ -59,11 +59,11 @@ const SolicitorFreeExam = () => {
 		try {
 			if (editingQuestion) {
 				// Update existing question
-				await examApi.updateQuestion('solicitor', 'free', editingQuestion.id, question);
+				await examApi.updateQuestion('solicitor', 'set-b', editingQuestion.id, question);
 				toast.success('Question updated successfully');
 			} else {
 				// Create new question
-				await examApi.createQuestion('solicitor', 'free', question);
+				await examApi.createQuestion('solicitor', 'set-b', question);
 				toast.success('Question created successfully');
 			}
 			setIsDialogOpen(false);
@@ -91,7 +91,7 @@ const SolicitorFreeExam = () => {
 
 		try {
 			setIsDeleting(true);
-			await examApi.deleteQuestion('solicitor', 'free', questionToDelete.id);
+			await examApi.deleteQuestion('solicitor', 'set-b', questionToDelete.id);
 			toast.success('Question deleted successfully');
 			setIsDeleteModalOpen(false);
 			setQuestionToDelete(null);
@@ -202,10 +202,10 @@ const SolicitorFreeExam = () => {
 			<Box className='mb-8'>
 				<h1 className='text-3xl font-bold text-primaryText mb-2 flex items-center gap-3'>
 					<BookOpen className='w-8 h-8' />
-					Solicitor Exam - Free Exams
+					Solicitor Exam - Paid Set B
 				</h1>
 				<p className='text-gray-600'>
-					Manage free solicitor exam tests and questions
+					Manage Solicitor Paid Exam Set B questions
 				</p>
 			</Box>
 
@@ -269,5 +269,5 @@ const SolicitorFreeExam = () => {
 	);
 };
 
-export default SolicitorFreeExam;
+export default SolicitorPaidExam;
 

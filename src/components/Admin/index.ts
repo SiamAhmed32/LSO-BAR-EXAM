@@ -5,5 +5,8 @@ export { default as AdminTable } from './AdminTable';
 export { default as AdminDialog } from './AdminDialog';
 export { default as ExamForm } from './ExamForm';
 export { default as AdminCustomButton } from './AdminCustomButton';
+export { default as TableSkeleton } from './TableSkeleton';
+export { default as ConfirmModal } from './ConfirmModal';
+export { default as ViewQuestionModal } from './ViewQuestionModal';
 export type { Column } from './AdminTable';
 export type { Question, Option } from './ExamForm';

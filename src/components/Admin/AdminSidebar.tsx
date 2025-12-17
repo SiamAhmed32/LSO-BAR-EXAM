@@ -21,6 +21,7 @@ import {
 	ChevronRight,
 	GraduationCap,
 	BookOpen,
+	Home,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -44,11 +45,7 @@ const menuItems = [
 		href: '/admin/orders',
 		icon: ShoppingCart,
 	},
-	{
-		title: 'Settings',
-		href: '/admin/settings',
-		icon: Settings,
-	},
+
 ];
 
 const examMenuItems = [
@@ -61,8 +58,12 @@ const examMenuItems = [
 				href: '/admin/barrister-exam/free-exam',
 			},
 			{
-				title: 'Paid Exam',
-				href: '/admin/barrister-exam/paid-exam',
+				title: 'Paid Set A',
+				href: '/admin/barrister-exam/paid-exam-set-a',
+			},
+			{
+				title: 'Paid Set B',
+				href: '/admin/barrister-exam/paid-exam-set-b',
 			},
 		],
 	},
@@ -75,8 +76,12 @@ const examMenuItems = [
 				href: '/admin/solicitor-exam/free-exam',
 			},
 			{
-				title: 'Paid Exam',
-				href: '/admin/solicitor-exam/paid-exam',
+				title: 'Paid Set A',
+				href: '/admin/solicitor-exam/paid-exam-set-a',
+			},
+			{
+				title: 'Paid Set B',
+				href: '/admin/solicitor-exam/paid-exam-set-b',
 			},
 		],
 	},
@@ -114,6 +119,28 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 
 	const isSubItemActive = (href: string) => pathname === href;
 
+	const handleLogout = async () => {
+		try {
+			const response = await fetch('/api/auth/logout', {
+				method: 'POST',
+				credentials: 'include',
+			});
+
+			if (response.ok) {
+				// Redirect to login page after successful logout
+				window.location.href = '/login';
+			} else {
+				console.error('Logout failed');
+				// Still redirect even if API call fails
+				window.location.href = '/login';
+			}
+		} catch (error) {
+			console.error('Logout error:', error);
+			// Redirect to login page even if there's an error
+			window.location.href = '/login';
+		}
+	};
+
 	return (
 		<>
 			{/* Mobile Overlay */}
@@ -127,12 +154,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 			{/* Sidebar */}
 			<Box
 				className={cn(
-					'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-primaryCard border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0',
+					'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-primaryCard border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col',
 					isOpen ? 'translate-x-0' : '-translate-x-full'
 				)}
 			>
 				{/* Logo and Close Button */}
-				<Box className='flex items-center justify-between p-6 border-b border-gray-200'>
+				<Box className='flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0'>
 					<h1 className='text-xl font-bold text-primaryText'>Admin Panel</h1>
 					<AdminCustomButton
 						onClick={() => setIsOpen(false)}
@@ -144,7 +171,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 				</Box>
 
 				{/* Navigation */}
-				<Box className='p-4 space-y-2 overflow-y-auto h-[calc(100vh-80px)]'>
+				<Box className='p-4 space-y-2 overflow-y-auto flex-1'>
 					{menuItems.map((item) => {
 						const Icon = item.icon;
 						const isActive = pathname === item.href;
@@ -235,16 +262,27 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 						})}
 					</Box>
 
-					{/* Logout Button */}
-					<Box className='pt-4 mt-4 border-t border-gray-200'>
+				</Box>
+
+				{/* Bottom Buttons - Home and Logout */}
+				<Box className='p-4 border-t border-gray-200 flex-shrink-0 space-y-2 bg-primaryCard'>
+					<Link href='/' className='block'>
 						<AdminCustomButton
-							variant='danger'
+							variant='ghost'
 							className='flex items-center gap-3 w-full'
 						>
-							<LogOut className='w-5 h-5' />
-							<span className='font-medium'>Logout</span>
+							<Home className='w-5 h-5' />
+							<span className='font-medium'>Home</span>
 						</AdminCustomButton>
-					</Box>
+					</Link>
+					<AdminCustomButton
+						variant='danger'
+						className='flex items-center gap-3 w-full'
+						onClick={handleLogout}
+					>
+						<LogOut className='w-5 h-5' />
+						<span className='font-medium'>Logout</span>
+					</AdminCustomButton>
 				</Box>
 			</Box>
 		</>

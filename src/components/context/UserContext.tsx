@@ -31,7 +31,6 @@ export function UserProvider({
 
 export function useUser() {
   const ctx = useContext(UserContext);
-  console.log("useUser", ctx);
   if (!ctx) {
     throw new Error("useUser must be used within UserProvider");
   }
