@@ -21,9 +21,11 @@ interface DashboardStats {
 	totalQuestions: number;
 	examCounts: {
 		barristerFree: number;
-		barristerPaid: number;
+		barristerPaidSetA: number;
+		barristerPaidSetB: number;
 		solicitorFree: number;
-		solicitorPaid: number;
+		solicitorPaidSetA: number;
+		solicitorPaidSetB: number;
 	};
 }
 
@@ -228,7 +230,7 @@ const AdminDashboard = () => {
 
 			{/* Exam Breakdown */}
 			{stats && (
-				<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+				<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
 						<Box className='flex items-center gap-3 mb-4'>
 							<GraduationCap className='w-5 h-5 text-blue-600' />
@@ -245,11 +247,23 @@ const AdminDashboard = () => {
 						<Box className='flex items-center gap-3 mb-4'>
 							<GraduationCap className='w-5 h-5 text-purple-600' />
 							<h3 className='text-sm font-semibold text-gray-700'>
-								Barrister Paid
+								Barrister Paid Set A
 							</h3>
 						</Box>
 						<p className='text-2xl font-bold text-primaryText'>
-							{stats.examCounts.barristerPaid}
+							{stats.examCounts.barristerPaidSetA}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
+					</Box>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<GraduationCap className='w-5 h-5 text-indigo-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Barrister Paid Set B
+							</h3>
+						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.barristerPaidSetB}
 						</p>
 						<p className='text-xs text-gray-500 mt-1'>questions</p>
 					</Box>
@@ -269,11 +283,23 @@ const AdminDashboard = () => {
 						<Box className='flex items-center gap-3 mb-4'>
 							<BookOpen className='w-5 h-5 text-orange-600' />
 							<h3 className='text-sm font-semibold text-gray-700'>
-								Solicitor Paid
+								Solicitor Paid Set A
 							</h3>
 						</Box>
 						<p className='text-2xl font-bold text-primaryText'>
-							{stats.examCounts.solicitorPaid}
+							{stats.examCounts.solicitorPaidSetA}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
+					</Box>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<BookOpen className='w-5 h-5 text-red-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Solicitor Paid Set B
+							</h3>
+						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.solicitorPaidSetB}
 						</p>
 						<p className='text-xs text-gray-500 mt-1'>questions</p>
 					</Box>

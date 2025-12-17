@@ -61,17 +61,32 @@ export const convertQuestionToApiFormat = (question: Question) => {
   };
 };
 
+// Helper function to build API path
+const buildApiPath = (
+  examType: 'barrister' | 'solicitor',
+  pricingType: 'free' | 'paid' | 'set-a' | 'set-b'
+): string => {
+  if (pricingType === 'set-a') {
+    return `/api/exams/${examType}/paid`;
+  }
+  if (pricingType === 'set-b') {
+    return `/api/exams/${examType}/paid/set-b`;
+  }
+  return `/api/exams/${examType}/${pricingType}`;
+};
+
 // Exam API functions
 export const examApi = {
   // Get all questions
   async getQuestions(
     examType: 'barrister' | 'solicitor',
-    pricingType: 'free' | 'paid',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
     page: number = 1,
     limit: number = 100
   ): Promise<QuestionsResponse> {
+    const path = buildApiPath(examType, pricingType);
     const response = await fetch(
-      `/api/exams/${examType}/${pricingType}?page=${page}&limit=${limit}`,
+      `${path}?page=${page}&limit=${limit}`,
       {
         method: 'GET',
         credentials: 'include',
@@ -89,11 +104,12 @@ export const examApi = {
   // Get single question
   async getQuestion(
     examType: 'barrister' | 'solicitor',
-    pricingType: 'free' | 'paid',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
     questionId: string
   ): Promise<ApiQuestion> {
+    const path = buildApiPath(examType, pricingType);
     const response = await fetch(
-      `/api/exams/${examType}/${pricingType}/${questionId}`,
+      `${path}/${questionId}`,
       {
         method: 'GET',
         credentials: 'include',
@@ -111,12 +127,13 @@ export const examApi = {
   // Create question
   async createQuestion(
     examType: 'barrister' | 'solicitor',
-    pricingType: 'free' | 'paid',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
     question: Question
   ): Promise<ApiQuestion> {
     const payload = convertQuestionToApiFormat(question);
+    const path = buildApiPath(examType, pricingType);
 
-    const response = await fetch(`/api/exams/${examType}/${pricingType}`, {
+    const response = await fetch(path, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -136,14 +153,15 @@ export const examApi = {
   // Update question
   async updateQuestion(
     examType: 'barrister' | 'solicitor',
-    pricingType: 'free' | 'paid',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
     questionId: string,
     question: Question
   ): Promise<ApiQuestion> {
     const payload = convertQuestionToApiFormat(question);
+    const path = buildApiPath(examType, pricingType);
 
     const response = await fetch(
-      `/api/exams/${examType}/${pricingType}/${questionId}`,
+      `${path}/${questionId}`,
       {
         method: 'PUT',
         headers: {
@@ -165,11 +183,12 @@ export const examApi = {
   // Delete question
   async deleteQuestion(
     examType: 'barrister' | 'solicitor',
-    pricingType: 'free' | 'paid',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
     questionId: string
   ): Promise<void> {
+    const path = buildApiPath(examType, pricingType);
     const response = await fetch(
-      `/api/exams/${examType}/${pricingType}/${questionId}`,
+      `${path}/${questionId}`,
       {
         method: 'DELETE',
         credentials: 'include',

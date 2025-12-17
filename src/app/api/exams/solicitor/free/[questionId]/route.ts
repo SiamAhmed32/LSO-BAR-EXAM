@@ -28,13 +28,12 @@ export async function GET(
 
     const { questionId } = await params;
 
-    // Verify exam exists
-    const exam = await prisma.exam.findUnique({
+    // Verify exam exists (for free exams, examSet is null)
+    const exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 
@@ -130,13 +129,12 @@ export async function PUT(
       );
     }
 
-    // Verify exam exists
-    const exam = await prisma.exam.findUnique({
+    // Verify exam exists (for free exams, examSet is null)
+    const exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 
@@ -237,13 +235,12 @@ export async function DELETE(
 
     const { questionId } = await params;
 
-    // Verify exam exists
-    const exam = await prisma.exam.findUnique({
+    // Verify exam exists (for free exams, examSet is null)
+    const exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 

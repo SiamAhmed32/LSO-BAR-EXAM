@@ -31,9 +31,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       totalOrders,
       totalQuestions,
       barristerFreeQuestions,
-      barristerPaidQuestions,
+      barristerPaidSetAQuestions,
+      barristerPaidSetBQuestions,
       solicitorFreeQuestions,
-      solicitorPaidQuestions,
+      solicitorPaidSetAQuestions,
+      solicitorPaidSetBQuestions,
       recentUsers,
       recentQuestions,
     ] = await Promise.all([
@@ -50,12 +52,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       // Questions by exam type
       prisma.exam
-        .findUnique({
+        .findFirst({
           where: {
-            examType_pricingType: {
-              examType: "BARRISTER",
-              pricingType: "FREE",
-            },
+            examType: "BARRISTER",
+            pricingType: "FREE",
+            examSet: null,
           },
         })
         .then((exam) =>
@@ -67,9 +68,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.exam
         .findUnique({
           where: {
-            examType_pricingType: {
+            examType_pricingType_examSet: {
               examType: "BARRISTER",
               pricingType: "PAID",
+              examSet: "SET_A",
             },
           },
         })
@@ -82,10 +84,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.exam
         .findUnique({
           where: {
-            examType_pricingType: {
-              examType: "SOLICITOR",
-              pricingType: "FREE",
+            examType_pricingType_examSet: {
+              examType: "BARRISTER",
+              pricingType: "PAID",
+              examSet: "SET_B",
             },
+          },
+        })
+        .then((exam) =>
+          exam
+            ? prisma.question.count({ where: { examId: exam.id } })
+            : 0
+        ),
+
+      prisma.exam
+        .findFirst({
+          where: {
+            examType: "SOLICITOR",
+            pricingType: "FREE",
+            examSet: null,
           },
         })
         .then((exam) =>
@@ -97,9 +114,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.exam
         .findUnique({
           where: {
-            examType_pricingType: {
+            examType_pricingType_examSet: {
               examType: "SOLICITOR",
               pricingType: "PAID",
+              examSet: "SET_A",
+            },
+          },
+        })
+        .then((exam) =>
+          exam
+            ? prisma.question.count({ where: { examId: exam.id } })
+            : 0
+        ),
+
+      prisma.exam
+        .findUnique({
+          where: {
+            examType_pricingType_examSet: {
+              examType: "SOLICITOR",
+              pricingType: "PAID",
+              examSet: "SET_B",
             },
           },
         })
@@ -132,6 +166,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             select: {
               examType: true,
               pricingType: true,
+              examSet: true,
             },
           },
         },
@@ -150,13 +185,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         email: user.email,
         time: user.createdAt,
       })),
-      ...recentQuestions.map((question) => ({
-        id: question.id,
-        type: "question",
-        action: `Question added to ${question.exam.examType} ${question.exam.pricingType} exam`,
-        user: "Admin",
-        time: question.createdAt,
-      })),
+      ...recentQuestions.map((question) => {
+        const examSetLabel = question.exam.examSet 
+          ? ` Set ${question.exam.examSet.replace('SET_', '')}`
+          : '';
+        return {
+          id: question.id,
+          type: "question",
+          action: `Question added to ${question.exam.examType} ${question.exam.pricingType}${examSetLabel} exam`,
+          user: "Admin",
+          time: question.createdAt,
+        };
+      }),
     ]
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
       .slice(0, 10);
@@ -172,9 +212,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             totalQuestions,
             examCounts: {
               barristerFree: barristerFreeQuestions,
-              barristerPaid: barristerPaidQuestions,
+              barristerPaidSetA: barristerPaidSetAQuestions,
+              barristerPaidSetB: barristerPaidSetBQuestions,
               solicitorFree: solicitorFreeQuestions,
-              solicitorPaid: solicitorPaidQuestions,
+              solicitorPaidSetA: solicitorPaidSetAQuestions,
+              solicitorPaidSetB: solicitorPaidSetBQuestions,
             },
           },
           recentActivity,

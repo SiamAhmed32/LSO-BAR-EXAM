@@ -58,8 +58,12 @@ const examMenuItems = [
 				href: '/admin/barrister-exam/free-exam',
 			},
 			{
-				title: 'Paid Exam',
-				href: '/admin/barrister-exam/paid-exam',
+				title: 'Paid Set A',
+				href: '/admin/barrister-exam/paid-exam-set-a',
+			},
+			{
+				title: 'Paid Set B',
+				href: '/admin/barrister-exam/paid-exam-set-b',
 			},
 		],
 	},
@@ -72,8 +76,12 @@ const examMenuItems = [
 				href: '/admin/solicitor-exam/free-exam',
 			},
 			{
-				title: 'Paid Exam',
-				href: '/admin/solicitor-exam/paid-exam',
+				title: 'Paid Set A',
+				href: '/admin/solicitor-exam/paid-exam-set-a',
+			},
+			{
+				title: 'Paid Set B',
+				href: '/admin/solicitor-exam/paid-exam-set-b',
 			},
 		],
 	},

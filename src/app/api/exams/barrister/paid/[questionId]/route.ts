@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const EXAM_TYPE = "BARRISTER";
 const PRICING_TYPE = "PAID";
+const EXAM_SET = "SET_A";
 
 // GET single question by ID (requires login)
 export async function GET(
@@ -37,9 +38,10 @@ export async function GET(
     // Verify exam exists
     const exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });
@@ -139,9 +141,10 @@ export async function PUT(
     // Verify exam exists
     const exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });
@@ -246,9 +249,10 @@ export async function DELETE(
     // Verify exam exists
     const exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });

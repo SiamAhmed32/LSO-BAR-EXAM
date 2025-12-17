@@ -4,21 +4,28 @@ import { ratelimit } from "@/lib/server/ratelimit";
 import { createQuestionSchema } from "@/validation/exam.validation";
 import { NextRequest, NextResponse } from "next/server";
 
-const EXAM_TYPE = "BARRISTER";
-const PRICING_TYPE = "FREE";
+const EXAM_TYPE = "SOLICITOR";
+const PRICING_TYPE = "PAID";
+const EXAM_SET = "SET_B";
 
-// GET single question by ID (public access)
+// GET single question by ID (requires login)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ questionId: string }> }
 ): Promise<NextResponse> {
   try {
-    // Rate limiting using IP address for guest users
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0] ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const { success } = await ratelimit.limit(ip);
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Please login to access paid exam questions",
+        },
+        { status: 401 }
+      );
+    }
+
+    const { success } = await ratelimit.limit(session.id);
     if (!success) {
       return NextResponse.json(
         { error: "Too many requests", message: "Please try again later." },
@@ -28,12 +35,14 @@ export async function GET(
 
     const { questionId } = await params;
 
-    // Verify exam exists (for free exams, examSet is null)
-    const exam = await prisma.exam.findFirst({
+    // Verify exam exists
+    const exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -78,7 +87,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Barrister Free Exam Question GET Error:", error);
+    console.error("Solicitor Paid Exam Question GET Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
@@ -129,12 +138,14 @@ export async function PUT(
       );
     }
 
-    // Verify exam exists (for free exams, examSet is null)
-    const exam = await prisma.exam.findFirst({
+    // Verify exam exists
+    const exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -197,7 +208,7 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Barrister Free Exam Question PUT Error:", error);
+    console.error("Solicitor Paid Exam Question PUT Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
@@ -235,12 +246,14 @@ export async function DELETE(
 
     const { questionId } = await params;
 
-    // Verify exam exists (for free exams, examSet is null)
-    const exam = await prisma.exam.findFirst({
+    // Verify exam exists
+    const exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -284,7 +297,7 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Barrister Free Exam Question DELETE Error:", error);
+    console.error("Solicitor Paid Exam Question DELETE Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
