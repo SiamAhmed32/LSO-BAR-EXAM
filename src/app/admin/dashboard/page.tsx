@@ -1,81 +1,193 @@
 'use client';
 
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
 	Users,
-	DollarSign,
 	ShoppingCart,
-	TrendingUp,
 	FileText,
-	Package,
-	BarChart3,
 	Activity,
+	GraduationCap,
+	BookOpen,
+	Clock,
 } from 'lucide-react';
 import { Box } from '@/components';
+import { toast } from 'react-toastify';
+import { useUser } from '@/components/context/UserContext';
+
+interface DashboardStats {
+	totalUsers: number;
+	totalOrders: number;
+	totalQuestions: number;
+	examCounts: {
+		barristerFree: number;
+		barristerPaid: number;
+		solicitorFree: number;
+		solicitorPaid: number;
+	};
+}
+
+interface RecentActivity {
+	id: string;
+	type: string;
+	action: string;
+	user: string;
+	email?: string;
+	time: string;
+}
 
 const AdminDashboard = () => {
-	const stats = [
-		{
-			title: 'Total Revenue',
-			value: '$45,231',
-			change: '+20.1%',
-			icon: DollarSign,
-			color: 'bg-green-500',
-		},
-		{
-			title: 'Total Users',
-			value: '2,350',
-			change: '+15.3%',
-			icon: Users,
-			color: 'bg-blue-500',
-		},
-		{
-			title: 'Orders',
-			value: '1,234',
-			change: '+12.5%',
-			icon: ShoppingCart,
-			color: 'bg-purple-500',
-		},
-		{
-			title: 'Products',
-			value: '856',
-			change: '+8.2%',
-			icon: Package,
-			color: 'bg-orange-500',
-		},
-	];
+	const router = useRouter();
+	const { user, isAuthenticated } = useUser();
+	const [isLoading, setIsLoading] = useState(true);
+	const [stats, setStats] = useState<DashboardStats | null>(null);
+	const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
 
-	const recentActivities = [
-		{
-			id: 1,
-			action: 'New order received',
-			user: 'John Doe',
-			time: '2 minutes ago',
-			type: 'order',
-		},
-		{
-			id: 2,
-			action: 'User registered',
-			user: 'Jane Smith',
-			time: '15 minutes ago',
-			type: 'user',
-		},
-		{
-			id: 3,
-			action: 'Product updated',
-			user: 'Admin',
-			time: '1 hour ago',
-			type: 'product',
-		},
-		{
-			id: 4,
-			action: 'Payment received',
-			user: 'Mike Johnson',
-			time: '2 hours ago',
-			type: 'payment',
-		},
-	];
+	// Check admin access on mount
+	useEffect(() => {
+		if (!isAuthenticated || user?.role !== 'ADMIN') {
+			router.push('/login');
+			return;
+		}
+		// Only fetch data if user is authenticated and is admin
+		if (isAuthenticated && user?.role === 'ADMIN') {
+			fetchDashboardData();
+		}
+	}, [isAuthenticated, user, router]);
+
+	const fetchDashboardData = async () => {
+		try {
+			setIsLoading(true);
+			const response = await fetch('/api/admin/dashboard', {
+				method: 'GET',
+				credentials: 'include',
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || 'Failed to load dashboard data');
+			}
+
+			const result = await response.json();
+			setStats(result.data.stats);
+			setRecentActivity(result.data.recentActivity);
+		} catch (error) {
+			console.error('Error fetching dashboard data:', error);
+			toast.error(
+				error instanceof Error ? error.message : 'Failed to load dashboard data'
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	// Early return if not admin (while checking)
+	if (!isAuthenticated || user?.role !== 'ADMIN') {
+		return null; // Will redirect via useEffect
+	}
+
+	const formatTimeAgo = (dateString: string) => {
+		const date = new Date(dateString);
+		const now = new Date();
+		const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+		if (diffInSeconds < 60) return 'Just now';
+		if (diffInSeconds < 3600)
+			return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+		if (diffInSeconds < 86400)
+			return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+		if (diffInSeconds < 604800)
+			return `${Math.floor(diffInSeconds / 86400)} days ago`;
+		return date.toLocaleDateString();
+	};
+
+	const statsCards = stats
+		? [
+				{
+					title: 'Total Users',
+					value: stats.totalUsers.toLocaleString(),
+					icon: Users,
+					color: 'bg-blue-500',
+				},
+				{
+					title: 'Total Orders',
+					value: stats.totalOrders.toLocaleString(),
+					icon: ShoppingCart,
+					color: 'bg-purple-500',
+				},
+				{
+					title: 'All Exams',
+					value: stats.totalQuestions.toLocaleString(),
+					icon: FileText,
+					color: 'bg-green-500',
+				},
+			
+		  ]
+		: [];
+
+	if (isLoading) {
+		return (
+			<Box className='p-6 space-y-6'>
+				{/* Page Header Skeleton */}
+				<Box className='mb-8'>
+					<Box className='h-9 bg-gray-200 rounded w-64 mb-2 animate-pulse'>{null}</Box>
+					<Box className='h-5 bg-gray-200 rounded w-96 animate-pulse'>{null}</Box>
+				</Box>
+
+				{/* Stats Grid Skeleton */}
+				<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{[1, 2, 3].map((i) => (
+						<Box
+							key={i}
+							className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse'
+						>
+							<Box className='flex items-center justify-between mb-4'>
+								<Box className='w-12 h-12 bg-gray-200 rounded-lg'>{null}</Box>
+							</Box>
+							<Box className='h-4 bg-gray-200 rounded w-24 mb-2'>{null}</Box>
+							<Box className='h-8 bg-gray-200 rounded w-20'>{null}</Box>
+						</Box>
+					))}
+				</Box>
+
+				{/* Exam Breakdown Skeleton */}
+				<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+					{[1, 2, 3, 4].map((i) => (
+						<Box
+							key={i}
+							className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse'
+						>
+							<Box className='flex items-center gap-3 mb-4'>
+								<Box className='w-5 h-5 bg-gray-200 rounded'>{null}</Box>
+								<Box className='h-4 bg-gray-200 rounded w-24'>{null}</Box>
+							</Box>
+							<Box className='h-8 bg-gray-200 rounded w-12 mb-2'>{null}</Box>
+							<Box className='h-3 bg-gray-200 rounded w-16'>{null}</Box>
+						</Box>
+					))}
+				</Box>
+
+				{/* Recent Activities Skeleton */}
+				<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+					<Box className='flex items-center justify-between mb-6'>
+						<Box className='h-6 bg-gray-200 rounded w-40 animate-pulse'>{null}</Box>
+						<Box className='w-5 h-5 bg-gray-200 rounded animate-pulse'>{null}</Box>
+					</Box>
+					<Box className='space-y-4'>
+						{[1, 2, 3, 4].map((i) => (
+							<Box
+								key={i}
+								className='border-l-4 border-gray-200 pl-4 py-2 animate-pulse'
+							>
+								<Box className='h-4 bg-gray-200 rounded w-3/4 mb-2'>{null}</Box>
+								<Box className='h-3 bg-gray-200 rounded w-1/2'>{null}</Box>
+							</Box>
+						))}
+					</Box>
+				</Box>
+			</Box>
+		);
+	}
 
 	return (
 		<Box className='p-6 space-y-6'>
@@ -85,13 +197,13 @@ const AdminDashboard = () => {
 					Dashboard Overview
 				</h1>
 				<p className='text-gray-600'>
-					Welcome back! Here's what's happening with your business today.
+					Welcome back! Here's what's happening with your platform .
 				</p>
 			</Box>
 
 			{/* Stats Grid */}
-			<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-				{stats.map((stat, index) => {
+			<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+				{statsCards.map((stat, index) => {
 					const Icon = stat.icon;
 					return (
 						<Box
@@ -104,9 +216,6 @@ const AdminDashboard = () => {
 								>
 									<Icon className='w-6 h-6' />
 								</Box>
-								<span className='text-green-600 text-sm font-semibold'>
-									{stat.change}
-								</span>
 							</Box>
 							<h3 className='text-gray-600 text-sm mb-1'>{stat.title}</h3>
 							<p className='text-2xl font-bold text-primaryText'>
@@ -117,40 +226,71 @@ const AdminDashboard = () => {
 				})}
 			</Box>
 
-			{/* Charts and Activities Row */}
-			<Box className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-				{/* Chart Section */}
-				<Box className='lg:col-span-2 bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
-					<Box className='flex items-center justify-between mb-6'>
-						<h2 className='text-xl font-semibold text-primaryText'>
-							Revenue Overview
-						</h2>
-						<Box className='flex items-center gap-2 text-sm text-gray-600'>
-							<BarChart3 className='w-4 h-4' />
-							<span>Last 7 days</span>
+			{/* Exam Breakdown */}
+			{stats && (
+				<Box className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<GraduationCap className='w-5 h-5 text-blue-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Barrister Free
+							</h3>
 						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.barristerFree}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
 					</Box>
-					<Box className='h-64 flex items-center justify-center bg-gray-50 rounded-lg'>
-						<Box className='text-center'>
-							<Activity className='w-12 h-12 text-gray-400 mx-auto mb-2' />
-							<p className='text-gray-500'>Chart visualization</p>
-							<p className='text-sm text-gray-400 mt-1'>
-								Integrate your chart library here
-							</p>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<GraduationCap className='w-5 h-5 text-purple-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Barrister Paid
+							</h3>
 						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.barristerPaid}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
+					</Box>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<BookOpen className='w-5 h-5 text-green-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Solicitor Free
+							</h3>
+						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.solicitorFree}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
+					</Box>
+					<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+						<Box className='flex items-center gap-3 mb-4'>
+							<BookOpen className='w-5 h-5 text-orange-600' />
+							<h3 className='text-sm font-semibold text-gray-700'>
+								Solicitor Paid
+							</h3>
+						</Box>
+						<p className='text-2xl font-bold text-primaryText'>
+							{stats.examCounts.solicitorPaid}
+						</p>
+						<p className='text-xs text-gray-500 mt-1'>questions</p>
 					</Box>
 				</Box>
+			)}
 
-				{/* Recent Activities */}
-				<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
-					<Box className='flex items-center justify-between mb-6'>
-						<h2 className='text-xl font-semibold text-primaryText'>
-							Recent Activity
-						</h2>
-						<Activity className='w-5 h-5 text-gray-400' />
-					</Box>
-					<Box className='space-y-4'>
-						{recentActivities.map((activity) => (
+			{/* Recent Activities */}
+			<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
+				<Box className='flex items-center justify-between mb-6'>
+					<h2 className='text-xl font-semibold text-primaryText'>
+						Recent Activity
+					</h2>
+					<Activity className='w-5 h-5 text-gray-400' />
+				</Box>
+				<Box className='space-y-4'>
+					{recentActivity.length > 0 ? (
+						recentActivity.map((activity) => (
 							<Box
 								key={activity.id}
 								className='border-l-4 border-button pl-4 py-2'
@@ -158,48 +298,22 @@ const AdminDashboard = () => {
 								<p className='text-sm font-medium text-primaryText'>
 									{activity.action}
 								</p>
-								<p className='text-xs text-gray-500 mt-1'>
-									{activity.user} • {activity.time}
-								</p>
+								<Box className='flex items-center gap-2 mt-1'>
+									<Clock className='w-3 h-3 text-gray-400' />
+									<p className='text-xs text-gray-500'>
+										{activity.user}
+										{activity.email && ` (${activity.email})`} •{' '}
+										{formatTimeAgo(activity.time)}
+									</p>
+								</Box>
 							</Box>
-						))}
-					</Box>
-					<button className='mt-4 w-full text-sm text-button hover:text-button-dark font-medium'>
-						View all activities →
-					</button>
-				</Box>
-			</Box>
-
-			{/* Quick Actions */}
-			<Box className='bg-primaryCard rounded-lg shadow-sm border border-gray-200 p-6'>
-				<h2 className='text-xl font-semibold text-primaryText mb-4'>
-					Quick Actions
-				</h2>
-				<Box className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-					<button className='p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left'>
-						<FileText className='w-6 h-6 text-button mb-2' />
-						<p className='text-sm font-medium text-primaryText'>
-							Add Product
-						</p>
-					</button>
-					<button className='p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left'>
-						<Users className='w-6 h-6 text-button mb-2' />
-						<p className='text-sm font-medium text-primaryText'>
-							Manage Users
-						</p>
-					</button>
-					<button className='p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left'>
-						<ShoppingCart className='w-6 h-6 text-button mb-2' />
-						<p className='text-sm font-medium text-primaryText'>
-							View Orders
-						</p>
-					</button>
-					<button className='p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left'>
-						<TrendingUp className='w-6 h-6 text-button mb-2' />
-						<p className='text-sm font-medium text-primaryText'>
-							Analytics
-						</p>
-					</button>
+						))
+					) : (
+						<Box className='text-center py-8'>
+							<Activity className='w-12 h-12 text-gray-300 mx-auto mb-2' />
+							<p className='text-gray-500'>No recent activity</p>
+						</Box>
+					)}
 				</Box>
 			</Box>
 		</Box>
