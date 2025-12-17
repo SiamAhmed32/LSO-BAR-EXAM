@@ -19,6 +19,8 @@ export const questionSchema = z.object({
 export const createExamSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
+  price: z.number().positive("Price must be a positive number").optional(),
+  examTime: z.string().min(1, "Exam time is required").optional(),
 });
 
 export const createQuestionSchema = z.object({

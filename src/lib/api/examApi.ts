@@ -25,6 +25,8 @@ export interface QuestionsResponse {
     pricingType: string;
     title: string | null;
     description: string | null;
+    price: number | null;
+    examTime: string | null; // Duration string like "4 hours", "2 hours", "30 minutes"
   };
   questions: ApiQuestion[];
   pagination: {
@@ -198,6 +200,34 @@ export const examApi = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to delete question');
+    }
+  },
+
+  // Update exam settings
+  async updateExamSettings(
+    examType: 'barrister' | 'solicitor',
+    pricingType: 'free' | 'paid' | 'set-a' | 'set-b',
+    settings: {
+      title?: string;
+      description?: string;
+      price?: number;
+      examTime?: string;
+    }
+  ): Promise<void> {
+    const path = buildApiPath(examType, pricingType);
+    
+    const response = await fetch(path, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update exam settings');
     }
   },
 };

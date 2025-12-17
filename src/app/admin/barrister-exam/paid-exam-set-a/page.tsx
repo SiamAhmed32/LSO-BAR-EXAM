@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box } from '@/components/shared';
-import { AdminTable, Column, AdminDialog, ExamForm, Question, AdminCustomButton, TableSkeleton, ConfirmModal, ViewQuestionModal } from '@/components/Admin';
-import { GraduationCap, Edit, Trash2, Eye } from 'lucide-react';
+import { AdminTable, Column, AdminDialog, ExamForm, Question, AdminCustomButton, TableSkeleton, ConfirmModal, ViewQuestionModal, ExamSettingsForm } from '@/components/Admin';
+import { GraduationCap, Edit, Trash2, Eye, Settings } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { examApi, convertApiQuestionToQuestion } from '@/lib/api/examApi';
 
 const BarristerPaidExam = () => {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 	const [questions, setQuestions] = useState<Question[]>([]);
@@ -19,6 +20,7 @@ const BarristerPaidExam = () => {
 	const [questionToView, setQuestionToView] = useState<Question | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pagination, setPagination] = useState<any>(null);
+	const [examSettings, setExamSettings] = useState<any>(null);
 	const pageLimit = 10;
 
 	const fetchQuestions = useCallback(async () => {
@@ -28,6 +30,7 @@ const BarristerPaidExam = () => {
 			const convertedQuestions = response.questions.map(convertApiQuestionToQuestion);
 			setQuestions(convertedQuestions);
 			setPagination(response.pagination);
+			setExamSettings(response.exam);
 		} catch (error) {
 			console.error('Error fetching questions:', error);
 			toast.error(error instanceof Error ? error.message : 'Failed to load questions');
@@ -48,6 +51,27 @@ const BarristerPaidExam = () => {
 	const handleCreateQuestion = () => {
 		setEditingQuestion(null);
 		setIsDialogOpen(true);
+	};
+
+	const handleSettings = () => {
+		setIsSettingsDialogOpen(true);
+	};
+
+	const handleCloseSettingsDialog = () => {
+		setIsSettingsDialogOpen(false);
+	};
+
+	const handleSubmitSettings = async (settings: any) => {
+		try {
+			await examApi.updateExamSettings('barrister', 'set-a', settings);
+			toast.success('Exam settings updated successfully');
+			setIsSettingsDialogOpen(false);
+			await fetchQuestions();
+		} catch (error) {
+			console.error('Error updating exam settings:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to update settings');
+			throw error;
+		}
 	};
 
 	const handleCloseDialog = () => {
@@ -204,25 +228,56 @@ const BarristerPaidExam = () => {
 					<GraduationCap className='w-8 h-8' />
 					Barrister Exam - Paid Set A
 				</h1>
-				<p className='text-gray-600'>
+				<p className='text-gray-600 mb-4'>
 					Manage Barrister Paid Exam Set A questions
 				</p>
+				
+				{/* Exam Settings Display */}
+				<Box className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4'>
+					<h3 className='text-lg font-semibold text-blue-900 mb-2'>Exam Information</h3>
+					<Box className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
+						<Box>
+							<span className='font-medium text-blue-800'>Price:</span>
+							<span className='ml-2 text-blue-700'>
+								{examSettings?.price ? `$${examSettings.price}` : 'Not set'}
+							</span>
+						</Box>
+						<Box>
+							<span className='font-medium text-blue-800'>Duration:</span>
+							<span className='ml-2 text-blue-700'>
+								{examSettings?.examTime || 'Not set'}
+							</span>
+						</Box>
+					</Box>
+				</Box>
 			</Box>
 
 			{isLoading ? (
 				<TableSkeleton columns={columns.length} rows={5} />
 			) : (
-				<AdminTable
-					data={questions}
-					columns={columns}
-					onCreate={handleCreateQuestion}
-					createButtonText='Create Question'
-					emptyMessage='No questions available. Create your first question to get started.'
-					pagination={pagination}
-					onPageChange={handlePageChange}
-					fixedHeight={true}
-					tableHeight='600px'
-				/>
+				<>
+					<Box className='mb-4 flex justify-end'>
+						<AdminCustomButton
+							onClick={handleSettings}
+							variant='secondary'
+							className='flex items-center gap-2'
+						>
+							<Settings className='w-4 h-4' />
+							Exam Settings
+						</AdminCustomButton>
+					</Box>
+					<AdminTable
+						data={questions}
+						columns={columns}
+						onCreate={handleCreateQuestion}
+						createButtonText='Create Question'
+						emptyMessage='No questions available. Create your first question to get started.'
+						pagination={pagination}
+						onPageChange={handlePageChange}
+						fixedHeight={true}
+						tableHeight='600px'
+					/>
+				</>
 			)}
 
 			{/* Create/Edit Question Dialog */}
@@ -265,6 +320,27 @@ const BarristerPaidExam = () => {
 				}}
 				question={questionToView}
 			/>
+
+			{/* Exam Settings Dialog */}
+			<AdminDialog
+				isOpen={isSettingsDialogOpen}
+				onClose={handleCloseSettingsDialog}
+				title='Exam Settings'
+				size='lg'
+			>
+				<ExamSettingsForm
+					initialData={{
+						title: examSettings?.title || '',
+						description: examSettings?.description || '',
+						price: examSettings?.price || 0,
+						examTime: examSettings?.examTime || '',
+					}}
+					onSubmit={handleSubmitSettings}
+					onCancel={handleCloseSettingsDialog}
+					examType='BARRISTER'
+					examSet='SET_A'
+				/>
+			</AdminDialog>
 		</Box>
 	);
 };
