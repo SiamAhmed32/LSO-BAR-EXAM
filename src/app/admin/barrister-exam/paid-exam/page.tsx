@@ -121,13 +121,17 @@ const BarristerPaidExam = () => {
 		{
 			key: 'question',
 			header: 'Question',
-			className: 'max-w-md',
+			render: (item) => (
+				<Box className='text-wrap break-words w-[25vw]'>
+					<p className='text-sm text-gray-600'>{item.question}</p>
+				</Box>
+			),
 		},
 		{
 			key: 'options',
 			header: 'Options',
 			render: (item) => (
-				<Box>
+				<Box className='w-[25vw] text-wrap break-words'>
 					<p className='text-sm text-gray-600'>{item.options.length} options</p>
 					<Box className='mt-1 space-y-1'>
 						{item.options.map((opt, idx) => (
@@ -153,7 +157,7 @@ const BarristerPaidExam = () => {
 			render: (item) => {
 				const correctOption = item.options.find((opt) => opt.isCorrect);
 				return (
-					<span className='text-sm text-green-600 font-medium'>
+					<span className='text-sm text-green-600 font-medium w-[25vw] text-wrap break-words'>
 						{correctOption?.text || 'Not set'}
 					</span>
 				);

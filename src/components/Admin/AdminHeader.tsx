@@ -4,6 +4,7 @@ import React from 'react';
 import { Box } from '../shared';
 import { Menu, Bell, Search, User } from 'lucide-react';
 import AdminCustomButton from './AdminCustomButton';
+import { useUser } from '../context/UserContext';
 
 interface AdminHeaderProps {
 	sidebarOpen: boolean;
@@ -14,6 +15,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 	sidebarOpen,
 	setSidebarOpen,
 }) => {
+	const { user } = useUser();
+
 	return (
 		<Box className='bg-primaryCard border-b border-gray-200 px-6 py-4'>
 			<Box className='flex items-center justify-between'>
@@ -40,13 +43,13 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 				{/* Right Section */}
 				<Box className='flex items-center gap-4'>
 					{/* Notifications */}
-					<AdminCustomButton
+					{/* <AdminCustomButton
 						variant='icon'
 						className='relative text-gray-600 hover:text-primaryText'
 					>
 						<Bell className='w-5 h-5' />
 						<span className='absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full'></span>
-					</AdminCustomButton>
+					</AdminCustomButton> */}
 
 					{/* User Profile */}
 					<Box className='flex items-center gap-3'>
@@ -54,8 +57,12 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 							<User className='w-5 h-5' />
 						</Box>
 						<Box className='hidden sm:block'>
-							<p className='text-sm font-medium text-primaryText'>Admin User</p>
-							<p className='text-xs text-gray-500'>admin@example.com</p>
+							<p className='text-sm font-medium text-primaryText'>
+								{user?.name || 'Admin User'}
+							</p>
+							<p className='text-xs text-gray-500'>
+								{user?.email || 'admin@example.com'}
+							</p>
 						</Box>
 					</Box>
 				</Box>

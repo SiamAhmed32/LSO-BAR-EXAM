@@ -44,11 +44,7 @@ const menuItems = [
 		href: '/admin/orders',
 		icon: ShoppingCart,
 	},
-	{
-		title: 'Settings',
-		href: '/admin/settings',
-		icon: Settings,
-	},
+
 ];
 
 const examMenuItems = [
@@ -113,6 +109,28 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 	const isMenuOpen = (title: string) => openMenus.includes(title);
 
 	const isSubItemActive = (href: string) => pathname === href;
+
+	const handleLogout = async () => {
+		try {
+			const response = await fetch('/api/auth/logout', {
+				method: 'POST',
+				credentials: 'include',
+			});
+
+			if (response.ok) {
+				// Redirect to login page after successful logout
+				window.location.href = '/login';
+			} else {
+				console.error('Logout failed');
+				// Still redirect even if API call fails
+				window.location.href = '/login';
+			}
+		} catch (error) {
+			console.error('Logout error:', error);
+			// Redirect to login page even if there's an error
+			window.location.href = '/login';
+		}
+	};
 
 	return (
 		<>
@@ -240,6 +258,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 						<AdminCustomButton
 							variant='danger'
 							className='flex items-center gap-3 w-full'
+							onClick={handleLogout}
 						>
 							<LogOut className='w-5 h-5' />
 							<span className='font-medium'>Logout</span>
