@@ -34,49 +34,75 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     );
   }, [answers]);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage ONLY when questions are loaded and available
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't hydrate if questions are not loaded yet
+    if (!questions || questions.length === 0) return;
+    
     try {
       const raw = window.localStorage.getItem(storageKey);
-      if (!raw) return;
+      if (!raw) {
+        console.log('💾 No localStorage data found for:', storageKey);
+        return;
+      }
+      
       const parsed = JSON.parse(raw) as {
         answers?: Record<number, string>;
         bookmarked?: number[];
         currentIndex?: number;
       };
-      if (parsed.answers) setAnswers(parsed.answers);
-      if (parsed.bookmarked)
-        setBookmarked(new Set(parsed.bookmarked.filter((id) => Number.isFinite(id))));
+      
+      console.log('💾 Loading from localStorage:', { storageKey, parsed, questionsCount: questions.length });
+      
+      // Restore answers
+      if (parsed.answers && Object.keys(parsed.answers).length > 0) {
+        setAnswers(parsed.answers);
+        console.log('✅ Restored answers:', parsed.answers);
+      }
+      
+      // Restore bookmarks
+      if (parsed.bookmarked && parsed.bookmarked.length > 0) {
+        const bookmarkedSet = new Set(parsed.bookmarked.filter((id) => Number.isFinite(id)));
+        setBookmarked(bookmarkedSet);
+        console.log('✅ Restored bookmarks:', Array.from(bookmarkedSet));
+      }
+      
+      // Restore current index
       if (
         Number.isInteger(parsed.currentIndex) &&
         parsed.currentIndex! >= 0 &&
         parsed.currentIndex! < questions.length
       ) {
         setCurrentIndex(parsed.currentIndex!);
+        console.log('✅ Restored current index:', parsed.currentIndex);
       }
-    } catch (_e) {
-      // fail silently
+    } catch (error) {
+      console.error('❌ Error loading from localStorage:', error);
     }
+    // Only run when questions are actually loaded (not just when length changes)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKey, questions.length]);
+  }, [storageKey, questions]);
 
-  // Persist to localStorage when state changes
+  // Persist to localStorage when state changes (only if questions are loaded)
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't save if questions are not loaded yet
+    if (!questions || questions.length === 0) return;
+    
     try {
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify({
-          answers,
-          bookmarked: Array.from(bookmarked),
-          currentIndex,
-        })
-      );
-    } catch (_e) {
-      // fail silently
+      const dataToSave = {
+        answers,
+        bookmarked: Array.from(bookmarked),
+        currentIndex,
+      };
+      
+      window.localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      console.log('💾 Saved to localStorage:', { storageKey, dataToSave });
+    } catch (error) {
+      console.error('❌ Error saving to localStorage:', error);
     }
-  }, [answers, bookmarked, currentIndex, storageKey]);
+  }, [answers, bookmarked, currentIndex, storageKey, questions]);
 
   const goTo = (idx: number) => {
     if (idx >= 0 && idx < questions.length) setCurrentIndex(idx);

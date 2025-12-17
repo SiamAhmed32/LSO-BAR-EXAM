@@ -8,6 +8,7 @@ import { tableSlice } from './slices/tableSlice';
 import guestMainApi from './services/guestMainApi';
 import { wishlistSlice } from './slices/wishlistSlice';
 import authApi from './services/authApi';
+import examApi from './services/examApi';
 import buyNowSlice from './slices/buyNowSlice';
 import { TOKEN_NAME } from './constants';
 
@@ -24,12 +25,14 @@ export const store = configureStore({
 
 		[mainApi.reducerPath]: mainApi.reducer,
 		[authApi.reducerPath]: authApi.reducer,
+		[examApi.reducerPath]: examApi.reducer,
 		[guestMainApi.reducerPath]: guestMainApi.reducer,
 	},
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware()
 			.concat(mainApi.middleware)
 			.concat(authApi.middleware)
+			.concat(examApi.middleware)
 			.concat(guestMainApi.middleware),
 });
 
