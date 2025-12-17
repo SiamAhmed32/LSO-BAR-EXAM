@@ -7,6 +7,8 @@ interface ExamCardProps {
 	features: string[];
 	buttonText: string;
 	href: string;
+	onButtonClick?: () => void;
+	disabled?: boolean;
 }
 
 const ExamCard: React.FC<ExamCardProps> = ({
@@ -14,6 +16,8 @@ const ExamCard: React.FC<ExamCardProps> = ({
 	features,
 	buttonText,
 	href,
+	onButtonClick,
+	disabled = false,
 }) => {
 	return (
 		<div className="bg-primaryColor/3 rounded-lg border border-borderBg shadow-sm p-6 sm:p-8 flex flex-col h-full">
@@ -35,12 +39,25 @@ const ExamCard: React.FC<ExamCardProps> = ({
 			</ul>
 
 			{/* CTA Button */}
-			<Link
-				href={href}
-				className="w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base"
-			>
-				{buttonText}
-			</Link>
+			{onButtonClick ? (
+				<button
+					type="button"
+					onClick={onButtonClick}
+					disabled={disabled}
+					className={`w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base ${
+						disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+					}`}
+				>
+					{buttonText}
+				</button>
+			) : (
+				<Link
+					href={href}
+					className="w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base"
+				>
+					{buttonText}
+				</Link>
+			)}
 		</div>
 	);
 };

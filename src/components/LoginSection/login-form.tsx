@@ -35,9 +35,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         // The session cookie is automatically set by the API
         console.log('Login Form - Login successful, redirecting...');
         toast.success('Login successful!');
-        
+
         // Redirect based on user role
-        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/';
+        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 1000);
@@ -46,9 +46,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         dispatch(loginAction({ token: result.token, refreshToken: result.refreshToken }));
         console.log('Login Form - Token stored in Redux and localStorage');
         toast.success('Login successful!');
-        
+
         // Redirect based on user role
-        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/';
+        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 1000);
