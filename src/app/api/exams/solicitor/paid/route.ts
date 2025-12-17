@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const EXAM_TYPE = "SOLICITOR";
 const PRICING_TYPE = "PAID";
+const EXAM_SET = "SET_A";
 
 // GET all questions for solicitor paid exam (requires login)
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -37,9 +38,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Get or create exam
     let exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });
@@ -49,6 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       });
     }
@@ -150,9 +153,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Get or create exam
     let exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });
@@ -162,6 +166,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       });
     }
@@ -245,9 +250,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     // Get or create exam
     let exam = await prisma.exam.findUnique({
       where: {
-        examType_pricingType: {
+        examType_pricingType_examSet: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
         },
       },
     });
@@ -257,6 +263,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
           title: result.data.title,
           description: result.data.description,
         },

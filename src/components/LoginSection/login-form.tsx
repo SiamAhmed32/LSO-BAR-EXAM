@@ -35,17 +35,22 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         // The session cookie is automatically set by the API
         console.log('Login Form - Login successful, redirecting...');
         toast.success('Login successful!');
-        // Redirect to home page
+        
+        // Redirect based on user role
+        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/';
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = redirectPath;
         }, 1000);
       } else if (result.token) {
         // Fallback: if token is provided, use token-based auth
         dispatch(loginAction({ token: result.token, refreshToken: result.refreshToken }));
         console.log('Login Form - Token stored in Redux and localStorage');
         toast.success('Login successful!');
+        
+        // Redirect based on user role
+        const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/';
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = redirectPath;
         }, 1000);
       }
     } catch (error: any) {

@@ -24,7 +24,7 @@ const BarristerPaidExam = () => {
 	const fetchQuestions = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const response = await examApi.getQuestions('barrister', 'paid', currentPage, pageLimit);
+			const response = await examApi.getQuestions('barrister', 'set-b', currentPage, pageLimit);
 			const convertedQuestions = response.questions.map(convertApiQuestionToQuestion);
 			setQuestions(convertedQuestions);
 			setPagination(response.pagination);
@@ -59,11 +59,11 @@ const BarristerPaidExam = () => {
 		try {
 			if (editingQuestion) {
 				// Update existing question
-				await examApi.updateQuestion('barrister', 'paid', editingQuestion.id, question);
+				await examApi.updateQuestion('barrister', 'set-b', editingQuestion.id, question);
 				toast.success('Question updated successfully');
 			} else {
 				// Create new question
-				await examApi.createQuestion('barrister', 'paid', question);
+				await examApi.createQuestion('barrister', 'set-b', question);
 				toast.success('Question created successfully');
 			}
 			setIsDialogOpen(false);
@@ -91,7 +91,7 @@ const BarristerPaidExam = () => {
 
 		try {
 			setIsDeleting(true);
-			await examApi.deleteQuestion('barrister', 'paid', questionToDelete.id);
+			await examApi.deleteQuestion('barrister', 'set-b', questionToDelete.id);
 			toast.success('Question deleted successfully');
 			setIsDeleteModalOpen(false);
 			setQuestionToDelete(null);
@@ -202,10 +202,10 @@ const BarristerPaidExam = () => {
 			<Box className='mb-8'>
 				<h1 className='text-3xl font-bold text-primaryText mb-2 flex items-center gap-3'>
 					<GraduationCap className='w-8 h-8' />
-					Barrister Exam - Paid Exams
+					Barrister Exam - Paid Set B
 				</h1>
 				<p className='text-gray-600'>
-					Manage paid barrister exam tests and pricing
+					Manage Barrister Paid Exam Set B questions
 				</p>
 			</Box>
 

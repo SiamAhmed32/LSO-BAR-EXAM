@@ -28,13 +28,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    // Get or create exam
-    let exam = await prisma.exam.findUnique({
+    // Get or create exam (for free exams, examSet is null)
+    let exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 
@@ -43,6 +42,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: null,
         },
       });
     }
@@ -145,13 +145,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get or create exam
-    let exam = await prisma.exam.findUnique({
+    // Get or create exam (for free exams, examSet is null)
+    let exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 
@@ -160,6 +159,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: null,
         },
       });
     }
@@ -240,13 +240,12 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get or create exam
-    let exam = await prisma.exam.findUnique({
+    // Get or create exam (for free exams, examSet is null)
+    let exam = await prisma.exam.findFirst({
       where: {
-        examType_pricingType: {
-          examType: EXAM_TYPE,
-          pricingType: PRICING_TYPE,
-        },
+        examType: EXAM_TYPE,
+        pricingType: PRICING_TYPE,
+        examSet: null,
       },
     });
 
@@ -255,6 +254,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
+          examSet: null,
           title: result.data.title,
           description: result.data.description,
         },

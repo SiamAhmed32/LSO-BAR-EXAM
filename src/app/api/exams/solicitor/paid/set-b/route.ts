@@ -5,17 +5,24 @@ import { createQuestionSchema, createExamSchema } from "@/validation/exam.valida
 import { NextRequest, NextResponse } from "next/server";
 
 const EXAM_TYPE = "SOLICITOR";
-const PRICING_TYPE = "FREE";
+const PRICING_TYPE = "PAID";
+const EXAM_SET = "SET_B";
 
-// GET all questions for solicitor free exam (public access)
+// GET all questions for solicitor paid exam (requires login)
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Rate limiting using IP address for guest users
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0] ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const { success } = await ratelimit.limit(ip);
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Please login to access paid exam questions",
+        },
+        { status: 401 }
+      );
+    }
+
+    const { success } = await ratelimit.limit(session.id);
     if (!success) {
       return NextResponse.json(
         { error: "Too many requests", message: "Please try again later." },
@@ -28,12 +35,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    // Get or create exam (for free exams, examSet is null)
-    let exam = await prisma.exam.findFirst({
+    // Get or create exam
+    let exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -42,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
-          examSet: null,
+          examSet: EXAM_SET,
         },
       });
     }
@@ -94,7 +103,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Solicitor Free Exam GET Error:", error);
+    console.error("Solicitor Paid Exam GET Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
@@ -105,7 +114,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-// POST create a new question for solicitor free exam
+// POST create a new question for solicitor paid exam
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getSession();
@@ -141,12 +150,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get or create exam (for free exams, examSet is null)
-    let exam = await prisma.exam.findFirst({
+    // Get or create exam
+    let exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -155,7 +166,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
-          examSet: null,
+          examSet: EXAM_SET,
         },
       });
     }
@@ -189,7 +200,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Solicitor Free Exam POST Error:", error);
+    console.error("Solicitor Paid Exam POST Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
@@ -236,12 +247,14 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get or create exam (for free exams, examSet is null)
-    let exam = await prisma.exam.findFirst({
+    // Get or create exam
+    let exam = await prisma.exam.findUnique({
       where: {
-        examType: EXAM_TYPE,
-        pricingType: PRICING_TYPE,
-        examSet: null,
+        examType_pricingType_examSet: {
+          examType: EXAM_TYPE,
+          pricingType: PRICING_TYPE,
+          examSet: EXAM_SET,
+        },
       },
     });
 
@@ -250,7 +263,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         data: {
           examType: EXAM_TYPE,
           pricingType: PRICING_TYPE,
-          examSet: null,
+          examSet: EXAM_SET,
           title: result.data.title,
           description: result.data.description,
         },
@@ -274,7 +287,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Solicitor Free Exam PUT Error:", error);
+    console.error("Solicitor Paid Exam PUT Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",

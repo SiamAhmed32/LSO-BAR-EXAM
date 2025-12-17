@@ -46,17 +46,23 @@ enum PricingType {
   PAID
 }
 
+enum ExamSet {
+  SET_A
+  SET_B
+}
+
 model Exam {
   id          String      @id @default(uuid())
   examType    ExamType
   pricingType PricingType
+  examSet     ExamSet?
   title       String?
   description String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   questions   Question[]
 
-  @@unique([examType, pricingType])
+  @@unique([examType, pricingType, examSet])
   @@map("exams")
 }
 
