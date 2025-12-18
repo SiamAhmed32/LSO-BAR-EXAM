@@ -4,13 +4,14 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useUser } from "@/components/context";
 import { loadUserCartFromBackend, setUserId, clearUserCart } from "@/store/slices/cartSlice";
+import type { AppDispatch } from "@/store";
 
 /**
  * Component that loads user's cart from backend when they log in
  * Should be placed in the root layout or a high-level component
  */
 export default function CartLoader() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, user } = useUser();
   const hasLoadedRef = useRef(false);
   const previousUserIdRef = useRef<string | null>(null);
