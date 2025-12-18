@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import FormInput from "../shared/FormInput";
 import Label from "../shared/Label";
 import { CreditCard, Calendar } from "lucide-react";
+import Loader from "../shared/Loader";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ const CheckoutForm = () => {
   });
 
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -49,10 +51,23 @@ const CheckoutForm = () => {
     { _id: "nunavut", name: "Nunavut" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder - no backend integration yet
-    console.log("Form submitted:", formData);
+    setIsSubmitting(true);
+    
+    try {
+      // Placeholder - no backend integration yet
+      console.log("Form submitted:", formData);
+      
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // TODO: Add actual payment processing here
+    } catch (error) {
+      console.error("Checkout error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -132,7 +147,7 @@ const CheckoutForm = () => {
               value={formData.country}
               onChange={handleInputChange}
               required
-              className="border border-borderBg rounded-none focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button px-4 py-3 w-full text-foreground"
+              className="border border-borderBg rounded-none focus:outline-none focus:border-primaryColor focus:ring-2 focus:ring-primaryColor px-4 py-3 w-full text-foreground hover:border-primaryColor transition-colors"
             >
               {countries.map((country) => (
                 <option key={country._id} value={country.name}>
@@ -168,7 +183,7 @@ const CheckoutForm = () => {
                 value={formData.state}
                 onChange={handleInputChange}
                 required
-                className="border border-borderBg rounded-none focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button px-4 py-3 w-full text-foreground"
+                className="border border-borderBg rounded-none focus:outline-none focus:border-primaryColor focus:ring-2 focus:ring-primaryColor px-4 py-3 w-full text-foreground hover:border-primaryColor transition-colors"
               >
                 {canadianProvinces.map((province) => (
                   <option key={province._id} value={province.name}>
@@ -238,12 +253,6 @@ const CheckoutForm = () => {
                 value={formData.email}
                 onChange={handleInputChange}
               />
-              <a
-                href="#"
-                className="text-sm text-purple-600 hover:underline flex items-center gap-1"
-              >
-                link <span>→</span>
-              </a>
             </div>
           </div>
 
@@ -324,14 +333,14 @@ const CheckoutForm = () => {
             className="mt-1 w-4 h-4 text-primaryColor focus:ring-primaryColor border-borderBg rounded"
           />
           <span className="text-sm text-primaryText">
-            I understand and accept that all of Access Bar Prep&apos;s paid
-            products are accessible for 90 days and can be attempted three
+            I understand and accept that all of LSO Bar Prep&apos;s paid
+            products are accessible for 90 days and can be attempted two
             times. I confirm and accept that I have read{" "}
             <a
               href="#"
               className="text-primaryColor underline hover:opacity-80"
             >
-              Access Bar Prep&apos;s Terms and Conditions
+              LSO Bar Prep&apos;s Terms and Conditions
             </a>
             .
           </span>
@@ -343,10 +352,11 @@ const CheckoutForm = () => {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!acceptTerms}
-          className="w-full sm:w-auto px-8 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!acceptTerms || isSubmitting}
+          className="w-full sm:w-auto px-8 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Place Order
+          {isSubmitting && <Loader size="sm" />}
+          {isSubmitting ? "Processing..." : "Place Order"}
         </button>
       </div>
     </div>

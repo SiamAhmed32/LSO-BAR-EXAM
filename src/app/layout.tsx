@@ -5,6 +5,7 @@ import { UserProvider } from '@/components/context/UserContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getSession } from '@/lib/server/session';
+import CartLoader from '@/components/shared/CartLoader';
 
 export const metadata: Metadata = {
 	title: 'Frontend Template',
@@ -23,6 +24,7 @@ export default async function RootLayout({
 			<body className={`bg-primaryBg text-primaryText antialiased`}>
 				<ReduxProvider>
 					<UserProvider user={user}>
+						<CartLoader />
 						{children}
 						<ToastContainer
 							position="top-right"

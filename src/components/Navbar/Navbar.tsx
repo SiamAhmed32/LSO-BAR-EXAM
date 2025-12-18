@@ -9,13 +9,18 @@ import { User } from "lucide-react";
 import Container from "../shared/Container";
 import { useUser } from "../context";
 import CartSidebar from "../shared/CartSidebar";
+import { useDispatch } from "react-redux";
+import { resetCart } from "@/store/slices/cartSlice";
 
 const Navbar = () => {
   const { isAuthenticated, role } = useUser();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      // Clear cart on logout
+      dispatch(resetCart());
     } catch {
       // ignore error; still redirect
     } finally {

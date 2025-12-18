@@ -53,7 +53,12 @@ const Page = () => {
 
 	return (
 		<Layout>
-			<FreeExamRunner title="Barrister Free Exam" questions={questions} />
+			<FreeExamRunner
+				title="Barrister Free Exam"
+				questions={questions}
+				examType="barrister"
+				examSet="free"
+			/>
 		</Layout>
 	);
 };

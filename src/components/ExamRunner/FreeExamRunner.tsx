@@ -12,7 +12,8 @@ type FreeExamRunnerProps = {
   questions: FreeQuestion[];
   duration?: string; // e.g., "2 hours", "4 hours"
   examType?: "barrister" | "solicitor";
-  examSet?: "set-a" | "set-b";
+  // For paid exams, this is "set-a" | "set-b"; for free exams we use "free"
+  examSet?: "set-a" | "set-b" | "free";
 };
 
 const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
@@ -191,6 +192,14 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
           apiQuestions, // Store original API questions with isCorrect flags
         })
       );
+
+      // Clear persisted in-progress state so a new attempt starts fresh
+      // (progress is only restored if the exam was not finished)
+      try {
+        window.localStorage.removeItem(storageKey);
+      } catch (error) {
+        console.error("❌ Error clearing exam progress from localStorage:", error);
+      }
     }
     
     router.push(`/exam-results?${resultsParams.toString()}`);

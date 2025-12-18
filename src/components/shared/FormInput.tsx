@@ -33,7 +33,7 @@ const FormInput = ({
       placeholder={placeholder}
       required={required}
       disabled={disabled}
-      className={`border border-borderBg rounded-none focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button px-4 py-3 w-full text-foreground ${className}`}
+      className={`border border-borderBg rounded-none focus:outline-none focus:border-primaryColor focus:ring-2 focus:ring-primaryColor px-4 py-3 w-full text-foreground hover:border-primaryColor transition-colors ${className}`}
     />
   );
 };

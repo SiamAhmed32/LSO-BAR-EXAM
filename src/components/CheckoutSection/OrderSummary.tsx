@@ -11,10 +11,8 @@ const OrderSummary = () => {
   const total = useSelector((state: RootState) => state.cart.total);
   const vat = useSelector((state: RootState) => state.cart.vat);
 
-  // Calculate HST (13% tax) - using HST for Ontario, Canada
-  const hstRate = 0.13;
-  const hst = subTotal * hstRate;
-  const finalTotal = subTotal + hst;
+  // Final total is just the subtotal (no HST)
+  const finalTotal = subTotal;
 
   return (
     <div className="bg-primaryCard border border-borderBg rounded-lg shadow-sm sticky top-4">
@@ -55,12 +53,6 @@ const OrderSummary = () => {
             <span className="text-primaryText/70">Subtotal:</span>
             <span className="text-primaryText font-semibold">
               ${subTotal.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm sm:text-base">
-            <span className="text-primaryText/70">HST (13%):</span>
-            <span className="text-primaryText font-semibold">
-              ${hst.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between text-lg sm:text-xl font-bold pt-2 border-t border-borderBg">

@@ -141,15 +141,14 @@ const ExamResults: React.FC<ExamResultsProps> = ({
     return () => clearTimeout(timer);
   }, [results]);
 
-  const overallPercentage = gradedResults
-    ? totalQuestions > 0
+  const overallPercentage =
+    gradedResults && totalQuestions > 0
       ? (gradedResults.correct / totalQuestions) * 100
-      : 0
-    : totalQuestions > 0
-    ? (answeredCount / totalQuestions) * 100
-    : 0;
+      : 0;
 
-  if (isLoading || isCheckingAnswers) {
+  // While loading from storage or grading answers, show loader only
+  // and avoid rendering an intermediate, incorrect summary state.
+  if (isLoading || isCheckingAnswers || !gradedResults) {
     return (
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-primaryBg min-h-screen">
         <Container>
@@ -159,7 +158,9 @@ const ExamResults: React.FC<ExamResultsProps> = ({
               <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primaryColor border-t-transparent rounded-full animate-spin"></div>
             </div>
             <p className="text-primaryText font-medium text-lg">
-              {isCheckingAnswers ? "Checking your answers..." : "Loading results..."}
+              {isCheckingAnswers || !results
+                ? "Checking your answers..."
+                : "Loading results..."}
             </p>
             <div className="flex items-center justify-center gap-2 mt-4">
               <div className="w-2 h-2 bg-primaryColor rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

@@ -10,7 +10,7 @@ const Footer = () => {
 			<Container>
 				<div className="py-12 sm:py-16 md:py-20">
 					{/* Main Footer Content */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
 						{/* Company Info & Logo */}
 						<div className="col-span-1">
 							<Link href="/" className="inline-block mb-4">
@@ -91,45 +91,6 @@ const Footer = () => {
 							</ul>
 						</div>
 
-						{/* Exam Resources */}
-						<div className="col-span-1">
-							<h3 className="text-lg font-bold mb-4 text-secColor">Exam Resources</h3>
-							<ul className="space-y-3">
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										Free Mini Exams
-									</Link>
-								</li>
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										Barrister Exam Sets
-									</Link>
-								</li>
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										Solicitor Exam Sets
-									</Link>
-								</li>
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primarytext hover:text-secColor transition-colors"
-									>
-										Professional Responsibility
-									</Link>
-								</li>
-							</ul>
-						</div>
-
 						{/* Contact Info */}
 						<div className="col-span-1">
 							<h3 className="text-lg font-bold mb-4 text-secColor">Get in Touch</h3>
@@ -179,10 +140,10 @@ const Footer = () => {
 									Privacy Policy
 								</Link>
 								<Link
-									href="/terms-of-service"
+									href="/terms-and-conditions"
 									className="text-sm text-primaryText hover:text-secColor transition-colors"
 								>
-									Terms of Service
+									Terms and Conditions
 								</Link>
 								<Link
 									href="/cookie-policy"

@@ -16,7 +16,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cart      Cart?
+  carts     Cart[]
 
   @@index([email])
   @@map("users")
@@ -67,7 +67,7 @@ model Exam {
   updatedAt   DateTime    @updatedAt
   
   questions   Question[]
-  cart        Cart?
+  carts       Cart[]
 
   @@index([examType])
   @@index([pricingType])
@@ -107,8 +107,8 @@ model Option {
 
 model Cart {
   id        String   @id @default(uuid())
-  userId    String   @unique 
-  examId    String   @unique 
+  userId    String
+  examId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -116,6 +116,7 @@ model Cart {
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   items     Item[]
 
+  @@unique([userId, examId])
   @@index([userId])
   @@index([examId])
   @@map("carts")

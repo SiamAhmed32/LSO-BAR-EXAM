@@ -47,9 +47,12 @@ async function getCurrentUser() {
 
 // Helper function to validate and get cart or create if doesn't exist
 async function getOrCreateCart(userId: string, examId: string): Promise<CartData> {
-  let cart = await prisma.cart.findUnique({
+  // Find cart by both userId and examId (composite unique constraint)
+  // Using findFirst since Prisma client needs regeneration for composite unique
+  let cart = await prisma.cart.findFirst({
     where: {
       userId: userId,
+      examId: examId,
     },
     include: {
       exam: {
@@ -106,46 +109,80 @@ async function getOrCreateCart(userId: string, examId: string): Promise<CartData
   return cart as CartData;
 }
 
-// GET /api/cart - Get user's cart
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<CartData>>> {
+// GET /api/cart - Get user's cart(s)
+// If examId is provided: Get/create specific cart for that exam
+// If examId is not provided: Get all carts for the user
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<CartData | CartData[]>>> {
   try {
     const currentUser = await getCurrentUser();
     
     const url = new URL(request.url);
     const examId = url.searchParams.get("examId");
 
-    if (!examId) {
+    // If examId is provided, get/create specific cart for that exam
+    if (examId) {
+      // Validate exam exists
+      const exam = await prisma.exam.findUnique({
+        where: { id: examId },
+      });
+
+      if (!exam) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: "Exam not found" 
+          },
+          { status: 404 }
+        );
+      }
+
+      const cart = await getOrCreateCart(currentUser.id, examId);
+
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Exam ID is required" 
+        {
+          success: true,
+          data: cart,
+          message: "Cart retrieved successfully",
         },
-        { status: 400 }
+        { status: 200 }
       );
     }
 
-    // Validate exam exists
-    const exam = await prisma.exam.findUnique({
-      where: { id: examId },
+    // If no examId, get all carts for the user
+    const carts = await prisma.cart.findMany({
+      where: {
+        userId: currentUser.id,
+      },
+      include: {
+        exam: {
+          select: {
+            id: true,
+            examType: true,
+            title: true,
+            description: true,
+          },
+        },
+        items: {
+          include: {
+            question: {
+              select: {
+                id: true,
+                question: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
-
-    if (!exam) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Exam not found" 
-        },
-        { status: 404 }
-      );
-    }
-
-    const cart = await getOrCreateCart(currentUser.id, examId);
 
     return NextResponse.json(
       {
         success: true,
-        data: cart,
-        message: "Cart retrieved successfully",
+        data: carts as CartData[],
+        message: "User carts retrieved successfully",
       },
       { status: 200 }
     );
@@ -342,20 +379,30 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
 
     const { questionId } = validation.data;
 
-    // Get user's cart
-    const cart = await prisma.cart.findUnique({
-      where: { userId: currentUser.id },
+    // Find the item and verify it belongs to a cart owned by the user
+    const item = await prisma.item.findFirst({
+      where: {
+        questionId: questionId,
+        cart: {
+          userId: currentUser.id,
+        },
+      },
+      include: {
+        cart: true,
+      },
     });
 
-    if (!cart) {
+    if (!item || !item.cart) {
       return NextResponse.json(
         { 
           success: false, 
-          error: "Cart not found" 
+          error: "Question not found in any of your carts" 
         },
         { status: 404 }
       );
     }
+
+    const cart = item.cart;
 
     // Check if item exists in cart
     const existingItem = await prisma.item.findUnique({
