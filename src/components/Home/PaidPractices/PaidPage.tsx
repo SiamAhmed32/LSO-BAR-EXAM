@@ -8,7 +8,7 @@ import Container from "@/components/shared/Container";
 import { SectionHeading } from "@/components/shared";
 import ExamCard from "@/components/shared/ExamCard";
 import type { RootState } from "@/store";
-import { addToCart, type CartItem } from "@/store/slices/cartSlice";
+import { addToCart, addExamToCartBackend, checkExamInCart, resetCart, type CartItem } from "@/store/slices/cartSlice";
 import { useUser } from "@/components/context";
 import { examApi } from "@/lib/api/examApi";
 
@@ -70,6 +70,8 @@ const PaidPage = (props: Props) => {
   const router = useRouter();
   const { isAuthenticated } = useUser();
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const isLoadingCart = useSelector((state: RootState) => state.cart.isLoading);
+  const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
 
   const [examMeta, setExamMeta] = useState<
     Record<
@@ -81,6 +83,9 @@ const PaidPage = (props: Props) => {
     >
   >({});
   const [isLoadingMeta, setIsLoadingMeta] = useState(true);
+  const [backendCartStatus, setBackendCartStatus] = useState<
+    Record<string, boolean>
+  >({});
 
   // Load dynamic price & duration for each paid exam from public endpoint
   useEffect(() => {
@@ -120,7 +125,22 @@ const PaidPage = (props: Props) => {
     };
   }, []);
 
-  const handleAddToCart = (examId: string, title: string, price: number) => {
+  // Clear cart when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setBackendCartStatus({});
+      // Clear local cart when logged out
+      dispatch(resetCart());
+    }
+  }, [isAuthenticated, dispatch]);
+
+  const handleAddToCart = async (
+    examId: string,
+    title: string,
+    price: number,
+    examType: "barrister" | "solicitor",
+    examSet: "set-a" | "set-b"
+  ) => {
     // Require login before adding paid exams to cart
     if (!isAuthenticated) {
       toast.info("Please login to add paid exams to your account.");
@@ -128,18 +148,43 @@ const PaidPage = (props: Props) => {
       return;
     }
 
-    dispatch(
-      addToCart({
-        item: {
-          id: examId,
-          _id: examId,
-          name: title,
-          price,
-          vat: 0,
-        },
-        qty: 1,
-      })
-    );
+    // Set loading state for this specific exam
+    setAddingToCart((prev) => ({ ...prev, [examId]: true }));
+
+    try {
+      // Add to backend cart
+      await dispatch(
+        addExamToCartBackend({
+          examType,
+          examSet,
+        })
+      ).unwrap();
+
+      // Also add to local Redux state for immediate UI update
+      dispatch(
+        addToCart({
+          item: {
+            id: examId,
+            _id: examId,
+            name: title,
+            price,
+            vat: 0,
+          },
+          qty: 1,
+        })
+      );
+
+      // Update backend cart status
+      setBackendCartStatus((prev) => ({ ...prev, [examId]: true }));
+
+      toast.success("Exam added to cart successfully!");
+    } catch (error: any) {
+      console.error("Failed to add exam to cart:", error);
+      toast.error(error || "Failed to add exam to cart. Please try again.");
+    } finally {
+      // Clear loading state
+      setAddingToCart((prev) => ({ ...prev, [examId]: false }));
+    }
   };
 
   return (
@@ -168,9 +213,19 @@ const PaidPage = (props: Props) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-[75%] mx-auto">
             {PAID_EXAMS.map((exam) => {
-              // Only consider cart contents when the user is authenticated
-              const isInCart =
-                isAuthenticated && cartItems.some((item: CartItem) => item.id === exam.id);
+              // Only check cart status when authenticated
+              // Use local Redux state as primary source since backend cart API
+              // finds cart by userId only, not by specific examId
+              const isInLocalCart = isAuthenticated && cartItems.some((item: CartItem) => {
+                // Match by exact exam ID - be very precise
+                // Check both id and _id fields, and ensure exact match
+                const itemId = item.id || item._id;
+                return itemId === exam.id;
+              });
+              
+              // Only show "Begin Exam" if exam is in local cart
+              // Don't rely on backend status check since it's not exam-specific
+              const isInCart = isAuthenticated && isInLocalCart;
 
               const meta = examMeta[exam.id] || {
                 price: 0,
@@ -179,12 +234,12 @@ const PaidPage = (props: Props) => {
 
               const beginHref =
                 exam.id === "barrister-set-a"
-                  ? "/barrister-exam/set-a/start"
+                  ? "/barrister-exam/set-a"
                   : exam.id === "barrister-set-b"
-                  ? "/barrister-exam/set-b/start"
+                  ? "/barrister-exam/set-b"
                   : exam.id === "solicitor-set-a"
-                  ? "/solicitor-exam/set-a/start"
-                  : "/solicitor-exam/set-b/start";
+                  ? "/solicitor-exam/set-a"
+                  : "/solicitor-exam/set-b";
 
               return (
                 <ExamCard
@@ -198,10 +253,18 @@ const PaidPage = (props: Props) => {
                   duration={meta.examTime}
                   buttonText={isInCart ? "Begin Exam" : "Add To Cart"}
                   href={isInCart ? beginHref : "#"}
+                  isLoading={addingToCart[exam.id] || false}
                   onButtonClick={
                     isInCart
                       ? undefined
-                      : () => handleAddToCart(exam.id, exam.title, meta.price)
+                      : () =>
+                          handleAddToCart(
+                            exam.id,
+                            exam.title,
+                            meta.price,
+                            exam.examType,
+                            exam.pricingKey
+                          )
                   }
                 />
               );

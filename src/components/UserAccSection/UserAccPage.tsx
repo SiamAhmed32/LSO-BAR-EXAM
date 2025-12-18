@@ -51,7 +51,7 @@ const UserAccPage = (props: Props) => {
               {cartItems.length === 0 ? (
                 <p className="text-primaryText/80 text-sm sm:text-base">
                   You have not added any paid exams yet. Go to{" "}
-                  <Link href="/practice-questions" className="text-primaryColor underline">
+                  <Link href="/practice" className="text-primaryColor underline">
                     Practice Questions
                   </Link>{" "}
                   to add an exam.
@@ -67,13 +67,13 @@ const UserAccPage = (props: Props) => {
                         const examId = item.id;
                         const beginHref =
                           examId === "barrister-set-a"
-                            ? "/barrister-exam/set-a/start"
+                            ? "/barrister-exam/set-a"
                             : examId === "barrister-set-b"
-                            ? "/barrister-exam/set-b/start"
+                            ? "/barrister-exam/set-b"
                             : examId === "solicitor-set-a"
-                            ? "/solicitor-exam/set-a/start"
+                            ? "/solicitor-exam/set-a"
                             : examId === "solicitor-set-b"
-                            ? "/solicitor-exam/set-b/start"
+                            ? "/solicitor-exam/set-b"
                             : "#";
 
                         return (

@@ -8,25 +8,28 @@ import { useRouter } from 'next/navigation';
 interface FreeExamPageProps {
 	examType: 'barrister' | 'solicitor';
 	examTitle: string;
-	onAgree?: () => void;
+	/**
+	 * Optional explicit path to navigate to after accepting terms.
+	 * If not provided, defaults to the free exam start route.
+	 */
+	startPath?: string;
 }
 
 const FreeExamPage: React.FC<FreeExamPageProps> = ({
 	examType,
 	examTitle,
-	onAgree,
+	startPath,
 }) => {
 	const router = useRouter();
 	const [hasAgreed, setHasAgreed] = useState(false);
 
 	const handleAgree = () => {
 		setHasAgreed(true);
-		if (onAgree) {
-			onAgree();
-		} else {
-			// Default behavior: navigate to exam
-			router.push(`/${examType}-free-exam/start`);
-		}
+
+		// If a custom target path is provided (e.g., for paid exams), use it.
+		// Otherwise fall back to the default free exam start route.
+		const targetPath = startPath || `/${examType}-free-exam/start`;
+		router.push(targetPath);
 	};
 
 	return (

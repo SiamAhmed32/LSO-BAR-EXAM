@@ -9,6 +9,7 @@ import Label from '@/components/shared/Label';
 import { useLoginMutation } from '@/store/services/authApi';
 import { useDispatch } from 'react-redux';
 import { login as loginAction } from '@/store/slices/authSlice';
+import Loader from '@/components/shared/Loader';
 
 interface LoginFormProps extends React.ComponentProps<'div'> {
   className?: string;
@@ -19,6 +20,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [login, { isLoading }] = useLoginMutation();
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +37,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         // The session cookie is automatically set by the API
         console.log('Login Form - Login successful, redirecting...');
         toast.success('Login successful!');
+        setIsRedirecting(true);
 
         // Redirect based on user role
         const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
@@ -46,6 +49,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         dispatch(loginAction({ token: result.token, refreshToken: result.refreshToken }));
         console.log('Login Form - Token stored in Redux and localStorage');
         toast.success('Login successful!');
+        setIsRedirecting(true);
 
         // Redirect based on user role
         const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
@@ -132,10 +136,11 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               <div className="flex flex-col gap-3">
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading || isRedirecting}
+                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {(isLoading || isRedirecting) && <Loader size="sm" />}
+                  {isLoading ? 'Logging in...' : isRedirecting ? 'Redirecting...' : 'Login'}
                 </button>
                 {/* <button
                   type="button"

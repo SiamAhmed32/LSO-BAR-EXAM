@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import Loader from './Loader';
 
 interface ExamCardProps {
 	title: string;
@@ -9,6 +10,7 @@ interface ExamCardProps {
 	href: string;
 	onButtonClick?: () => void;
 	disabled?: boolean;
+	isLoading?: boolean;
 	price?: number;
 	duration?: string;
 }
@@ -20,6 +22,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 	href,
 	onButtonClick,
 	disabled = false,
+	isLoading = false,
 	price,
 	duration,
 }) => {
@@ -59,11 +62,12 @@ const ExamCard: React.FC<ExamCardProps> = ({
 				<button
 					type="button"
 					onClick={onButtonClick}
-					disabled={disabled}
-					className={`w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base ${
-						disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+					disabled={disabled || isLoading}
+					className={`w-full bg-primaryColor text-white font-bold py-3 px-6 rounded-md hover:opacity-90 transition-opacity text-center text-sm sm:text-base flex items-center justify-center gap-2 ${
+						disabled || isLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
 					}`}
 				>
+					{isLoading && <Loader size="sm" />}
 					{buttonText}
 				</button>
 			) : (

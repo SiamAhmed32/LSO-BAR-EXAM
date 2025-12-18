@@ -6,15 +6,20 @@ import { usePathname, useRouter } from "next/navigation";
 import { User, LogOut, ChevronRight } from "lucide-react";
 import { useUser } from "../context";
 import { cn } from "@/lib/utils";
+import { useDispatch } from "react-redux";
+import { resetCart } from "@/store/slices/cartSlice";
 
 const AccountSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      // Clear cart on logout
+      dispatch(resetCart());
     } catch {
       // ignore error; still redirect
     } finally {
