@@ -66,7 +66,8 @@ const PAID_EXAMS = [
 ] as const;
 
 const PaidPage = (props: Props) => {
-  const dispatch = useDispatch();
+  // Use any here to avoid TS complaining about thunk return type being unknown
+  const dispatch = useDispatch<any>();
   const router = useRouter();
   const { isAuthenticated } = useUser();
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
