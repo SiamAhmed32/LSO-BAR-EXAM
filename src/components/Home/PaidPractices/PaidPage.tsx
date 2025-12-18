@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Container from "@/components/shared/Container";
 import { SectionHeading } from "@/components/shared";
 import ExamCard from "@/components/shared/ExamCard";
-import type { RootState, AppDispatch } from "@/store";
+import type { RootState } from "@/store";
 import { addToCart, addExamToCartBackend, checkExamInCart, resetCart, type CartItem } from "@/store/slices/cartSlice";
 import { useUser } from "@/components/context";
 import { examApi } from "@/lib/api/examApi";
@@ -66,7 +66,8 @@ const PAID_EXAMS = [
 ] as const;
 
 const PaidPage = (props: Props) => {
-  const dispatch = useDispatch<AppDispatch>();
+  // Use any here to avoid TS complaining about thunk return type being unknown
+  const dispatch = useDispatch<any>();
   const router = useRouter();
   const { isAuthenticated } = useUser();
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
