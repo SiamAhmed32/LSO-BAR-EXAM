@@ -11,6 +11,9 @@ type InputFieldProps = {
 	placeholder?: string;
 	error?: string;
 	required?: boolean;
+	min?: string | number;
+	max?: string | number;
+	step?: string | number;
 };
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -22,6 +25,9 @@ const InputField: React.FC<InputFieldProps> = ({
 	placeholder,
 	error,
 	required = false,
+	min,
+	max,
+	step,
 }) => {
 	/////////////////////////  this will be in parent component
 
@@ -50,6 +56,9 @@ const InputField: React.FC<InputFieldProps> = ({
 				onChange={onChange}
 				placeholder={placeholder}
 				required={required}
+				min={min}
+				max={max}
+				step={step}
 				className={`font-primary input_field w-full px-4 py-2 border focus:outline-none focus:border-transparent focus:ring-2 focus:ring-button transition ${
 					error ? 'border-red-400' : 'border-borderBg'
 				}`}

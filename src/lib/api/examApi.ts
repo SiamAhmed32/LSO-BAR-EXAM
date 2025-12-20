@@ -232,8 +232,8 @@ export const examApi = {
     }
   },
 
-  // Get exam metadata (price, duration) - Public endpoint, no auth required
-  async getExamMetadata(): Promise<Record<string, { price: number; examTime: string }>> {
+  // Get exam metadata (price, duration, questionCount, attemptCount) - Public endpoint, no auth required
+  async getExamMetadata(): Promise<Record<string, { price: number; examTime: string; questionCount: number; attemptCount: number | null }>> {
     const response = await fetch('/api/exams/metadata', {
       method: 'GET',
       credentials: 'include',
