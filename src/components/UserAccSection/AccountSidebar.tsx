@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, LogOut, ChevronRight, Home } from "lucide-react";
+import { User, LogOut, ChevronRight, Home, ShoppingBag } from "lucide-react";
 import { useUser } from "../context";
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
@@ -33,6 +33,11 @@ const AccountSidebar = () => {
       title: "Account Details",
       href: "/user-account",
       icon: User,
+    },
+    {
+      title: "My Orders",
+      href: "/user-account/orders",
+      icon: ShoppingBag,
     },
   ];
 
