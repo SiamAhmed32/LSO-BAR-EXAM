@@ -234,20 +234,34 @@ const BarristerPaidExam = () => {
 				
 				{/* Exam Settings Display */}
 				<Box className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4'>
-					<h3 className='text-lg font-semibold text-blue-900 mb-2'>Exam Information</h3>
-					<Box className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-						<Box>
-							<span className='font-medium text-blue-800'>Price:</span>
-							<span className='ml-2 text-blue-700'>
-								{examSettings?.price ? `$${examSettings.price}` : 'Not set'}
-							</span>
-						</Box>
-						<Box>
-							<span className='font-medium text-blue-800'>Duration:</span>
-							<span className='ml-2 text-blue-700'>
-								{examSettings?.examTime || 'Not set'}
-							</span>
-						</Box>
+					<h3 className='text-lg font-semibold text-blue-900 mb-4'>Exam Information</h3>
+					<Box className='overflow-x-auto'>
+						<table className='w-full border-collapse'>
+							<thead>
+								<tr className='border-b border-blue-300'>
+									<th className='text-left py-2 px-4 font-semibold text-blue-900'>Question Count</th>
+									<th className='text-left py-2 px-4 font-semibold text-blue-900'>Price</th>
+									<th className='text-left py-2 px-4 font-semibold text-blue-900'>Duration</th>
+									<th className='text-left py-2 px-4 font-semibold text-blue-900'>Attempt Count</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td className='py-2 px-4 text-blue-700'>
+										{examSettings?.questionCount !== undefined ? examSettings.questionCount : 'N/A'}
+									</td>
+									<td className='py-2 px-4 text-blue-700'>
+										{examSettings?.price ? `$${examSettings.price.toFixed(2)}` : 'Not set'}
+									</td>
+									<td className='py-2 px-4 text-blue-700'>
+										{examSettings?.examTime || 'Not set'}
+									</td>
+									<td className='py-2 px-4 text-blue-700'>
+										{examSettings?.attemptCount !== undefined ? examSettings.attemptCount : 'Not set'}
+									</td>
+								</tr>
+							</tbody>
+						</table>
 					</Box>
 				</Box>
 			</Box>
@@ -334,6 +348,7 @@ const BarristerPaidExam = () => {
 						description: examSettings?.description || '',
 						price: examSettings?.price || 0,
 						examTime: examSettings?.examTime || '',
+						attemptCount: examSettings?.attemptCount || undefined,
 					}}
 					onSubmit={handleSubmitSettings}
 					onCancel={handleCloseSettingsDialog}

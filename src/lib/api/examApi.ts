@@ -212,6 +212,7 @@ export const examApi = {
       description?: string;
       price?: number;
       examTime?: string;
+      attemptCount?: number;
     }
   ): Promise<void> {
     const path = buildApiPath(examType, pricingType);

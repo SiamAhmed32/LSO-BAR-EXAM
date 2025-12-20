@@ -55,19 +55,20 @@ enum ExamSet {
 }
 
 model Exam {
-  id          String      @id @default(uuid())
-  examType    ExamType
-  pricingType PricingType
-  price       Float?
-  examTime    String?
-  examSet     ExamSet?
-  title       String?
-  description String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String      @id @default(uuid())
+  examType     ExamType
+  pricingType  PricingType
+  price        Float?
+  examTime     String?
+  attemptCount  Int?
+  examSet      ExamSet?
+  title        String?
+  description  String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   
-  questions   Question[]
-  carts       Cart[]
+  questions    Question[]
+  carts        Cart[]
 
   @@index([examType])
   @@index([pricingType])
