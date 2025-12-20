@@ -37,6 +37,8 @@ const FreeExamPage: React.FC<FreeExamPageProps> = ({
 	const [isCheckingProgress, setIsCheckingProgress] = useState(true);
 	const [examDuration, setExamDuration] = useState<string | null>(null);
 	const [isLoadingDuration, setIsLoadingDuration] = useState(false);
+	const [questionCount, setQuestionCount] = useState<number | null>(null);
+	const [attemptCount, setAttemptCount] = useState<number | null>(null);
 
 	// Check if exam is in progress - if so, skip terms and go directly to exam
 	useEffect(() => {
@@ -99,19 +101,27 @@ const FreeExamPage: React.FC<FreeExamPageProps> = ({
 		setIsCheckingProgress(false);
 	}, [examTitle, startPath, examType, router]);
 
-	// Fetch exam duration for paid exams
+	// Fetch exam metadata (duration, question count, attempt count) for paid exams
 	useEffect(() => {
 		if (isPaid && examId && !isCheckingProgress) {
 			setIsLoadingDuration(true);
 			examApi.getExamMetadata()
 				.then((metadata) => {
 					const examMeta = metadata[examId];
-					if (examMeta?.examTime) {
-						setExamDuration(examMeta.examTime);
+					if (examMeta) {
+						if (examMeta.examTime) {
+							setExamDuration(examMeta.examTime);
+						}
+						if (examMeta.questionCount !== undefined) {
+							setQuestionCount(examMeta.questionCount);
+						}
+						if (examMeta.attemptCount !== undefined) {
+							setAttemptCount(examMeta.attemptCount);
+						}
 					}
 				})
 				.catch((error) => {
-					console.error("Failed to load exam duration:", error);
+					console.error("Failed to load exam metadata:", error);
 				})
 				.finally(() => {
 					setIsLoadingDuration(false);
@@ -224,18 +234,34 @@ const FreeExamPage: React.FC<FreeExamPageProps> = ({
 												The timer will start when you begin the exam and will continue running even if you navigate away from the exam page or close your browser. The exam will automatically submit when the time limit expires.
 											</p>
 										</div>
+										{questionCount !== null && questionCount > 0 && (
+											<div>
+												<h3 className="text-lg font-semibold text-primaryText mb-2">
+													Number of Questions
+												</h3>
+												<p>
+													<span className="font-medium">This exam contains <strong>{questionCount} question{questionCount !== 1 ? 's' : ''}</strong>.</span>
+												</p>
+											</div>
+										)}
 										<div>
 											<h3 className="text-lg font-semibold text-primaryText mb-2">
 												Attempt Limits
 											</h3>
 											<p>
-												<span className="font-medium">You have a maximum of <strong>two (2) attempts</strong> to complete this exam.</span>
+												{attemptCount !== null && attemptCount > 0 ? (
+													<span className="font-medium">You have a maximum of <strong>{attemptCount === 1 ? 'one (1)' : attemptCount === 2 ? 'two (2)' : `${attemptCount}`} attempt{attemptCount > 1 ? 's' : ''}</strong> to complete this exam.</span>
+												) : (
+													<span className="font-medium">You have a maximum of <strong>two (2) attempts</strong> to complete this exam.</span>
+												)}
 											</p>
 											<ul className="list-disc list-inside space-y-1 mt-2 ml-4">
 												<li>An attempt is counted when you click "Finish Test" or when the exam timer expires</li>
 												<li>Starting an exam and navigating away without finishing does not count as a completed attempt</li>
 												<li>You can review your results after each completed attempt</li>
-												<li>Once you have used both attempts, you will no longer be able to access the exam questions</li>
+												{attemptCount !== null && attemptCount > 0 && (
+													<li>Once you have used all {attemptCount} attempt{attemptCount > 1 ? 's' : ''}, you will no longer be able to access the exam questions</li>
+												)}
 											</ul>
 										</div>
 										<div>

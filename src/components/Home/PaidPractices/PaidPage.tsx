@@ -80,6 +80,8 @@ const PaidPage = (props: Props) => {
       {
         price: number;
         examTime: string;
+        questionCount: number;
+        attemptCount: number | null;
       }
     >
   >({});
@@ -289,6 +291,8 @@ const PaidPage = (props: Props) => {
               const meta = examMeta[exam.id] || {
                 price: 0,
                 examTime: "Duration not set",
+                questionCount: 0,
+                attemptCount: null,
               };
 
               const beginHref =
@@ -310,14 +314,22 @@ const PaidPage = (props: Props) => {
                 buttonText = "Begin Exam";
               }
 
+              // Build dynamic features
+              const dynamicFeatures = [
+                    meta.questionCount > 0 
+                      ? `${meta.questionCount} ${exam.examType === "barrister" ? "Barrister" : "Solicitor"} Questions`
+                      : exam.baseFeatures[0] || "Questions",
+                    meta.attemptCount !== null && meta.attemptCount > 0
+                      ? `${meta.attemptCount === 1 ? "One" : meta.attemptCount === 2 ? "Two" : meta.attemptCount} attempt${meta.attemptCount > 1 ? "s" : ""} ONLY`
+                      : exam.baseFeatures[1] || "Two(2) attempts ONLY",
+                    ...exam.baseFeatures.slice(2), // Keep "Updated to 2025/2026" and "Answers with Explanations"
+                  ];
+
               return (
                 <ExamCard
                   key={exam.id}
                   title={exam.title}
-                  features={[
-                    ...(exam.baseFeatures || []),
-                    // keep feature list focused on content; price/duration shown separately
-                  ]}
+                  features={dynamicFeatures}
                   price={meta.price}
                   duration={meta.examTime}
                   buttonText={buttonText}
