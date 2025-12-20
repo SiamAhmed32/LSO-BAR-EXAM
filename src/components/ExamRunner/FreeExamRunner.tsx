@@ -182,6 +182,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
       sessionStorage.setItem(
         `exam-results-${examType}-${examSet}`,
         JSON.stringify({
+          finished: true, // Flag to indicate exam was properly finished
           answers,
           questions: questions.map((q) => ({
             id: q.id,

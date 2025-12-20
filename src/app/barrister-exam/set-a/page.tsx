@@ -8,6 +8,8 @@ const BarristerSetAIntroPage = () => {
         examType="barrister"
         examTitle="Barrister Exam Set A"
         startPath="/barrister-exam/set-a/start"
+        isPaid={true}
+        examId="barrister-set-a"
       />
     </Layout>
   );

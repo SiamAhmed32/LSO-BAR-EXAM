@@ -8,7 +8,7 @@ import Link from 'next/link';
 const ContactPage = () => {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-24 md:py-24 lg:py-32">
+      <div className="container mx-auto px-4 py-24 lg:py-32">
         <div className="max-w-2xl mx-auto">
           {/* Main Heading */}
           <div className="mb-6">

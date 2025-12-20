@@ -8,8 +8,8 @@ import { getSession } from '@/lib/server/session';
 import CartLoader from '@/components/shared/CartLoader';
 
 export const metadata: Metadata = {
-	title: 'Frontend Template',
-	description: 'A Next.js starter template',
+	title: 'LSO Bar Exam',
+	description: 'Practice for the Law Society of Ontario Bar Exam with free and paid practice questions for Barrister and Solicitor exams.',
 };
 
 export default async function RootLayout({

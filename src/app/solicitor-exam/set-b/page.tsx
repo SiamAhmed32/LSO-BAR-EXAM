@@ -8,6 +8,8 @@ const SolicitorSetBIntroPage = () => {
         examType="solicitor"
         examTitle="Solicitor Exam Set B"
         startPath="/solicitor-exam/set-b/start"
+        isPaid={true}
+        examId="solicitor-set-b"
       />
     </Layout>
   );

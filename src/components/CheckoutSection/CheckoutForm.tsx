@@ -334,8 +334,7 @@ const CheckoutForm = () => {
           />
           <span className="text-sm text-primaryText">
             I understand and accept that all of LSO Bar Prep&apos;s paid
-            products are accessible for 90 days and can be attempted two
-            times. I confirm and accept that I have read{" "}
+            products can be attempted two times. I confirm and accept that I have read{" "}
             <a
               href="#"
               className="text-primaryColor underline hover:opacity-80"

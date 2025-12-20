@@ -137,7 +137,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                 <button
                   type="submit"
                   disabled={isLoading || isRedirecting}
-                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 bg-primaryColor text-white font-bold cursor-pointer rounded-md hover:opacity-90 transition-opacity disabled:opacity-50  disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {(isLoading || isRedirecting) && <Loader size="sm" />}
                   {isLoading ? 'Logging in...' : isRedirecting ? 'Redirecting...' : 'Login'}
@@ -148,10 +148,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                 >
                   Login with Google
                 </button> */}
-                <p className="text-sm text-center text-primaryText opacity-70">
+                <p className="text-sm text-center text-primaryText cursor-pointer opacity-70">
                   Don&apos;t have an account?{' '}
                   <a href="/register" className="text-primaryColor hover:underline">
-                    Sign up
+                    Register
                   </a>
                 </p>
               </div>

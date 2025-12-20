@@ -59,26 +59,49 @@ const TermsAndConditionsPage = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-semibold text-primaryText mb-2">
-                      3.1 Access Duration
+                      3.1 Attempt Limits
+                    </h3>
+                    <p className="text-sm sm:text-base text-primaryText/80 leading-relaxed mb-2">
+                      Paid exam materials can be attempted a maximum of two (2) times. An attempt is counted when you click "Finish Test" or when the exam timer expires. Important points regarding attempts:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-sm sm:text-base text-primaryText/80 ml-4 mb-2">
+                      <li>Each exam can be taken a maximum of two (2) times</li>
+                      <li>An attempt is considered complete when you finish the exam or the time limit is reached</li>
+                      <li>Starting an exam and navigating away does not count as a completed attempt</li>
+                      <li>Once you have completed two attempts, you will no longer be able to access the exam questions</li>
+                      <li>You can review your results and answers after each attempt</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-primaryText mb-2">
+                      3.2 Exam Duration and Timing
+                    </h3>
+                    <p className="text-sm sm:text-base text-primaryText/80 leading-relaxed mb-2">
+                      Each paid exam has a specific time duration that is displayed before you begin. Important information about exam timing:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-sm sm:text-base text-primaryText/80 ml-4 mb-2">
+                      <li>Exam duration is set for each exam and will be clearly displayed on the exam page</li>
+                      <li>The timer continues running even if you navigate away from the exam page</li>
+                      <li>When the time limit is reached, the exam will automatically be submitted</li>
+                      <li>You can pause and resume your exam within the same attempt, but the timer continues</li>
+                      <li>Time remaining is saved and will be restored when you return to the exam</li>
+                      <li>Once time expires, you cannot continue answering questions for that attempt</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-primaryText mb-2">
+                      3.3 Exam Progress and Resumption
                     </h3>
                     <p className="text-sm sm:text-base text-primaryText/80 leading-relaxed">
-                      All paid products are accessible for 90 days from the date of purchase. After this period, access will expire and cannot be extended without a new purchase.
+                      Your exam progress (selected answers, bookmarked questions, and current position) is automatically saved. You can leave the exam and return later within the same attempt, and your progress will be restored. However, the timer continues running. Once an exam is finished or time expires, you must start a new attempt (if attempts remain) to take the exam again.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-primaryText mb-2">
-                      3.2 Attempt Limits
+                      3.4 Payment Terms
                     </h3>
                     <p className="text-sm sm:text-base text-primaryText/80 leading-relaxed">
-                      Paid exam materials can be attempted a maximum of two (2) times. Once you have completed two attempts, you will no longer be able to access the exam questions.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-primaryText mb-2">
-                      3.3 Payment Terms
-                    </h3>
-                    <p className="text-sm sm:text-base text-primaryText/80 leading-relaxed">
-                      All fees are payable in advance. We reserve the right to change our pricing at any time, but price changes will not affect purchases already completed.
+                      All fees are payable in advance. We reserve the right to change our pricing at any time, but price changes will not affect purchases already completed. Payment must be completed before access to paid exam materials is granted.
                     </p>
                   </div>
                 </div>

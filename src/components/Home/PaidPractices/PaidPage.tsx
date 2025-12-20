@@ -87,6 +87,9 @@ const PaidPage = (props: Props) => {
   const [backendCartStatus, setBackendCartStatus] = useState<
     Record<string, boolean>
   >({});
+  const [examProgressStatus, setExamProgressStatus] = useState<
+    Record<string, boolean>
+  >({});
 
   // Load dynamic price & duration for each paid exam from public endpoint
   useEffect(() => {
@@ -134,6 +137,58 @@ const PaidPage = (props: Props) => {
       dispatch(resetCart());
     }
   }, [isAuthenticated, dispatch]);
+
+  // Check exam progress status for all paid exams
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkProgress = () => {
+      const status: Record<string, boolean> = {};
+      PAID_EXAMS.forEach((exam) => {
+        const storageKey = `free-exam-${exam.title.toLowerCase().replace(/\s+/g, "-")}`;
+        const data = localStorage.getItem(storageKey);
+        
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            // Only consider it "in progress" if there's valid exam progress data
+            const hasValidProgress = parsed && (
+              (parsed.answers && Object.keys(parsed.answers).length > 0) ||
+              (parsed.bookmarked && parsed.bookmarked.length > 0) ||
+              (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0)
+            );
+            status[exam.id] = hasValidProgress;
+          } catch (error) {
+            // Invalid JSON, not in progress
+            status[exam.id] = false;
+          }
+        } else {
+          status[exam.id] = false;
+        }
+      });
+      setExamProgressStatus(status);
+    };
+
+    // Check initially
+    checkProgress();
+
+    // Listen for storage changes (when exam starts/finishes)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith("free-exam-")) {
+        checkProgress();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also check periodically in case localStorage is changed in same tab
+    const interval = setInterval(checkProgress, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleAddToCart = async (
     examId: string,
@@ -228,6 +283,9 @@ const PaidPage = (props: Props) => {
               // Don't rely on backend status check since it's not exam-specific
               const isInCart = isAuthenticated && isInLocalCart;
 
+              // Check if exam is in progress (localStorage has progress)
+              const isExamInProgress = examProgressStatus[exam.id] || false;
+
               const meta = examMeta[exam.id] || {
                 price: 0,
                 examTime: "Duration not set",
@@ -242,6 +300,16 @@ const PaidPage = (props: Props) => {
                   ? "/solicitor-exam/set-a"
                   : "/solicitor-exam/set-b";
 
+              // Determine button text and behavior
+              let buttonText: string;
+              if (!isInCart) {
+                buttonText = "Add To Cart";
+              } else if (isExamInProgress) {
+                buttonText = "Resume Exam";
+              } else {
+                buttonText = "Begin Exam";
+              }
+
               return (
                 <ExamCard
                   key={exam.id}
@@ -252,7 +320,7 @@ const PaidPage = (props: Props) => {
                   ]}
                   price={meta.price}
                   duration={meta.examTime}
-                  buttonText={isInCart ? "Begin Exam" : "Add To Cart"}
+                  buttonText={buttonText}
                   href={isInCart ? beginHref : "#"}
                   isLoading={addingToCart[exam.id] || false}
                   onButtonClick={
