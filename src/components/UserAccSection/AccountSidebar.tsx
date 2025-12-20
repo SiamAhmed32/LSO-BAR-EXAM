@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, LogOut, ChevronRight } from "lucide-react";
+import { User, LogOut, ChevronRight, Home } from "lucide-react";
 import { useUser } from "../context";
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
@@ -94,7 +94,14 @@ const AccountSidebar = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 p-4 mt-auto">
+      <div className="border-t border-gray-200 p-4 mt-auto space-y-2">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-primaryText hover:bg-gray-100 transition-colors w-full cursor-pointer"
+        >
+          <Home className="w-4 h-4" />
+          <span>Home</span>
+        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-primaryText hover:bg-gray-100 transition-colors w-full cursor-pointer"

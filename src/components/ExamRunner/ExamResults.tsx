@@ -15,6 +15,7 @@ interface ExamResultsProps {
 }
 
 interface StoredResults {
+  finished?: boolean; // Flag to verify exam was properly finished
   answers: Record<number, string | undefined>;
   questions: Array<{
     id: number;
@@ -44,6 +45,7 @@ const ExamResults: React.FC<ExamResultsProps> = ({
   const [results, setResults] = useState<StoredResults | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAnswers, setIsCheckingAnswers] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [gradedResults, setGradedResults] = useState<{
     correct: number;
     incorrect: number;
@@ -65,13 +67,31 @@ const ExamResults: React.FC<ExamResultsProps> = ({
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as StoredResults;
+        
+        // CRITICAL: Only show results if exam was properly finished
+        // If someone tries to access results page directly without finishing, redirect to home
+        if (!parsed.finished) {
+          console.warn("⚠️ Attempted to access results page without finishing exam. Redirecting...");
+          setIsRedirecting(true);
+          router.push("/");
+          return;
+        }
+        
         setResults(parsed);
       } catch (error) {
         console.error("Error parsing stored results:", error);
+        // If there's an error parsing, redirect to home
+        setIsRedirecting(true);
+        router.push("/");
       }
+    } else {
+      // No results data found, redirect to home
+      console.warn("⚠️ No exam results found. Redirecting to home...");
+      setIsRedirecting(true);
+      router.push("/");
     }
     setIsLoading(false);
-  }, [examType, examSet]);
+  }, [examType, examSet, router]);
 
   // Grade the exam by comparing answers with correct answers
   useEffect(() => {
@@ -145,6 +165,11 @@ const ExamResults: React.FC<ExamResultsProps> = ({
     gradedResults && totalQuestions > 0
       ? (gradedResults.correct / totalQuestions) * 100
       : 0;
+
+  // If redirecting, don't render anything
+  if (isRedirecting) {
+    return null;
+  }
 
   // While loading from storage or grading answers, show loader only
   // and avoid rendering an intermediate, incorrect summary state.

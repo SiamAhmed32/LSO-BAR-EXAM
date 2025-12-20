@@ -14,7 +14,7 @@ type Props = {};
 
 const FaqPage = (props: Props) => {
   return (
-    <section className="py-24  lg:py-24 bg-primaryBg">
+    <section className="py-24  lg:py-32 bg-primaryBg">
       <Container>
         <div className="max-w-4xl mx-auto">
           {/* Page Heading */}
@@ -52,24 +52,6 @@ const FaqPage = (props: Props) => {
               </AccordionItem>
 
               <AccordionItem value="refund-2" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
-                <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  Can I have access to the exams for more than 90 days?
-                </AccordionTrigger>
-                <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
-                  <div className="flex flex-col gap-3">
-                    <p>
-                      Standard access to purchased exams is 90 days from the date of purchase. 
-                      If you need extended access, we offer extension packages.
-                    </p>
-                    <p>
-                      Contact us through our contact page to discuss extension options and pricing. 
-                      We understand that exam preparation timelines can vary, and we&apos;re here to help.
-                    </p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="refund-3" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
                 <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
                   Is there a coupon code currently available?
                 </AccordionTrigger>
@@ -113,23 +95,6 @@ const FaqPage = (props: Props) => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="general-2" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
-                <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  How long do I have access to the exams after I purchase them?
-                </AccordionTrigger>
-                <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
-                  <div className="flex flex-col gap-3">
-                    <p>
-                      Standard access is 90 days from the date of purchase. During this period, 
-                      you can take the exams, review answers, and access explanations as many times as needed.
-                    </p>
-                    <p>
-                      The 90-day period gives you ample time to prepare, practice, and review the material 
-                      thoroughly before your actual bar exam.
-                    </p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
 
               <AccordionItem value="general-3" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
                 <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
@@ -179,8 +144,7 @@ const FaqPage = (props: Props) => {
                       see which questions you got correct or incorrect, and read detailed explanations for each question.
                     </p>
                     <p>
-                      This review feature is available for the duration of your 90-day access period, 
-                      allowing you to study and learn from your mistakes.
+                      This review feature allows you to study and learn from your mistakes.
                     </p>
                   </div>
                 </AccordionContent>

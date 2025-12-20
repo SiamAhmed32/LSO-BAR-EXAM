@@ -67,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         skip,
         take: limit,
         orderBy: {
-          createdAt: "desc",
+          createdAt: "asc",
         },
       }),
       prisma.question.count({

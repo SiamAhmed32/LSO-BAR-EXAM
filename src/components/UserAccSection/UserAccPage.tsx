@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Container from "../shared/Container";
 import AccountSidebar from "./AccountSidebar";
 import AccountDetails from "./AccountDetails";
@@ -13,6 +13,20 @@ type Props = {};
 
 const UserAccPage = (props: Props) => {
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const [examProgressStatus, setExamProgressStatus] = useState<Record<string, boolean>>({});
+
+  // Check exam progress status for all cart items
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const status: Record<string, boolean> = {};
+    cartItems.forEach((item: CartItem) => {
+      const examTitle = item.name;
+      const storageKey = `free-exam-${examTitle.toLowerCase().replace(/\s+/g, "-")}`;
+      status[item.uniqueId || item.id] = localStorage.getItem(storageKey) !== null;
+    });
+    setExamProgressStatus(status);
+  }, [cartItems]);
 
   return (
     <section className="min-h-screen bg-primaryBg py-16 sm:py-20 md:py-24 lg:py-28">
@@ -76,6 +90,10 @@ const UserAccPage = (props: Props) => {
                             ? "/solicitor-exam/set-b"
                             : "#";
 
+                        // Check if exam is in progress
+                        const isExamInProgress = examProgressStatus[item.uniqueId || item.id] || false;
+                        const buttonText = isExamInProgress ? "Resume Exam" : "Begin Exam";
+
                         return (
                           <>
                             <div>
@@ -83,7 +101,7 @@ const UserAccPage = (props: Props) => {
                                 {item.name}
                               </p>
                               <p className="text-xs text-primaryText/70 mt-1">
-                                Status: <span className="font-medium">Ready to begin</span>
+                                Status: <span className="font-medium">{isExamInProgress ? "In Progress" : "Ready to begin"}</span>
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
@@ -91,7 +109,7 @@ const UserAccPage = (props: Props) => {
                                 href={beginHref}
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primaryColor text-white text-sm font-semibold hover:opacity-90 transition"
                               >
-                                Begin Exam
+                                {buttonText}
                               </Link>
                             </div>
                           </>
