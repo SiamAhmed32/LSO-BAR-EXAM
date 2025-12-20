@@ -109,11 +109,13 @@ const PaidPage = (props: Props) => {
         console.error("Failed to load paid exam metadata:", error);
         // Fallback: set default values for all exams
         if (!isMounted) return;
-        const fallback: Record<string, { price: number; examTime: string }> = {};
+        const fallback: Record<string, { price: number; examTime: string; questionCount: number; attemptCount: number | null }> = {};
         PAID_EXAMS.forEach((exam) => {
           fallback[exam.id] = {
             price: 0,
             examTime: "Duration not set",
+            questionCount: 0,
+            attemptCount: null,
           };
         });
         setExamMeta(fallback);
