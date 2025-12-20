@@ -21,6 +21,7 @@ export const createExamSchema = z.object({
   description: z.string().optional(),
   price: z.number().positive("Price must be a positive number").optional(),
   examTime: z.string().min(1, "Exam time is required").optional(),
+  attemptCount: z.number().int().positive("Attempt count must be a positive integer").optional(),
 });
 
 export const createQuestionSchema = z.object({

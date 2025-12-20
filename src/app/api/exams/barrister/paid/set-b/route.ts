@@ -90,6 +90,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             description: exam.description,
             price: exam.price,
             examTime: exam.examTime,
+            questionCount: total,
+            attemptCount: exam.attemptCount,
           },
           questions,
           pagination: {
@@ -270,34 +272,75 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
           description: result.data.description,
           price: result.data.price,
           examTime: result.data.examTime || null,
+          attemptCount: result.data.attemptCount || null,
         },
       });
     } else {
+      const updateData: any = {};
+      
+      if (result.data.title !== undefined) {
+        updateData.title = result.data.title || null;
+      }
+      if (result.data.description !== undefined) {
+        updateData.description = result.data.description || null;
+      }
+      if (result.data.price !== undefined) {
+        updateData.price = result.data.price ?? null;
+      }
+      if (result.data.examTime !== undefined) {
+        updateData.examTime = result.data.examTime || null;
+      }
+      if (result.data.attemptCount !== undefined) {
+        // Handle 0 as a valid value, only set null if explicitly null/undefined
+        updateData.attemptCount = result.data.attemptCount === null || result.data.attemptCount === undefined
+          ? null
+          : Number(result.data.attemptCount);
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return NextResponse.json(
+          {
+            error: "Bad Request",
+            message: "No fields provided for update",
+          },
+          { status: 400 }
+        );
+      }
+
       exam = await prisma.exam.update({
         where: { id: exam.id },
-        data: {
-          title: result.data.title,
-          description: result.data.description,
-          price: result.data.price,
-          examTime: result.data.examTime || null,
-        },
+        data: updateData,
       });
     }
+
+    // Compute questionCount dynamically
+    const questionCount = await prisma.question.count({
+      where: { examId: exam.id },
+    });
 
     return NextResponse.json(
       {
         success: true,
         message: "Exam updated successfully",
-        data: exam,
+        data: {
+          ...exam,
+          questionCount,
+        },
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Barrister Paid Exam PUT Error:", error);
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+    });
     return NextResponse.json(
       {
         error: "Internal Server Error",
-        message: "Failed to update exam",
+        message: error?.message || "Failed to update exam",
+        details: process.env.NODE_ENV === "development" ? error : undefined,
       },
       { status: 500 }
     );

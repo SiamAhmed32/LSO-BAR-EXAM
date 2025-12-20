@@ -11,6 +11,7 @@ interface ExamSettings {
   description?: string;
   price?: number;
   examTime?: string; // Duration string like "4 hours", "2 hours", "30 minutes"
+  attemptCount?: number; // Number of attempts a user can make
 }
 
 interface ExamSettingsFormProps {
@@ -35,6 +36,7 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
     description: initialData?.description || '',
     price: initialData?.price || 0,
     examTime: initialData?.examTime || '',
+    attemptCount: initialData?.attemptCount || undefined,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,6 +47,7 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
         description: initialData.description || '',
         price: initialData.price || 0,
         examTime: initialData.examTime || '',
+        attemptCount: initialData.attemptCount || undefined,
       });
     }
   }, [initialData]);
@@ -52,10 +55,17 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
   const handleChange = (field: keyof ExamSettings) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const value = field === 'price' ? parseFloat(e.target.value) || 0 : e.target.value;
+    let value: any;
+    if (field === 'price') {
+      value = parseFloat(e.target.value) || 0;
+    } else if (field === 'attemptCount') {
+      value = e.target.value ? parseInt(e.target.value) || undefined : undefined;
+    } else {
+      value = e.target.value;
+    }
     setFormData((prev) => ({
       ...prev,
-      [field]: value as any,
+      [field]: value,
     }));
   };
 
@@ -73,6 +83,11 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
       return;
     }
 
+    if (formData.attemptCount !== undefined && formData.attemptCount < 1) {
+      toast.error('Attempt count must be a positive integer');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
@@ -82,6 +97,9 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
         description: formData.description || undefined,
         price: formData.price ? formData.price : undefined,
         examTime: formData.examTime?.trim() || undefined,
+        attemptCount: formData.attemptCount !== undefined && formData.attemptCount !== null 
+          ? formData.attemptCount 
+          : undefined,
       };
 
       await onSubmit(submitData);
@@ -155,6 +173,23 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
           />
           <p className='text-xs text-gray-500 mt-1'>
             Enter the duration of the exam (e.g., "4 hours", "2 hours", "30 minutes")
+          </p>
+        </Box>
+
+        <Box>
+          <label htmlFor='attemptCount' className='block text-sm font-medium text-gray-700 mb-1'>
+            Attempt Count
+          </label>
+          <InputField
+            name='attemptCount'
+            type='number'
+            value={String(formData.attemptCount || '')}
+            onChange={handleChange('attemptCount')}
+            placeholder='Enter number of attempts allowed'
+            min='1'
+          />
+          <p className='text-xs text-gray-500 mt-1'>
+            Number of times a user can attempt this exam
           </p>
         </Box>
 

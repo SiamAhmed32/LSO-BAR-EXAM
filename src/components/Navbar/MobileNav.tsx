@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, ShoppingBag } from 'lucide-react';
 import { navDataLeft } from '../data/navConfig';
 import CartSidebar from '../shared/CartSidebar';
 import { useUser } from '../context';
@@ -35,7 +35,7 @@ const MobileNav = () => {
     <>
       {/* Icons and Hamburger - Always visible on tablet/mobile */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Login and Cart Icons with primary color background */}
+        {/* Login, Orders, and Cart Icons with primary color background */}
         <button
           onClick={handleAccountClick}
           className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
@@ -43,6 +43,15 @@ const MobileNav = () => {
         >
           <User className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
+        {isAuthenticated && role !== 'ADMIN' && (
+          <Link
+            href="/user-account/orders"
+            className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
+            aria-label="My Orders"
+          >
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Link>
+        )}
         <CartSidebar iconSize="w-4 h-4 sm:w-5 sm:h-5" />
         
         {/* Hamburger Button */}

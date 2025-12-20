@@ -5,7 +5,7 @@ import Link from "next/link";
 import Logo from "./Logo";
 import MobileNav from "./MobileNav";
 import { navDataLeft } from "../data/navConfig";
-import { User } from "lucide-react";
+import { User, ShoppingBag } from "lucide-react";
 import Container from "../shared/Container";
 import { useUser } from "../context";
 import CartSidebar from "../shared/CartSidebar";
@@ -64,14 +64,17 @@ const Navbar = () => {
                 <span>Login</span>
               </Link>
             ) : (
-              <Link
-                type="button"
-                href={role === "ADMIN" ? "/admin/dashboard" : "/user-account"}
-                className="bg-primaryColor text-white inline-flex items-center gap-2 px-4 py-2 rounded-md font-bold text-sm md:text-base hover:opacity-80 transition whitespace-nowrap "
-              >
-                <User className="w-4 h-4" />
-                <span>My Account</span>
-              </Link>
+              <>
+                <Link
+                  type="button"
+                  href={role === "ADMIN" ? "/admin/dashboard" : "/user-account"}
+                  className="bg-primaryColor text-white inline-flex items-center gap-2 px-4 py-2 rounded-md font-bold text-sm md:text-base hover:opacity-80 transition whitespace-nowrap "
+                >
+                  <User className="w-4 h-4" />
+                  <span>My Account</span>
+                </Link>
+            
+              </>
             )}
 
             <CartSidebar />

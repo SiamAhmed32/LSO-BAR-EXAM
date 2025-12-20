@@ -33,6 +33,7 @@ interface AdminTableProps<T> {
 	onPageChange?: (page: number) => void;
 	fixedHeight?: boolean;
 	tableHeight?: string;
+	onRowClick?: (item: T) => void;
 }
 
 function AdminTable<T extends Record<string, any>>({
@@ -46,6 +47,7 @@ function AdminTable<T extends Record<string, any>>({
 	onPageChange,
 	fixedHeight = true,
 	tableHeight = '600px',
+	onRowClick,
 }: AdminTableProps<T>) {
 	const handlePageChange = (newPage: number) => {
 		if (onPageChange && pagination) {
@@ -103,7 +105,11 @@ function AdminTable<T extends Record<string, any>>({
 								{data.map((item, index) => (
 									<tr
 										key={index}
-										className='hover:bg-gray-50 transition-colors'
+										className={cn(
+											'hover:bg-gray-50 transition-colors',
+											onRowClick && 'cursor-pointer'
+										)}
+										onClick={() => onRowClick?.(item)}
 									>
 										{columns.map((column) => (
 											<td

@@ -22,16 +22,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         examSet: true,
         price: true,
         examTime: true,
+        attemptCount: true,
       },
     });
 
+    // Compute questionCount for each exam dynamically
+    const examsWithQuestionCount = await Promise.all(
+      exams.map(async (exam) => {
+        const questionCount = await prisma.question.count({
+          where: { examId: exam.id },
+        });
+        return {
+          ...exam,
+          questionCount,
+        };
+      })
+    );
+
     // Transform to a more frontend-friendly format
-    const metadata = exams.reduce(
+    const metadata = examsWithQuestionCount.reduce(
       (acc, exam) => {
         const key = `${exam.examType.toLowerCase()}-set-${exam.examSet === "SET_A" ? "a" : "b"}`;
         acc[key] = {
           price: exam.price ?? 0,
           examTime: exam.examTime ?? "Duration not set",
+          questionCount: exam.questionCount,
+          attemptCount: exam.attemptCount ?? null,
         };
         return acc;
       },
@@ -40,6 +56,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         {
           price: number;
           examTime: string;
+          questionCount: number;
+          attemptCount: number | null;
         }
       >
     );
