@@ -7,26 +7,30 @@ import AccountDetails from "./AccountDetails";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { type CartItem } from "@/store/slices/cartSlice";
+import { useUser } from "@/components/context";
+import { getExamStorageKeys, hasValidExamProgress } from "@/lib/utils/examStorage";
 import Link from "next/link";
 
 type Props = {};
 
 const UserAccPage = (props: Props) => {
+  const { user } = useUser();
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const [examProgressStatus, setExamProgressStatus] = useState<Record<string, boolean>>({});
 
-  // Check exam progress status for all cart items
+  // Check exam progress status for all cart items (user-specific)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const userId = user?.id || null;
     const status: Record<string, boolean> = {};
     cartItems.forEach((item: CartItem) => {
       const examTitle = item.name;
-      const storageKey = `free-exam-${examTitle.toLowerCase().replace(/\s+/g, "-")}`;
-      status[item.uniqueId || item.id] = localStorage.getItem(storageKey) !== null;
+      const storageKeys = getExamStorageKeys(examTitle, userId);
+      status[item.uniqueId || item.id] = hasValidExamProgress(storageKeys);
     });
     setExamProgressStatus(status);
-  }, [cartItems]);
+  }, [cartItems, user?.id]);
 
   return (
     <section className="min-h-screen  bg-primaryBg py-16 sm:py-20 md:py-24 lg:py-28">

@@ -8,9 +8,11 @@ import Container from "@/components/shared/Container";
 import { SectionHeading } from "@/components/shared";
 import ExamCard from "@/components/shared/ExamCard";
 import type { RootState } from "@/store";
-import { addToCart, addExamToCartBackend, checkExamInCart, resetCart, type CartItem } from "@/store/slices/cartSlice";
+import { addToCart, addExamToCartBackend, checkExamInCart, resetCart, deleteSingleItemFromCart, type CartItem } from "@/store/slices/cartSlice";
+import { cartApi } from "@/lib/api/cartApi";
 import { useUser } from "@/components/context";
 import { examApi } from "@/lib/api/examApi";
+import { getExamStorageKeys, hasValidExamProgress } from "@/lib/utils/examStorage";
 
 type Props = {};
 
@@ -69,10 +71,11 @@ const PaidPage = (props: Props) => {
   // Use any here to avoid TS complaining about thunk return type being unknown
   const dispatch = useDispatch<any>();
   const router = useRouter();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, user } = useUser();
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const isLoadingCart = useSelector((state: RootState) => state.cart.isLoading);
   const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
+  const [removingFromCart, setRemovingFromCart] = useState<Record<string, boolean>>({});
 
   const [examMeta, setExamMeta] = useState<
     Record<
@@ -86,9 +89,8 @@ const PaidPage = (props: Props) => {
     >
   >({});
   const [isLoadingMeta, setIsLoadingMeta] = useState(true);
-  const [backendCartStatus, setBackendCartStatus] = useState<
-    Record<string, boolean>
-  >({});
+  const [purchasedExams, setPurchasedExams] = useState<Set<string>>(new Set());
+  const [isLoadingPurchased, setIsLoadingPurchased] = useState(false);
   const [examProgressStatus, setExamProgressStatus] = useState<
     Record<string, boolean>
   >({});
@@ -133,42 +135,60 @@ const PaidPage = (props: Props) => {
     };
   }, []);
 
-  // Clear cart when user logs out
+  // Fetch purchased exams when authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      setBackendCartStatus({});
-      // Clear local cart when logged out
-      dispatch(resetCart());
+      setPurchasedExams(new Set());
+      return;
     }
-  }, [isAuthenticated, dispatch]);
 
-  // Check exam progress status for all paid exams
+    let isMounted = true;
+
+    const loadPurchasedExams = async () => {
+      setIsLoadingPurchased(true);
+      try {
+        const purchased = await examApi.getPurchasedExams();
+        if (!isMounted) return;
+        setPurchasedExams(new Set(purchased));
+      } catch (error) {
+        console.error("Failed to load purchased exams:", error);
+        if (!isMounted) return;
+        setPurchasedExams(new Set());
+      } finally {
+        if (isMounted) {
+          setIsLoadingPurchased(false);
+        }
+      }
+    };
+
+    void loadPurchasedExams();
+
+    // Refresh purchased exams when page comes into focus (e.g., after payment success)
+    const handleFocus = () => {
+      if (isAuthenticated) {
+        void loadPurchasedExams();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [isAuthenticated]);
+
+  // Check exam progress status for all paid exams (user-specific)
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    const userId = user?.id || null;
 
     const checkProgress = () => {
       const status: Record<string, boolean> = {};
       PAID_EXAMS.forEach((exam) => {
-        const storageKey = `free-exam-${exam.title.toLowerCase().replace(/\s+/g, "-")}`;
-        const data = localStorage.getItem(storageKey);
-        
-        if (data) {
-          try {
-            const parsed = JSON.parse(data);
-            // Only consider it "in progress" if there's valid exam progress data
-            const hasValidProgress = parsed && (
-              (parsed.answers && Object.keys(parsed.answers).length > 0) ||
-              (parsed.bookmarked && parsed.bookmarked.length > 0) ||
-              (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0)
-            );
-            status[exam.id] = hasValidProgress;
-          } catch (error) {
-            // Invalid JSON, not in progress
-            status[exam.id] = false;
-          }
-        } else {
-          status[exam.id] = false;
-        }
+        const storageKeys = getExamStorageKeys(exam.title, userId);
+        status[exam.id] = hasValidExamProgress(storageKeys);
       });
       setExamProgressStatus(status);
     };
@@ -177,8 +197,10 @@ const PaidPage = (props: Props) => {
     checkProgress();
 
     // Listen for storage changes (when exam starts/finishes)
+    const userPrefix = userId ? userId : "guest";
+    const prefix = `exam-progress-${userPrefix}-`;
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key && e.key.startsWith("free-exam-")) {
+      if (e.key && e.key.startsWith(prefix)) {
         checkProgress();
       }
     };
@@ -192,7 +214,7 @@ const PaidPage = (props: Props) => {
       window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
-  }, []);
+  }, [user?.id]);
 
   const handleAddToCart = async (
     examId: string,
@@ -234,9 +256,6 @@ const PaidPage = (props: Props) => {
         })
       );
 
-      // Update backend cart status
-      setBackendCartStatus((prev) => ({ ...prev, [examId]: true }));
-
       toast.success("Exam added to cart successfully!");
     } catch (error: any) {
       console.error("Failed to add exam to cart:", error);
@@ -244,6 +263,44 @@ const PaidPage = (props: Props) => {
     } finally {
       // Clear loading state
       setAddingToCart((prev) => ({ ...prev, [examId]: false }));
+    }
+  };
+
+  const handleRemoveFromCart = async (
+    examId: string,
+    examType: "barrister" | "solicitor",
+    examSet: "set-a" | "set-b"
+  ) => {
+    if (!isAuthenticated) {
+      toast.info("Please login to manage your cart.");
+      return;
+    }
+
+    // Set loading state for this specific exam
+    setRemovingFromCart((prev) => ({ ...prev, [examId]: true }));
+
+    try {
+      // Find the cart item to get its uniqueId
+      const cartItem = cartItems.find((item: CartItem) => {
+        const itemId = item.id || item._id;
+        return itemId === examId;
+      });
+
+      if (cartItem) {
+        // Remove from local Redux state first for immediate UI update
+        dispatch(deleteSingleItemFromCart(cartItem.uniqueId));
+      }
+
+      // Remove from backend cart
+      await cartApi.removeExamFromCart(examType, examSet);
+
+      toast.success("Exam removed from cart successfully!");
+    } catch (error: any) {
+      console.error("Failed to remove exam from cart:", error);
+      toast.error(error?.message || "Failed to remove exam from cart. Please try again.");
+    } finally {
+      // Clear loading state
+      setRemovingFromCart((prev) => ({ ...prev, [examId]: false }));
     }
   };
 
@@ -273,19 +330,14 @@ const PaidPage = (props: Props) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-[75%] mx-auto">
             {PAID_EXAMS.map((exam) => {
-              // Only check cart status when authenticated
-              // Use local Redux state as primary source since backend cart API
-              // finds cart by userId only, not by specific examId
-              const isInLocalCart = isAuthenticated && cartItems.some((item: CartItem) => {
-                // Match by exact exam ID - be very precise
-                // Check both id and _id fields, and ensure exact match
+              // Check if exam is purchased (user has completed payment)
+              const isPurchased = purchasedExams.has(exam.id);
+
+              // Check if exam is in cart (but not purchased)
+              const isInCart = isAuthenticated && cartItems.some((item: CartItem) => {
                 const itemId = item.id || item._id;
                 return itemId === exam.id;
               });
-              
-              // Only show "Begin Exam" if exam is in local cart
-              // Don't rely on backend status check since it's not exam-specific
-              const isInCart = isAuthenticated && isInLocalCart;
 
               // Check if exam is in progress (localStorage has progress)
               const isExamInProgress = examProgressStatus[exam.id] || false;
@@ -307,13 +359,21 @@ const PaidPage = (props: Props) => {
                   : "/solicitor-exam/set-b";
 
               // Determine button text and behavior
+              // Priority: Purchased > In Cart > Not in Cart
               let buttonText: string;
-              if (!isInCart) {
-                buttonText = "Add To Cart";
-              } else if (isExamInProgress) {
-                buttonText = "Resume Exam";
+              if (isPurchased) {
+                // After payment: show "Begin Exam" or "Resume Exam"
+                if (isExamInProgress) {
+                  buttonText = "Resume Exam";
+                } else {
+                  buttonText = "Begin Exam";
+                }
+              } else if (isInCart) {
+                // In cart but not purchased: show "Remove from Cart"
+                buttonText = "Remove from Cart";
               } else {
-                buttonText = "Begin Exam";
+                // Not in cart: show "Add To Cart"
+                buttonText = "Add To Cart";
               }
 
               // Build dynamic features
@@ -335,11 +395,18 @@ const PaidPage = (props: Props) => {
                   price={meta.price}
                   duration={meta.examTime}
                   buttonText={buttonText}
-                  href={isInCart ? beginHref : "#"}
-                  isLoading={addingToCart[exam.id] || false}
+                  href={isPurchased ? beginHref : "#"}
+                  isLoading={addingToCart[exam.id] || removingFromCart[exam.id] || false}
                   onButtonClick={
-                    isInCart
+                    isPurchased
                       ? undefined
+                      : isInCart
+                      ? () =>
+                          handleRemoveFromCart(
+                            exam.id,
+                            exam.examType,
+                            exam.pricingKey
+                          )
                       : () =>
                           handleAddToCart(
                             exam.id,

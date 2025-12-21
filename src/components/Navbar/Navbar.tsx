@@ -11,13 +11,18 @@ import { useUser } from "../context";
 import CartSidebar from "../shared/CartSidebar";
 import { useDispatch } from "react-redux";
 import { resetCart } from "@/store/slices/cartSlice";
+import { clearUserExamProgress } from "@/lib/utils/examStorage";
 
 const Navbar = () => {
-  const { isAuthenticated, role } = useUser();
+  const { isAuthenticated, role, user } = useUser();
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
+      // Clear exam progress for current user before logout
+      if (user?.id) {
+        clearUserExamProgress(user.id);
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       // Clear cart on logout
       dispatch(resetCart());

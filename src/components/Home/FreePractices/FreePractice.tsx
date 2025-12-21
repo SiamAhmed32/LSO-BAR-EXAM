@@ -4,53 +4,29 @@ import React, { useState, useEffect } from "react";
 import Container from "@/components/shared/Container";
 import SectionHeading from "@/components/shared/SectionHeading";
 import ExamCard from "@/components/shared/ExamCard";
+import { useUser } from "@/components/context";
+import { getExamStorageKeys, hasValidExamProgress } from "@/lib/utils/examStorage";
 
 type Props = {};
 
 const FreePractice = (props: Props) => {
+  const { user } = useUser();
   const [isBarristerInProgress, setIsBarristerInProgress] = useState(false);
   const [isSolicitorInProgress, setIsSolicitorInProgress] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const checkExamProgress = (storageKeys: string[]): boolean => {
-      for (const key of storageKeys) {
-        const data = localStorage.getItem(key);
-        if (data) {
-          try {
-            const parsed = JSON.parse(data);
-            // Only consider it "in progress" if there's valid exam progress data
-            const hasValidProgress = parsed && (
-              (parsed.answers && Object.keys(parsed.answers).length > 0) ||
-              (parsed.bookmarked && parsed.bookmarked.length > 0) ||
-              (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0)
-            );
-            if (hasValidProgress) {
-              return true;
-            }
-          } catch (error) {
-            // Invalid JSON, ignore
-          }
-        }
-      }
-      return false;
-    };
+    const userId = user?.id || null;
 
-    // Check if Barrister exam is in progress
-    const barristerStorageKeys = [
-      "free-exam-barrister-sample-exam",
-      "free-exam-barrister-free-exam"
-    ];
-    setIsBarristerInProgress(checkExamProgress(barristerStorageKeys));
+    // Check if Barrister exam is in progress (user-specific)
+    const barristerStorageKeys = getExamStorageKeys("Barrister Sample Exam", userId);
+    setIsBarristerInProgress(hasValidExamProgress(barristerStorageKeys));
 
-    // Check if Solicitor exam is in progress
-    const solicitorStorageKeys = [
-      "free-exam-solicitor-sample-exam",
-      "free-exam-solicitor-free-exam"
-    ];
-    setIsSolicitorInProgress(checkExamProgress(solicitorStorageKeys));
-  }, []);
+    // Check if Solicitor exam is in progress (user-specific)
+    const solicitorStorageKeys = getExamStorageKeys("Solicitor Sample Exam", userId);
+    setIsSolicitorInProgress(hasValidExamProgress(solicitorStorageKeys));
+  }, [user?.id]);
 
   return (
     // <section className="py-12 sm:py-16 md:py-12 lg:py-12 ">

@@ -247,5 +247,21 @@ export const examApi = {
     const result = await response.json();
     return result.data;
   },
+
+  // Get list of purchased exam IDs (frontend IDs like "barrister-set-a")
+  async getPurchasedExams(): Promise<string[]> {
+    const response = await fetch('/api/exams/purchased', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch purchased exams');
+    }
+
+    const result = await response.json();
+    return result.data || [];
+  },
 };
 

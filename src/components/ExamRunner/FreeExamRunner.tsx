@@ -6,6 +6,9 @@ import { FreeQuestion } from "@/components/data/freeExamQuestions";
 import { Bookmark, CheckCircle } from "lucide-react";
 import ExamTimer from "./ExamTimer";
 import { examApi } from "@/lib/api/examApi";
+import { useUser } from "@/components/context";
+import { getExamStorageKey } from "@/lib/utils/examStorage";
+import FinishExamModal from "@/components/shared/FinishExamModal";
 
 type FreeExamRunnerProps = {
   title: string;
@@ -24,16 +27,19 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
   examSet,
 }) => {
   const router = useRouter();
+  const { user } = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | undefined>>(
     {}
   );
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
   const [isFinished, setIsFinished] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
+  // Use user-specific storage key
   const storageKey = useMemo(
-    () => `free-exam-${title.toLowerCase().replace(/\s+/g, "-")}`,
-    [title]
+    () => getExamStorageKey(title, user?.id || null),
+    [title, user?.id]
   );
 
   const currentQuestion = questions[currentIndex];
@@ -345,7 +351,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
 
               {currentIndex === questions.length - 1 ? (
                 <button
-                  onClick={finishExam}
+                  onClick={() => setShowFinishModal(true)}
                   disabled={isFinished}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primaryColor text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -366,6 +372,16 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
           </div>
         </div>
       </Container>
+
+      {/* Finish Exam Confirmation Modal */}
+      <FinishExamModal
+        isOpen={showFinishModal}
+        onClose={() => setShowFinishModal(false)}
+        onConfirm={() => {
+          setShowFinishModal(false);
+          finishExam();
+        }}
+      />
     </section>
   );
 };

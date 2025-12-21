@@ -5,6 +5,8 @@ import Container from '@/components/shared/Container';
 import SectionHeading from '@/components/shared/SectionHeading';
 import { useRouter } from 'next/navigation';
 import { examApi } from '@/lib/api/examApi';
+import { useUser } from '@/components/context';
+import { getExamStorageKeys, hasValidExamProgress } from '@/lib/utils/examStorage';
 
 interface FreeExamPageProps {
 	examType: 'barrister' | 'solicitor';
@@ -33,6 +35,7 @@ const FreeExamPage: React.FC<FreeExamPageProps> = ({
 	examId,
 }) => {
 	const router = useRouter();
+	const { user } = useUser();
 	const [hasAgreed, setHasAgreed] = useState(false);
 	const [isCheckingProgress, setIsCheckingProgress] = useState(true);
 	const [examDuration, setExamDuration] = useState<string | null>(null);
@@ -47,59 +50,26 @@ const FreeExamPage: React.FC<FreeExamPageProps> = ({
 			return;
 		}
 
-		// Generate possible storage keys
-		const normalizedTitle = examTitle.toLowerCase().replace(/\s+/g, "-");
-		const possibleKeys = [
-			`free-exam-${normalizedTitle}`, // Exact match: "free-exam-barrister-exam-set-a" or "free-exam-solicitor-sample-exam"
-		];
-		
-		// For free exams only: check both "Sample Exam" and "Free Exam" variations
-		// because terms page uses "Sample Exam" but exam runner uses "Free Exam"
-		// Paid exams don't need this variation check
-		if (normalizedTitle.includes("sample")) {
-			possibleKeys.push(`free-exam-${normalizedTitle.replace("sample", "free")}`); // "free-exam-solicitor-free-exam"
-		} else if (normalizedTitle.includes("free") && !normalizedTitle.includes("set")) {
-			// Only add sample variation for free exams (not paid exams with "set-a" or "set-b")
-			possibleKeys.push(`free-exam-${normalizedTitle.replace("free", "sample")}`); // "free-exam-solicitor-sample-exam"
-		}
+		// Get user-specific storage keys
+		const userId = user?.id || null;
+		const possibleKeys = getExamStorageKeys(examTitle, userId);
 		
 		console.log("🔍 Checking for exam progress with keys:", possibleKeys);
 		
-		// Check all possible storage keys
-		for (const storageKey of possibleKeys) {
-			const examProgressRaw = localStorage.getItem(storageKey);
-			
-			if (examProgressRaw) {
-				try {
-					// Validate that it's actual exam progress data (has answers, bookmarks, or currentIndex)
-					const examProgress = JSON.parse(examProgressRaw);
-					const hasValidProgress = examProgress && (
-						(examProgress.answers && Object.keys(examProgress.answers).length > 0) ||
-						(examProgress.bookmarked && examProgress.bookmarked.length > 0) ||
-						(typeof examProgress.currentIndex === 'number' && examProgress.currentIndex >= 0)
-					);
-					
-					if (hasValidProgress) {
-						// Exam is in progress - skip terms page and go directly to exam
-						console.log("📝 Exam in progress detected, skipping terms page...", { storageKey, examTitle });
-						const targetPath = startPath || `/${examType}-free-exam/start`;
-						router.push(targetPath);
-						return;
-					} else {
-						console.log("⚠️ Found localStorage key but no valid progress data:", { storageKey, examProgress });
-					}
-				} catch (error) {
-					// Invalid JSON, ignore it
-					console.log("⚠️ Invalid JSON in localStorage key:", { storageKey, error });
-				}
-			}
+		// Check if exam is in progress for this user
+		if (hasValidExamProgress(possibleKeys)) {
+			// Exam is in progress - skip terms page and go directly to exam
+			console.log("📝 Exam in progress detected, skipping terms page...", { examTitle, userId });
+			const targetPath = startPath || `/${examType}-free-exam/start`;
+			router.push(targetPath);
+			return;
 		}
 
 		// Exam is not in progress (either finished or never started)
 		// Show terms page
 		console.log("✅ No exam progress found, showing terms page");
 		setIsCheckingProgress(false);
-	}, [examTitle, startPath, examType, router]);
+	}, [examTitle, startPath, examType, router, user?.id]);
 
 	// Fetch exam metadata (duration, question count, attempt count) for paid exams
 	useEffect(() => {
