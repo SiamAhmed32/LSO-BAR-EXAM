@@ -8,6 +8,7 @@ import { useUser } from "../context";
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
 import { resetCart } from "@/store/slices/cartSlice";
+import { clearUserExamProgress } from "@/lib/utils/examStorage";
 
 const AccountSidebar = () => {
   const pathname = usePathname();
@@ -17,6 +18,10 @@ const AccountSidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // Clear exam progress for current user before logout
+      if (user?.id) {
+        clearUserExamProgress(user.id);
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       // Clear cart on logout
       dispatch(resetCart());

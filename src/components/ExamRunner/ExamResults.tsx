@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Container from "@/components/shared/Container";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X, Eye, Home } from "lucide-react";
 import type { FreeQuestion } from "@/components/data/freeExamQuestions";
 
 interface ExamResultsProps {
@@ -46,6 +46,7 @@ const ExamResults: React.FC<ExamResultsProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAnswers, setIsCheckingAnswers] = useState(true);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showAnswers, setShowAnswers] = useState(false);
   const [gradedResults, setGradedResults] = useState<{
     correct: number;
     incorrect: number;
@@ -63,20 +64,24 @@ const ExamResults: React.FC<ExamResultsProps> = ({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const stored = sessionStorage.getItem(`exam-results-${examType}-${examSet}`);
+    const stored = sessionStorage.getItem(
+      `exam-results-${examType}-${examSet}`
+    );
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as StoredResults;
-        
+
         // CRITICAL: Only show results if exam was properly finished
         // If someone tries to access results page directly without finishing, redirect to home
         if (!parsed.finished) {
-          console.warn("⚠️ Attempted to access results page without finishing exam. Redirecting...");
+          console.warn(
+            "⚠️ Attempted to access results page without finishing exam. Redirecting..."
+          );
           setIsRedirecting(true);
           router.push("/");
           return;
         }
-        
+
         setResults(parsed);
       } catch (error) {
         console.error("Error parsing stored results:", error);
@@ -95,7 +100,11 @@ const ExamResults: React.FC<ExamResultsProps> = ({
 
   // Grade the exam by comparing answers with correct answers
   useEffect(() => {
-    if (!results || !results.apiQuestions || results.apiQuestions.length === 0) {
+    if (
+      !results ||
+      !results.apiQuestions ||
+      results.apiQuestions.length === 0
+    ) {
       setIsCheckingAnswers(false);
       return;
     }
@@ -108,7 +117,12 @@ const ExamResults: React.FC<ExamResultsProps> = ({
 
       const sectionStats: Record<
         string,
-        { total: number; correct: number; incorrect: number; unanswered: number }
+        {
+          total: number;
+          correct: number;
+          incorrect: number;
+          unanswered: number;
+        }
       > = {};
 
       // Map API questions by their transformed ID (index + 1)
@@ -118,7 +132,12 @@ const ExamResults: React.FC<ExamResultsProps> = ({
         const category = question?.category || "General";
 
         if (!sectionStats[category]) {
-          sectionStats[category] = { total: 0, correct: 0, incorrect: 0, unanswered: 0 };
+          sectionStats[category] = {
+            total: 0,
+            correct: 0,
+            incorrect: 0,
+            unanswered: 0,
+          };
         }
         sectionStats[category].total += 1;
 
@@ -138,14 +157,16 @@ const ExamResults: React.FC<ExamResultsProps> = ({
         }
       });
 
-      const sectionBreakdown = Object.entries(sectionStats).map(([category, stats]) => ({
-        category,
-        total: stats.total,
-        correct: stats.correct,
-        incorrect: stats.incorrect,
-        unanswered: stats.unanswered,
-        percentage: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
-      }));
+      const sectionBreakdown = Object.entries(sectionStats).map(
+        ([category, stats]) => ({
+          category,
+          total: stats.total,
+          correct: stats.correct,
+          incorrect: stats.incorrect,
+          unanswered: stats.unanswered,
+          percentage: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
+        })
+      );
 
       setGradedResults({
         correct,
@@ -171,6 +192,18 @@ const ExamResults: React.FC<ExamResultsProps> = ({
     return null;
   }
 
+  // Show answers view if toggled
+  if (showAnswers && results && gradedResults) {
+    return (
+      <AnswersView
+        results={results}
+        gradedResults={gradedResults}
+        onBack={() => setShowAnswers(false)}
+        title={title}
+      />
+    );
+  }
+
   // While loading from storage or grading answers, show loader only
   // and avoid rendering an intermediate, incorrect summary state.
   if (isLoading || isCheckingAnswers || !gradedResults) {
@@ -188,9 +221,18 @@ const ExamResults: React.FC<ExamResultsProps> = ({
                 : "Loading results..."}
             </p>
             <div className="flex items-center justify-center gap-2 mt-4">
-              <div className="w-2 h-2 bg-primaryColor rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-primaryColor rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-primaryColor rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div
+                className="w-2 h-2 bg-primaryColor rounded-full animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-primaryColor rounded-full animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-primaryColor rounded-full animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></div>
             </div>
           </div>
         </Container>
@@ -287,10 +329,16 @@ const ExamResults: React.FC<ExamResultsProps> = ({
                       ({section.correct}/{section.total})
                     </p>
                     <div className="flex justify-center gap-2 mt-2 text-xs">
-                      <span className="text-green-600">✓ {section.correct}</span>
-                      <span className="text-red-600">✗ {section.incorrect}</span>
+                      <span className="text-green-600">
+                        ✓ {section.correct}
+                      </span>
+                      <span className="text-red-600">
+                        ✗ {section.incorrect}
+                      </span>
                       {section.unanswered > 0 && (
-                        <span className="text-gray-600">○ {section.unanswered}</span>
+                        <span className="text-gray-600">
+                          ○ {section.unanswered}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -303,9 +351,226 @@ const ExamResults: React.FC<ExamResultsProps> = ({
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => router.push("/")}
+              className="px-6 py-3 bg-primaryColor text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
+            >
+              <Home className="w-5 h-5" />
+              Back to Home
+            </button>
+            <button
+              onClick={() => setShowAnswers(true)}
+              className="px-6 py-3 bg-secColor text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
+            >
+              <Eye className="w-5 h-5" />
+              View Answers
+            </button>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+};
+
+// Answers View Component
+const AnswersView: React.FC<{
+  results: StoredResults;
+  gradedResults: {
+    correct: number;
+    incorrect: number;
+    unanswered: number;
+  };
+  onBack: () => void;
+  title: string;
+}> = ({ results, gradedResults, onBack, title }) => {
+  const router = useRouter();
+
+  // Prepare question data with user answers and correct answers
+  const questionsWithAnswers = useMemo(() => {
+    if (!results || !results.apiQuestions) return [];
+
+    return results.questions.map((question, index) => {
+      const apiQuestion = results.apiQuestions![index];
+      const userAnswerId = results.answers[question.id];
+      const correctOption = apiQuestion.options.find((opt) => opt.isCorrect);
+      const userOption = apiQuestion.options.find(
+        (opt) => opt.id === userAnswerId
+      );
+      const isCorrect = userAnswerId === correctOption?.id;
+
+      return {
+        question,
+        apiQuestion,
+        userAnswerId,
+        userOption,
+        correctOption,
+        isCorrect,
+        isUnanswered: !userAnswerId,
+      };
+    });
+  }, [results]);
+
+  return (
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-primaryBg min-h-screen">
+      <Container>
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="bg-primaryColor text-white rounded-lg p-6 sm:p-8 mb-8">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2">{title}</h1>
+                <p className="text-lg sm:text-xl opacity-90">
+                  Review Your Answers
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={onBack}
+                  className="px-4 py-2 bg-white/20 text-white font-semibold rounded-md hover:bg-white/30 transition flex items-center gap-2"
+                >
+                  Back to Results
+                </button>
+                <button
+                  onClick={() => router.push("/")}
+                  className="px-4 py-2 bg-white/20 text-white font-semibold rounded-md hover:bg-white/30 transition flex items-center gap-2"
+                >
+                  <Home className="w-4 h-4" />
+                  Home
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Questions List */}
+          <div className="space-y-6">
+            {questionsWithAnswers.map((item, index) => {
+              const {
+                question,
+                apiQuestion,
+                userOption,
+                correctOption,
+                isCorrect,
+                isUnanswered,
+              } = item;
+
+              return (
+                <div
+                  key={question.id}
+                  className="bg-white rounded-lg border border-borderBg shadow-sm p-6 sm:p-8"
+                >
+                  {/* Question Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-sm font-semibold text-primaryText/70">
+                          Question {question.id}
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-primaryColor/10 text-primaryColor rounded">
+                          {question.category}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-primaryText leading-relaxed">
+                        {question.text}
+                      </h3>
+                    </div>
+                    {/* Status Badge */}
+                    <div className="ml-4">
+                      {isUnanswered ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                          <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                          Unanswered
+                        </span>
+                      ) : isCorrect ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          <CheckCircle className="w-4 h-4" />
+                          Correct
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                          <X className="w-4 h-4" />
+                          Incorrect
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Options */}
+                  <div className="space-y-3 mt-6">
+                    {apiQuestion.options.map((option) => {
+                      const isUserAnswer = option.id === userOption?.id;
+                      const isCorrectAnswer = option.id === correctOption?.id;
+
+                      let bgColor = "bg-white";
+                      let borderColor = "border-borderBg";
+                      let textColor = "text-primaryText";
+
+                      if (isCorrectAnswer && isUserAnswer) {
+                        // Both correct and user selected
+                        bgColor = "bg-green-50";
+                        borderColor = "border-green-500";
+                        textColor = "text-green-900";
+                      } else if (isCorrectAnswer) {
+                        // Correct answer (but user didn't select it)
+                        bgColor = "bg-green-50";
+                        borderColor = "border-green-500";
+                        textColor = "text-green-900";
+                      } else if (isUserAnswer) {
+                        // User's answer (but incorrect)
+                        bgColor = "bg-red-50";
+                        borderColor = "border-red-500";
+                        textColor = "text-red-900";
+                      }
+
+                      return (
+                        <div
+                          key={option.id}
+                          className={`p-4 rounded-lg border-2 ${bgColor} ${borderColor} ${textColor} transition-all`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              {isCorrectAnswer && (
+                                <CheckCircle className="w-5 h-5 text-green-600" />
+                              )}
+                              {isUserAnswer && !isCorrectAnswer && (
+                                <X className="w-5 h-5 text-red-600" />
+                              )}
+                              {!isCorrectAnswer && !isUserAnswer && (
+                                <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium">{option.text}</p>
+                              {isCorrectAnswer && (
+                                <p className="text-xs mt-1 font-semibold text-green-700">
+                                  ✓ Correct Answer
+                                </p>
+                              )}
+                              {isUserAnswer && !isCorrectAnswer && (
+                                <p className="text-xs mt-1 font-semibold text-red-700">
+                                  ✗ Your Answer
+                                </p>
+                              )}
+                              {isUserAnswer && isCorrectAnswer && (
+                                <p className="text-xs mt-1 font-semibold text-green-700">
+                                  ✓ Your Answer (Correct)
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Back Button at Bottom */}
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={onBack}
               className="px-6 py-3 bg-primaryColor text-white font-semibold rounded-md hover:opacity-90 transition"
             >
-              Back to Home
+              Back to Results
             </button>
           </div>
         </div>
@@ -315,4 +580,3 @@ const ExamResults: React.FC<ExamResultsProps> = ({
 };
 
 export default ExamResults;
-

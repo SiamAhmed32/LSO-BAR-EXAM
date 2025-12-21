@@ -45,13 +45,13 @@ const CheckoutSuccessPage = () => {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                   <Link
-                    href="/"
+                    href="/practice"
                     className="px-6 py-3 bg-primaryColor text-white font-bold rounded-md hover:opacity-90 transition-opacity"
                   >
                     Continue Shopping
                   </Link>
                   <Link
-                    href="/profile"
+                    href="/user-account/orders"
                     className="px-6 py-3 bg-gray-200 text-primaryText font-bold rounded-md hover:bg-gray-300 transition-colors"
                   >
                     View Orders
