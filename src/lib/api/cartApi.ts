@@ -9,30 +9,67 @@ export interface CartApiResponse<T = any> {
   details?: any;
 }
 
-// Helper to get exam ID from exam type and set by calling the exam endpoint
+// Cache for exam metadata to avoid multiple API calls
+let metadataCache: Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }> | null = null;
+let metadataCachePromise: Promise<Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }>> | null = null;
+
+// Get exam metadata with caching - only fetches once, reuses cached result
+async function getExamMetadata(): Promise<Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }>> {
+  // Return cached data if available
+  if (metadataCache !== null) {
+    return metadataCache;
+  }
+
+  // If a fetch is already in progress, wait for it
+  if (metadataCachePromise !== null) {
+    return metadataCachePromise;
+  }
+
+  // Start new fetch and cache the promise
+  metadataCachePromise = (async () => {
+    try {
+      const response = await fetch("/api/exams/metadata", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch exam metadata");
+      }
+
+      const data = await response.json();
+      const metadata = data?.data || {};
+      
+      // Cache the result
+      metadataCache = metadata;
+      return metadata;
+    } catch (error) {
+      console.error("Error fetching exam metadata:", error);
+      // Clear the promise so we can retry
+      metadataCachePromise = null;
+      throw error;
+    }
+  })();
+
+  return metadataCachePromise;
+}
+
+// Helper to get exam ID from exam type and set by calling the metadata endpoint (public, no purchase required)
+// Uses cached metadata to avoid multiple API calls
 async function getExamId(
   examType: "barrister" | "solicitor",
   examSet: "set-a" | "set-b"
 ): Promise<string | null> {
   try {
-    const examPath =
-      examSet === "set-a"
-        ? `/api/exams/${examType}/paid`
-        : `/api/exams/${examType}/paid/set-b`;
-
-    const response = await fetch(examPath + "?page=1&limit=1", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data?.data?.exam?.id || null;
+    const metadata = await getExamMetadata();
+    
+    // Build the key to match metadata format: "barrister-set-a", "solicitor-set-b", etc.
+    const key = `${examType}-${examSet}`;
+    const examMeta = metadata[key];
+    
+    return examMeta?.id || null;
   } catch (error) {
-    console.error("Error getting exam ID:", error);
+    console.error("Error getting exam ID from metadata:", error);
     return null;
   }
 }
@@ -46,6 +83,12 @@ export interface UserCartItem {
 }
 
 export const cartApi = {
+  // Clear metadata cache (useful when exam prices/metadata are updated)
+  clearMetadataCache(): void {
+    metadataCache = null;
+    metadataCachePromise = null;
+  },
+
   // Get user's cart for a specific exam (creates cart if doesn't exist)
   async getCart(examId: string): Promise<CartApiResponse> {
     try {
@@ -98,17 +141,10 @@ export const cartApi = {
 
       const carts = (data.data || []) as any[];
 
-      // Fetch exam metadata for prices
-      let metadata: Record<string, { price: number }> = {};
+      // Get exam metadata using cached function (only fetches once)
+      let metadata: Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }> = {};
       try {
-        const examMetadataResponse = await fetch("/api/exams/metadata", {
-          method: "GET",
-          credentials: "include",
-        });
-        if (examMetadataResponse.ok) {
-          const examMetadata = await examMetadataResponse.json();
-          metadata = examMetadata?.data || {};
-        }
+        metadata = await getExamMetadata();
       } catch (error) {
         console.error("Failed to fetch exam metadata:", error);
       }
@@ -131,11 +167,13 @@ export const cartApi = {
         { examType: "solicitor", examSet: "set-b", id: "solicitor-set-b" },
       ];
 
+      // Use cached metadata instead of calling getExamId multiple times
       for (const exam of examTypes) {
         try {
-          const dbExamId = await getExamId(exam.examType, exam.examSet);
-          if (dbExamId) {
-            examIdMap[dbExamId] = {
+          const key = `${exam.examType}-${exam.examSet}`;
+          const examMeta = metadata[key];
+          if (examMeta?.id) {
+            examIdMap[examMeta.id] = {
               id: exam.id,
               examType: exam.examType,
               examSet: exam.examSet,

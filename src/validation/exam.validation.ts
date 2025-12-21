@@ -47,9 +47,21 @@ export const updateQuestionSchema = z.object({
     .optional(),
 });
 
+export const submitExamSchema = z.object({
+  examId: z.string().uuid("Invalid exam ID"),
+  totalQuestions: z.number().int().positive("Total questions must be positive"),
+  answeredCount: z.number().int().min(0, "Answered count cannot be negative"),
+  correctCount: z.number().int().min(0, "Correct count cannot be negative"),
+  incorrectCount: z.number().int().min(0, "Incorrect count cannot be negative"),
+  unansweredCount: z.number().int().min(0, "Unanswered count cannot be negative"),
+  score: z.number().min(0).max(100, "Score must be between 0 and 100"),
+  answers: z.record(z.string(), z.any()), // JSON object storing user answers
+});
+
 export type OptionInput = z.infer<typeof optionSchema>;
 export type QuestionInput = z.infer<typeof questionSchema>;
 export type CreateExamInput = z.infer<typeof createExamSchema>;
 export type CreateQuestionInput = z.infer<typeof createQuestionSchema>;
 export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
+export type SubmitExamInput = z.infer<typeof submitExamSchema>;
 

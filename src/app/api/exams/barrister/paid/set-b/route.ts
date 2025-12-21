@@ -56,6 +56,76 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
+    // Skip purchase check for admins
+    if (session.role !== "ADMIN") {
+      // Check if user has purchased this exam
+      const orders = await prisma.order.findMany({
+        where: {
+          userId: session.id,
+          status: "COMPLETED",
+          payment: {
+            status: "SUCCEEDED",
+          },
+          orderItems: {
+            some: {
+              examId: exam.id,
+            },
+          },
+        },
+      });
+
+      if (orders.length === 0) {
+        return NextResponse.json(
+          {
+            error: "Forbidden",
+            message: "You need to purchase this exam before accessing questions",
+          },
+          { status: 403 }
+        );
+      }
+
+      // Check remaining attempts if exam has attempt limit (based on most recent purchase)
+      if (exam.attemptCount !== null && exam.attemptCount > 0) {
+      // Find the most recent order item for this exam
+      const mostRecentOrderItem = await prisma.orderItem.findFirst({
+        where: {
+          examId: exam.id,
+          order: {
+            userId: session.id,
+            status: "COMPLETED",
+            payment: {
+              status: "SUCCEEDED",
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      if (mostRecentOrderItem) {
+        // Count attempts only from the most recent purchase
+        const attemptCount = await prisma.examAttempt.count({
+          where: {
+            userId: session.id,
+            examId: exam.id,
+            orderItemId: mostRecentOrderItem.id,
+          },
+        });
+
+        if (attemptCount >= exam.attemptCount) {
+          return NextResponse.json(
+            {
+              error: "Forbidden",
+              message: "You have exhausted all attempts for this exam",
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+    }
+
     const [questions, total] = await Promise.all([
       prisma.question.findMany({
         where: { examId: exam.id },

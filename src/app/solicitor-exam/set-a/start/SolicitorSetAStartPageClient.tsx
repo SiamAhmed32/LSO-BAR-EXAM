@@ -6,6 +6,7 @@ import FreeExamRunner from "@/components/ExamRunner/FreeExamRunner";
 import ExamLoader from "@/components/shared/ExamLoader";
 import ExamError from "@/components/shared/ExamError";
 import ExamEmpty from "@/components/shared/ExamEmpty";
+import PaidExamAccessCheck from "@/components/shared/PaidExamAccessCheck";
 import { examApi } from "@/lib/api/examApi";
 import { transformApiQuestionsToFreeQuestions } from "@/lib/utils/examTransform";
 import type { FreeQuestion } from "@/components/data/freeExamQuestions";
@@ -35,7 +36,12 @@ const SolicitorSetAStartPageClient = () => {
       } catch (err: any) {
         if (!isMounted) return;
         console.error("Solicitor Set A - Failed to load questions:", err);
-        setError(err?.message || "Failed to load exam questions.");
+        // Handle 403 Forbidden (not purchased or no attempts)
+        if (err?.message?.includes("purchase") || err?.message?.includes("attempts")) {
+          setError("ACCESS_DENIED");
+        } else {
+          setError(err?.message || "Failed to load exam questions.");
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -59,6 +65,10 @@ const SolicitorSetAStartPageClient = () => {
   }
 
   if (error) {
+    // If error is access denied, PaidExamAccessCheck will handle it
+    if (error === "ACCESS_DENIED") {
+      return null; // Let PaidExamAccessCheck handle the display
+    }
     return (
       <Layout>
         <ExamError examType="Solicitor" />
@@ -75,15 +85,17 @@ const SolicitorSetAStartPageClient = () => {
   }
 
   return (
-    <Layout>
-      <FreeExamRunner
-        title="Solicitor Exam Set A"
-        questions={questions}
-        duration={duration}
-        examType="solicitor"
-        examSet="set-a"
-      />
-    </Layout>
+    <PaidExamAccessCheck examId="solicitor-set-a" examName="Solicitor Exam Set A">
+      <Layout>
+        <FreeExamRunner
+          title="Solicitor Exam Set A"
+          questions={questions}
+          duration={duration}
+          examType="solicitor"
+          examSet="set-a"
+        />
+      </Layout>
+    </PaidExamAccessCheck>
   );
 };
 

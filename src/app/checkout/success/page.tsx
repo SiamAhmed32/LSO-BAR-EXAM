@@ -1,15 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Layout } from "@/components";
 import Container from "@/components/shared/Container";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { resetCart } from "@/store/slices/cartSlice";
 
 const CheckoutSuccessPage = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const dispatch = useDispatch();
+
+  // Clear cart from localStorage when order is successful (safety measure)
+  useEffect(() => {
+    dispatch(resetCart());
+  }, [dispatch]);
 
   return (
     <Layout>

@@ -90,6 +90,17 @@ const PaidPage = (props: Props) => {
   >({});
   const [isLoadingMeta, setIsLoadingMeta] = useState(true);
   const [purchasedExams, setPurchasedExams] = useState<Set<string>>(new Set());
+  const [purchasedExamsDetailed, setPurchasedExamsDetailed] = useState<
+    Array<{
+      frontendId: string;
+      examId: string;
+      examType: string;
+      examSet: string;
+      totalAttempts: number | null;
+      usedAttempts: number;
+      remainingAttempts: number | null;
+    }>
+  >([]);
   const [isLoadingPurchased, setIsLoadingPurchased] = useState(false);
   const [examProgressStatus, setExamProgressStatus] = useState<
     Record<string, boolean>
@@ -139,6 +150,7 @@ const PaidPage = (props: Props) => {
   useEffect(() => {
     if (!isAuthenticated) {
       setPurchasedExams(new Set());
+      setPurchasedExamsDetailed([]);
       return;
     }
 
@@ -147,13 +159,28 @@ const PaidPage = (props: Props) => {
     const loadPurchasedExams = async () => {
       setIsLoadingPurchased(true);
       try {
-        const purchased = await examApi.getPurchasedExams();
+        // Get detailed purchased exams with attempt information
+        const detailed = await examApi.getPurchasedExamsDetailed();
         if (!isMounted) return;
-        setPurchasedExams(new Set(purchased));
+        console.log("Detailed purchased exams from API:", detailed);
+        
+        // Filter out exams with no remaining attempts (treat as not purchased for UI)
+        const validPurchasedExams = detailed.filter(
+          (exam) => exam.remainingAttempts === null || exam.remainingAttempts > 0
+        );
+        
+        // Create Set of frontend IDs for backward compatibility
+        const purchasedSet = new Set(validPurchasedExams.map((exam) => exam.frontendId));
+        console.log("Valid purchased exams Set size:", purchasedSet.size);
+        console.log("Valid purchased exams Set values:", Array.from(purchasedSet));
+        
+        setPurchasedExams(purchasedSet);
+        setPurchasedExamsDetailed(detailed);
       } catch (error) {
         console.error("Failed to load purchased exams:", error);
         if (!isMounted) return;
         setPurchasedExams(new Set());
+        setPurchasedExamsDetailed([]);
       } finally {
         if (isMounted) {
           setIsLoadingPurchased(false);
@@ -330,10 +357,20 @@ const PaidPage = (props: Props) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-[75%] mx-auto">
             {PAID_EXAMS.map((exam) => {
-              // Check if exam is purchased (user has completed payment)
-              const isPurchased = purchasedExams.has(exam.id);
+              // Find detailed purchased exam info
+              const purchasedExamDetail = purchasedExamsDetailed.find(
+                (p) => p.frontendId === exam.id
+              );
 
-              // Check if exam is in cart (but not purchased)
+              // Check if exam is purchased AND has remaining attempts
+              // If attempts are exhausted, treat as not purchased (show Add to Cart)
+              const isPurchased = purchasedExams.has(exam.id);
+              const hasRemainingAttempts =
+                purchasedExamDetail?.remainingAttempts === null ||
+                (purchasedExamDetail?.remainingAttempts !== undefined &&
+                  purchasedExamDetail.remainingAttempts > 0);
+
+              // Check if exam is in cart (but not purchased or attempts exhausted)
               const isInCart = isAuthenticated && cartItems.some((item: CartItem) => {
                 const itemId = item.id || item._id;
                 return itemId === exam.id;
@@ -359,20 +396,20 @@ const PaidPage = (props: Props) => {
                   : "/solicitor-exam/set-b";
 
               // Determine button text and behavior
-              // Priority: Purchased > In Cart > Not in Cart
+              // Priority: Purchased with attempts > In Cart > Not in Cart
               let buttonText: string;
-              if (isPurchased) {
-                // After payment: show "Begin Exam" or "Resume Exam"
+              if (isPurchased && hasRemainingAttempts) {
+                // After payment with remaining attempts: show "Begin Exam" or "Resume Exam"
                 if (isExamInProgress) {
                   buttonText = "Resume Exam";
                 } else {
                   buttonText = "Begin Exam";
                 }
               } else if (isInCart) {
-                // In cart but not purchased: show "Remove from Cart"
+                // In cart but not purchased or attempts exhausted: show "Remove from Cart"
                 buttonText = "Remove from Cart";
               } else {
-                // Not in cart: show "Add To Cart"
+                // Not in cart or attempts exhausted: show "Add To Cart"
                 buttonText = "Add To Cart";
               }
 
@@ -395,10 +432,10 @@ const PaidPage = (props: Props) => {
                   price={meta.price}
                   duration={meta.examTime}
                   buttonText={buttonText}
-                  href={isPurchased ? beginHref : "#"}
+                  href={isPurchased && hasRemainingAttempts ? beginHref : "#"}
                   isLoading={addingToCart[exam.id] || removingFromCart[exam.id] || false}
                   onButtonClick={
-                    isPurchased
+                    isPurchased && hasRemainingAttempts
                       ? undefined
                       : isInCart
                       ? () =>

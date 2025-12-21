@@ -10,6 +10,7 @@ import { useLoginMutation } from '@/store/services/authApi';
 import { useDispatch } from 'react-redux';
 import { login as loginAction } from '@/store/slices/authSlice';
 import Loader from '@/components/shared/Loader';
+import { useRouter } from 'next/navigation';
 
 interface LoginFormProps extends React.ComponentProps<'div'> {
   className?: string;
@@ -22,6 +23,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [login, { isLoading }] = useLoginMutation();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +43,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
         // Redirect based on user role
         const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
-        setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 1000);
+        // Use router.push with refresh to ensure fresh server data
+        router.push(redirectPath);
+        router.refresh();
       } else if (result.token) {
         // Fallback: if token is provided, use token-based auth
         dispatch(loginAction({ token: result.token, refreshToken: result.refreshToken }));
@@ -53,9 +55,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
         // Redirect based on user role
         const redirectPath = result.role === 'ADMIN' ? '/admin/dashboard' : '/user-account';
-        setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 1000);
+        // Use router.push with refresh to ensure fresh server data
+        router.push(redirectPath);
+        router.refresh();
       }
     } catch (error: any) {
       console.error('Login Form - Error:', error);

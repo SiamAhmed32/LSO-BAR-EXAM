@@ -18,6 +18,7 @@ model User {
 
   carts     Cart[]
   orders    Order[]
+  examAttempts ExamAttempt[]
 
   @@index([email])
   @@map("users")
@@ -71,6 +72,7 @@ model Exam {
   questions    Question[]
   carts        Cart[]
   orderItems   OrderItem[]
+  examAttempts ExamAttempt[]
 
   @@index([examType])
   @@index([pricingType])
@@ -192,6 +194,7 @@ model OrderItem {
   
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examAttempts ExamAttempt[]
 
   @@index([orderId])
   @@index([examId])
@@ -215,4 +218,31 @@ model Payment {
   @@index([stripePaymentId])
   @@index([status])
   @@map("payments")
+}
+
+model ExamAttempt {
+  id            String   @id @default(uuid())
+  userId        String
+  examId        String
+  orderItemId   String?  // Link attempt to the order item that granted access
+  totalQuestions Int
+  answeredCount  Int
+  correctCount   Int
+  incorrectCount Int
+  unansweredCount Int
+  score          Float   // Percentage score
+  answers        Json    // Store user's answers as JSON
+  submittedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([examId])
+  @@index([orderItemId])
+  @@index([submittedAt])
+  @@map("exam_attempts")
 }
