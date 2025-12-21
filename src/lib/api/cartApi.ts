@@ -9,18 +9,14 @@ export interface CartApiResponse<T = any> {
   details?: any;
 }
 
-// Helper to get exam ID from exam type and set by calling the exam endpoint
+// Helper to get exam ID from exam type and set by calling the metadata endpoint (public, no purchase required)
 async function getExamId(
   examType: "barrister" | "solicitor",
   examSet: "set-a" | "set-b"
 ): Promise<string | null> {
   try {
-    const examPath =
-      examSet === "set-a"
-        ? `/api/exams/${examType}/paid`
-        : `/api/exams/${examType}/paid/set-b`;
-
-    const response = await fetch(examPath + "?page=1&limit=1", {
+    // Use metadata API instead of paid exam questions API (which requires purchase)
+    const response = await fetch("/api/exams/metadata", {
       method: "GET",
       credentials: "include",
     });
@@ -30,9 +26,15 @@ async function getExamId(
     }
 
     const data = await response.json();
-    return data?.data?.exam?.id || null;
+    const metadata = data?.data || {};
+    
+    // Build the key to match metadata format: "barrister-set-a", "solicitor-set-b", etc.
+    const key = `${examType}-${examSet}`;
+    const examMeta = metadata[key];
+    
+    return examMeta?.id || null;
   } catch (error) {
-    console.error("Error getting exam ID:", error);
+    console.error("Error getting exam ID from metadata:", error);
     return null;
   }
 }

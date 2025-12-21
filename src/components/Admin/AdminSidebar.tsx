@@ -45,7 +45,11 @@ const menuItems = [
 		href: '/admin/orders',
 		icon: ShoppingCart,
 	},
-
+	{
+		title: 'Exam Results',
+		href: '/admin/exam-results',
+		icon: FileText,
+	},
 ];
 
 const examMenuItems = [

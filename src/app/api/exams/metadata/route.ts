@@ -44,6 +44,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       (acc, exam) => {
         const key = `${exam.examType.toLowerCase()}-set-${exam.examSet === "SET_A" ? "a" : "b"}`;
         acc[key] = {
+          id: exam.id, // Include exam ID for cart operations
           price: exam.price ?? 0,
           examTime: exam.examTime ?? "Duration not set",
           questionCount: exam.questionCount,
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {} as Record<
         string,
         {
+          id: string;
           price: number;
           examTime: string;
           questionCount: number;

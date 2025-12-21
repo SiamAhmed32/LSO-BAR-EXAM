@@ -232,8 +232,8 @@ export const examApi = {
     }
   },
 
-  // Get exam metadata (price, duration, questionCount, attemptCount) - Public endpoint, no auth required
-  async getExamMetadata(): Promise<Record<string, { price: number; examTime: string; questionCount: number; attemptCount: number | null }>> {
+  // Get exam metadata (id, price, duration, questionCount, attemptCount) - Public endpoint, no auth required
+  async getExamMetadata(): Promise<Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }>> {
     const response = await fetch('/api/exams/metadata', {
       method: 'GET',
       credentials: 'include',
@@ -249,7 +249,26 @@ export const examApi = {
   },
 
   // Get list of purchased exam IDs (frontend IDs like "barrister-set-a")
+  // Returns array of frontend IDs for backward compatibility
   async getPurchasedExams(): Promise<string[]> {
+    const detailed = await this.getPurchasedExamsDetailed();
+    console.log("Detailed purchased exams:", detailed);
+    const frontendIds = detailed.map((exam) => exam.frontendId);
+    console.log("Frontend IDs extracted:", frontendIds);
+    return frontendIds;
+  },
+
+  // Get detailed purchased exams with attempt information
+  async getPurchasedExamsDetailed(): Promise<Array<{
+    frontendId: string;
+    examId: string;
+    examType: string;
+    examSet: string;
+    totalAttempts: number | null;
+    usedAttempts: number;
+    remainingAttempts: number | null;
+    purchasedAt: string | null;
+  }>> {
     const response = await fetch('/api/exams/purchased', {
       method: 'GET',
       credentials: 'include',
@@ -262,6 +281,35 @@ export const examApi = {
 
     const result = await response.json();
     return result.data || [];
+  },
+
+  // Submit exam results
+  async submitExam(data: {
+    examId: string;
+    totalQuestions: number;
+    answeredCount: number;
+    correctCount: number;
+    incorrectCount: number;
+    unansweredCount: number;
+    score: number;
+    answers: Record<string, any>;
+  }): Promise<{ attemptId: string; remainingAttempts: number | null }> {
+    const response = await fetch('/api/exams/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to submit exam');
+    }
+
+    const result = await response.json();
+    return result.data;
   },
 };
 

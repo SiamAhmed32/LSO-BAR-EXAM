@@ -23,8 +23,8 @@ const AccountDetails = () => {
         Account Details
       </h2>
 
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
+      <div className="space-y-6 grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="flex items-start gap-2">
           <div className="p-3 bg-primaryColor/10 rounded-lg">
             <User className="w-5 h-5 text-primaryColor" />
           </div>
@@ -38,7 +38,7 @@ const AccountDetails = () => {
           </div>
         </div>
 
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-2">
           <div className="p-3 bg-primaryColor/10 rounded-lg">
             <Mail className="w-5 h-5 text-primaryColor" />
           </div>
@@ -52,7 +52,7 @@ const AccountDetails = () => {
           </div>
         </div>
 
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-2">
           <div className="p-3 bg-primaryColor/10 rounded-lg">
             <Calendar className="w-5 h-5 text-primaryColor" />
           </div>

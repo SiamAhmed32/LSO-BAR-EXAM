@@ -3,12 +3,17 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, LogOut, ChevronRight, Home, ShoppingBag } from "lucide-react";
+import { User, LogOut, ChevronRight, Home, ShoppingBag, FileText, Menu } from "lucide-react";
 import { useUser } from "../context";
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
 import { resetCart } from "@/store/slices/cartSlice";
 import { clearUserExamProgress } from "@/lib/utils/examStorage";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const AccountSidebar = () => {
   const pathname = usePathname();
@@ -44,6 +49,11 @@ const AccountSidebar = () => {
       href: "/user-account/orders",
       icon: ShoppingBag,
     },
+    {
+      title: "Exam Results",
+      href: "/user-account/exam-results",
+      icon: FileText,
+    },
   ];
 
   const getInitials = (name: string | null | undefined) => {
@@ -56,8 +66,9 @@ const AccountSidebar = () => {
       .slice(0, 2);
   };
 
-  return (
-    <div className="w-full lg:w-64 bg-white lg:border-r border-b lg:border-b-0 border-gray-200 flex flex-col">
+  // Sidebar content component (reusable for both mobile drawer and desktop)
+  const SidebarContent = () => (
+    <div className="w-full h-full bg-white flex flex-col">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-full bg-primaryColor text-white flex items-center justify-center font-bold text-sm">
@@ -121,6 +132,32 @@ const AccountSidebar = () => {
         </button>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile: Drawer with Sidebar */}
+      <div className="lg:hidden mb-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 mt-4 rounded-md bg-primaryColor text-white hover:opacity-90 transition">
+              <Menu className="w-5 h-5" />
+              <span className="font-medium">Menu</span>
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col h-full gap-0">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop: Sidebar (hidden on mobile) */}
+      <div className="hidden lg:block w-64 flex-shrink-0 relative">
+        <div className="w-full lg:w-64 h-[calc(100vh-110px)] bg-white lg:border-r border-b lg:border-b-0 border-gray-200 flex flex-col">
+          <SidebarContent />
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -415,25 +415,28 @@ export const cartSlice = createSlice({
 			state.discount = 0;
 		},
 
-		resetCart: state => {
-			// Save current cart to user's localStorage before clearing
-			if (state.userId) {
-				saveStateToLocalStorage(state);
-			}
-			
-			// Clear state (userId will be cleared by setUserId when new user logs in or on logout)
-			state.cartItems = [];
-			state.totalItems = 0;
-			state.subTotal = 0;
-			state.total = 0;
-			state.vat = 0;
-			state.shipping = 0;
-			state.discount = 0;
-			state.user = 'guest';
-			state.address = {};
-			state.isAddressSet = false;
-			// Note: userId is kept here, but setUserId(null) will be called on logout to clear it
-		},
+	resetCart: state => {
+		// Clear state first
+		state.cartItems = [];
+		state.totalItems = 0;
+		state.subTotal = 0;
+		state.total = 0;
+		state.vat = 0;
+		state.shipping = 0;
+		state.discount = 0;
+		state.user = 'guest';
+		state.address = {};
+		state.isAddressSet = false;
+		
+		// Clear localStorage for current user (if logged in) or guest
+		if (typeof window !== 'undefined') {
+			const userId = state.userId || null;
+			const cartKey = getUserCartKey(userId);
+			localStorage.removeItem(cartKey);
+			console.log("🛒 CartSlice: Cleared cart from localStorage for", userId || 'guest');
+		}
+		// Note: userId is kept here, but setUserId(null) will be called on logout to clear it
+	},
 		setCartLoading: (state, action) => {
 			state.isLoading = action.payload;
 		},

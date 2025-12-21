@@ -156,6 +156,9 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     
     // Fetch original API questions with correct answers
     let apiQuestions: any[] = [];
+    let examId: string | null = null;
+    let examResponse: any = null;
+    
     try {
       const response = await examApi.getQuestions(
         examType || "barrister",
@@ -164,6 +167,8 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
         200
       );
       apiQuestions = response.questions;
+      examResponse = response;
+      examId = response.exam?.id || null;
     } catch (error) {
       console.error("Failed to fetch questions for grading:", error);
     }
@@ -173,6 +178,53 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     const answeredCount = Object.keys(answers).filter(
       (key) => answers[Number(key)] !== undefined
     ).length;
+    
+    // Calculate correct, incorrect, and unanswered counts
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let unansweredCount = 0;
+    
+    if (apiQuestions.length > 0) {
+      apiQuestions.forEach((apiQ, apiIndex) => {
+        const questionId = apiIndex + 1; // Match the transformed ID
+        const userAnswer = answers[questionId];
+        const correctOption = apiQ.options.find((opt) => opt.isCorrect);
+        const correctAnswerId = correctOption?.id;
+        
+        if (!userAnswer) {
+          unansweredCount += 1;
+        } else if (userAnswer === correctAnswerId) {
+          correctCount += 1;
+        } else {
+          incorrectCount += 1;
+        }
+      });
+    }
+    
+    // Calculate score percentage
+    const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+    
+    // Submit exam results for paid exams
+    const isPaidExam = examSet === "set-a" || examSet === "set-b";
+    if (isPaidExam && examId) {
+      try {
+        await examApi.submitExam({
+          examId: examId,
+          totalQuestions,
+          answeredCount,
+          correctCount,
+          incorrectCount,
+          unansweredCount,
+          score,
+          answers, // Store user answers as JSON
+        });
+        console.log("✅ Exam submitted successfully");
+      } catch (error: any) {
+        console.error("❌ Failed to submit exam:", error);
+        // Don't block the flow if submission fails, but log the error
+        // The user can still see their results
+      }
+    }
     
     // Build results URL with query params
     const resultsParams = new URLSearchParams({
