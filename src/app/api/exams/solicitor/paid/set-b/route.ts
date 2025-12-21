@@ -56,34 +56,36 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Check if user has purchased this exam
-    const orders = await prisma.order.findMany({
-      where: {
-        userId: session.id,
-        status: "COMPLETED",
-        payment: {
-          status: "SUCCEEDED",
-        },
-        orderItems: {
-          some: {
-            examId: exam.id,
+    // Skip purchase check for admins
+    if (session.role !== "ADMIN") {
+      // Check if user has purchased this exam
+      const orders = await prisma.order.findMany({
+        where: {
+          userId: session.id,
+          status: "COMPLETED",
+          payment: {
+            status: "SUCCEEDED",
+          },
+          orderItems: {
+            some: {
+              examId: exam.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    if (orders.length === 0) {
-      return NextResponse.json(
-        {
-          error: "Forbidden",
-          message: "You need to purchase this exam before accessing questions",
-        },
-        { status: 403 }
-      );
-    }
+      if (orders.length === 0) {
+        return NextResponse.json(
+          {
+            error: "Forbidden",
+            message: "You need to purchase this exam before accessing questions",
+          },
+          { status: 403 }
+        );
+      }
 
-    // Check remaining attempts if exam has attempt limit (based on most recent purchase)
-    if (exam.attemptCount !== null && exam.attemptCount > 0) {
+      // Check remaining attempts if exam has attempt limit (based on most recent purchase)
+      if (exam.attemptCount !== null && exam.attemptCount > 0) {
       // Find the most recent order item for this exam
       const mostRecentOrderItem = await prisma.orderItem.findFirst({
         where: {
@@ -121,6 +123,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           );
         }
       }
+    }
     }
 
     const [questions, total] = await Promise.all([

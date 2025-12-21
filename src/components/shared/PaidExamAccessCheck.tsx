@@ -6,6 +6,7 @@ import Container from "./Container";
 import { examApi } from "@/lib/api/examApi";
 import { ShoppingCart, AlertCircle, Lock } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "@/components/context";
 
 interface PaidExamAccessCheckProps {
   examId: string; // Frontend ID like "barrister-set-a"
@@ -19,6 +20,7 @@ const PaidExamAccessCheck: React.FC<PaidExamAccessCheckProps> = ({
   children,
 }) => {
   const router = useRouter();
+  const { user } = useUser();
   const [isChecking, setIsChecking] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [purchasedExam, setPurchasedExam] = useState<{
@@ -33,6 +35,14 @@ const PaidExamAccessCheck: React.FC<PaidExamAccessCheckProps> = ({
     const checkAccess = async () => {
       try {
         setIsChecking(true);
+        
+        // Admins have automatic access without purchase
+        if (user?.role === "ADMIN") {
+          setHasAccess(true);
+          setIsChecking(false);
+          return;
+        }
+        
         // Get all purchased exams
         const purchasedExams = await examApi.getPurchasedExamsDetailed();
         
@@ -70,7 +80,7 @@ const PaidExamAccessCheck: React.FC<PaidExamAccessCheckProps> = ({
     };
 
     void checkAccess();
-  }, [examId]);
+  }, [examId, user?.role]);
 
   if (isChecking) {
     return (

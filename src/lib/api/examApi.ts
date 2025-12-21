@@ -77,6 +77,10 @@ const buildApiPath = (
   return `/api/exams/${examType}/${pricingType}`;
 };
 
+// Cache for exam metadata to avoid multiple API calls
+let examMetadataCache: Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }> | null = null;
+let examMetadataCachePromise: Promise<Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }>> | null = null;
+
 // Exam API functions
 export const examApi = {
   // Get all questions
@@ -233,19 +237,51 @@ export const examApi = {
   },
 
   // Get exam metadata (id, price, duration, questionCount, attemptCount) - Public endpoint, no auth required
+  // Uses caching to avoid multiple API calls
   async getExamMetadata(): Promise<Record<string, { id: string; price: number; examTime: string; questionCount: number; attemptCount: number | null }>> {
-    const response = await fetch('/api/exams/metadata', {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to fetch exam metadata');
+    // Return cached data if available
+    if (examMetadataCache !== null) {
+      return examMetadataCache;
     }
 
-    const result = await response.json();
-    return result.data;
+    // If a fetch is already in progress, wait for it
+    if (examMetadataCachePromise !== null) {
+      return examMetadataCachePromise;
+    }
+
+    // Start new fetch and cache the promise
+    examMetadataCachePromise = (async () => {
+      try {
+        const response = await fetch('/api/exams/metadata', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to fetch exam metadata');
+        }
+
+        const result = await response.json();
+        const metadata = result.data;
+        
+        // Cache the result
+        examMetadataCache = metadata;
+        return metadata;
+      } catch (error) {
+        // Clear the promise so we can retry
+        examMetadataCachePromise = null;
+        throw error;
+      }
+    })();
+
+    return examMetadataCachePromise;
+  },
+
+  // Clear exam metadata cache (useful when exam prices/metadata are updated)
+  clearExamMetadataCache(): void {
+    examMetadataCache = null;
+    examMetadataCachePromise = null;
   },
 
   // Get list of purchased exam IDs (frontend IDs like "barrister-set-a")
