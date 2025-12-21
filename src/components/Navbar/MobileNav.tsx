@@ -43,7 +43,7 @@ const MobileNav = () => {
         >
           <User className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
-        {isAuthenticated && role !== 'ADMIN' && (
+        {/* {isAuthenticated && role !== 'ADMIN' && (
           <Link
             href="/user-account/orders"
             className="p-2 rounded-full bg-primaryColor text-white hover:opacity-80 transition-opacity"
@@ -51,7 +51,7 @@ const MobileNav = () => {
           >
             <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
-        )}
+        )} */}
         <CartSidebar iconSize="w-4 h-4 sm:w-5 sm:h-5" />
         
         {/* Hamburger Button */}
