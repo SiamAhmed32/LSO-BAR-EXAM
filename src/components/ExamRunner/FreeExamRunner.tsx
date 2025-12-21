@@ -5,7 +5,7 @@ import Container from "@/components/shared/Container";
 import { FreeQuestion } from "@/components/data/freeExamQuestions";
 import { Bookmark, CheckCircle } from "lucide-react";
 import ExamTimer from "./ExamTimer";
-import { examApi } from "@/lib/api/examApi";
+import { examApi, ApiQuestion } from "@/lib/api/examApi";
 import { useUser } from "@/components/context";
 import { getExamStorageKey } from "@/lib/utils/examStorage";
 import FinishExamModal from "@/components/shared/FinishExamModal";
@@ -155,7 +155,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     setIsFinished(true);
     
     // Fetch original API questions with correct answers
-    let apiQuestions: any[] = [];
+    let apiQuestions: ApiQuestion[] = [];
     let examId: string | null = null;
     let examResponse: any = null;
     
@@ -188,7 +188,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
       apiQuestions.forEach((apiQ, apiIndex) => {
         const questionId = apiIndex + 1; // Match the transformed ID
         const userAnswer = answers[questionId];
-        const correctOption = apiQ.options.find((opt) => opt.isCorrect);
+        const correctOption = apiQ.options.find((opt: { id: string; text: string; isCorrect: boolean }) => opt.isCorrect);
         const correctAnswerId = correctOption?.id;
         
         if (!userAnswer) {
