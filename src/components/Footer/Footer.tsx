@@ -56,22 +56,22 @@ const Footer = () => {
 						<div className="col-span-1">
 							<h3 className="text-lg font-bold mb-4 text-secColor">Quick Links</h3>
 							<ul className="space-y-3">
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										Practice Questions
-									</Link>
-								</li>
-								<li>
-									<Link
-										href="/"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										Exam Tutoring
-									</Link>
-								</li>
+							<li>
+								<Link
+									href="/practice"
+									className="text-sm text-primaryText hover:text-secColor transition-colors"
+								>
+									Practice Questions
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/tutoring"
+									className="text-sm text-primaryText hover:text-secColor transition-colors"
+								>
+									Exam Tutoring
+								</Link>
+							</li>
 								<li>
 									<Link
 										href="/faq"

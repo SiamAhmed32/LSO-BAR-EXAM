@@ -12,7 +12,7 @@ export type NavItemRight = {
 export const navDataLeft: NavItemLeft[] = [
   { title: "Home", status: "Home", href:'/' },
   { title: "Practice Questions", status: "Practice Questions", href:'/practice' },
-  { title: "Exam tutoring", status: "Exam tutoring", href: '/' },
+  { title: "Exam tutoring", status: "Exam tutoring", href: '/tutoring' },
   { title: "FAQ", status: "FAQ", href:'/faq' },
   { title: "Contact", status: "Contact" , href:'/contact'},
 ]
