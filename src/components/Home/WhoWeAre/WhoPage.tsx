@@ -11,13 +11,16 @@ const WhoPage = (props: Props) => {
 				<div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 xl:gap-16">
 					{/* Left Side - Image */}
 					<div className="flex-1 w-full flex justify-center lg:justify-start">
-						<div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl aspect-square rounded-lg overflow-hidden">
+						<div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl aspect-square rounded-lg overflow-hidden bg-primaryBg/50">
 							<Image
 								src="/whoImgFinal.png"
-								alt="Bar Exam Tutoring"
+								alt="Who We Are"
 								fill
 								className="object-cover"
 								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 500px"
+								priority
+								quality={90}
+								loading="eager"
 							/>
 						</div>
 					</div>
