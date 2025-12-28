@@ -2,6 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const CART_NAME = 'APP_QUICK_CART';
 
+// Helper to get user-specific buyNow cart key
+const getUserBuyNowCartKey = (userId?: string | null): string => {
+	if (typeof window === 'undefined') return CART_NAME;
+	if (!userId) return `${CART_NAME}_guest`;
+	return `${CART_NAME}_${userId}`;
+};
+
 export type CartItem = {
 	uniqueId: string;
 	id: string;
@@ -43,6 +50,7 @@ type State = {
 	shipping: number;
 	discount: number;
 	user: string;
+	userId: string | null; // Store current user ID for buyNow cart isolation
 	address: any;
 	isAddressSet: boolean;
 	toggleCart: boolean;
@@ -61,6 +69,7 @@ const initialState: State = {
 	shipping: 0,
 	discount: 0,
 	user: 'guest',
+	userId: null, // No user ID initially
 	address: {},
 	isAddressSet: false,
 	toggleCart: false,
@@ -68,7 +77,23 @@ const initialState: State = {
 
 // Helper function to save state to local storage
 const saveStateToNowLocalStorage = (state: typeof initialState) => {
-	typeof window !== 'undefined' && localStorage.setItem(CART_NAME, JSON.stringify(state));
+	if (typeof window === 'undefined') return;
+	const userId = state.userId || null;
+	const cartKey = getUserBuyNowCartKey(userId);
+	localStorage.setItem(cartKey, JSON.stringify(state));
+};
+
+// Helper function to load state from local storage
+const loadStateFromNowLocalStorage = (userId?: string | null): typeof initialState | null => {
+	if (typeof window === 'undefined') return null;
+	const cartKey = getUserBuyNowCartKey(userId);
+	const stored = localStorage.getItem(cartKey);
+	if (!stored) return null;
+	try {
+		return JSON.parse(stored);
+	} catch {
+		return null;
+	}
 };
 
 // Helper function to calculate totals
@@ -90,11 +115,54 @@ const calculateNowTotals = (state: State) => {
 
 export const buyNowSlice = createSlice({
 	name: 'buyNow',
-	initialState:
-		typeof window !== 'undefined' && localStorage.getItem(CART_NAME)
-			? JSON.parse(localStorage.getItem(CART_NAME)!)
-			: initialState,
+	initialState: initialState,
 	reducers: {
+		// Set user ID and load their buyNow cart from localStorage
+		setBuyNowUserId: (state, action: { payload: string | null }) => {
+			const newUserId = action.payload;
+			
+			// If user is changing, save current cart to old user's localStorage first
+			if (state.userId && state.userId !== newUserId) {
+				saveStateToNowLocalStorage(state);
+			}
+			
+			// Update userId
+			state.userId = newUserId;
+			
+			// Load cart for new user from localStorage
+			if (newUserId) {
+				const userCart = loadStateFromNowLocalStorage(newUserId);
+				if (userCart && userCart.cartItems && userCart.cartItems.length > 0) {
+					state.cartItems = userCart.cartItems;
+					state.subTotal = userCart.subTotal || 0;
+					state.total = userCart.total || 0;
+					state.totalItems = userCart.totalItems || 0;
+					state.vat = userCart.vat || 0;
+					state.shipping = userCart.shipping || 0;
+					state.discount = userCart.discount || 0;
+					state.userId = newUserId;
+					calculateNowTotals(state);
+				} else {
+					// New user, clear cart
+					state.cartItems = [];
+					state.subTotal = 0;
+					state.total = 0;
+					state.totalItems = 0;
+					state.vat = 0;
+					state.shipping = 0;
+					state.discount = 0;
+				}
+			} else {
+				// Guest user, clear cart
+				state.cartItems = [];
+				state.subTotal = 0;
+				state.total = 0;
+				state.totalItems = 0;
+				state.vat = 0;
+				state.shipping = 0;
+				state.discount = 0;
+			}
+		},
 		calculateNowCartTotals: (state, action) => {
 			const { subTotal = 0, total = 0, vat = 0, discount = 0, shipping = 0 } = action.payload;
 			state.subTotal = subTotal;
@@ -305,6 +373,7 @@ export const {
 	setNowAddress,
 	removeNowAddress,
 	setNowToggleCart,
+	setBuyNowUserId,
 } = buyNowSlice.actions;
 
 export default buyNowSlice.reducer;

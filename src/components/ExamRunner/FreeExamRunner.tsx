@@ -204,9 +204,9 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     // Calculate score percentage
     const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
     
-    // Submit exam results for paid exams
-    const isPaidExam = examSet === "set-a" || examSet === "set-b";
-    if (isPaidExam && examId) {
+    // Submit exam results to database (for both paid and free exams, if user is logged in)
+    // This allows results to appear in the user's profile/dashboard
+    if (examId && user?.id) {
       try {
         await examApi.submitExam({
           examId: examId,
@@ -218,12 +218,14 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
           score,
           answers, // Store user answers as JSON
         });
-        console.log("✅ Exam submitted successfully");
+        console.log("✅ Exam submitted successfully to database");
       } catch (error: any) {
-        console.error("❌ Failed to submit exam:", error);
+        console.error("❌ Failed to submit exam to database:", error);
         // Don't block the flow if submission fails, but log the error
-        // The user can still see their results
+        // The user can still see their results from sessionStorage
       }
+    } else if (!user?.id) {
+      console.log("ℹ️ Guest user - exam results stored in sessionStorage only");
     }
     
     // Build results URL with query params
@@ -236,9 +238,14 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     });
     
     // Store answers and correct answers in sessionStorage for results page
+    // Use user-specific key to separate guest results from logged-in user results
     if (typeof window !== "undefined") {
+      const userId = user?.id || null;
+      const userPrefix = userId ? userId : "guest";
+      const resultsKey = `exam-results-${userPrefix}-${examType}-${examSet}`;
+      
       sessionStorage.setItem(
-        `exam-results-${examType}-${examSet}`,
+        resultsKey,
         JSON.stringify({
           finished: true, // Flag to indicate exam was properly finished
           answers,

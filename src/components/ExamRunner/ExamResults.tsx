@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Container from "@/components/shared/Container";
 import { CheckCircle, X, Eye, Home } from "lucide-react";
 import type { FreeQuestion } from "@/components/data/freeExamQuestions";
+import { useUser } from "@/components/context";
 
 interface ExamResultsProps {
   examType: string;
@@ -42,6 +43,7 @@ const ExamResults: React.FC<ExamResultsProps> = ({
   title,
 }) => {
   const router = useRouter();
+  const { user } = useUser();
   const [results, setResults] = useState<StoredResults | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAnswers, setIsCheckingAnswers] = useState(true);
@@ -64,9 +66,13 @@ const ExamResults: React.FC<ExamResultsProps> = ({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const stored = sessionStorage.getItem(
-      `exam-results-${examType}-${examSet}`
-    );
+    // Use user-specific key to retrieve results
+    // This ensures guest results are separate from logged-in user results
+    const userId = user?.id || null;
+    const userPrefix = userId ? userId : "guest";
+    const resultsKey = `exam-results-${userPrefix}-${examType}-${examSet}`;
+    
+    const stored = sessionStorage.getItem(resultsKey);
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as StoredResults;
@@ -351,14 +357,14 @@ const ExamResults: React.FC<ExamResultsProps> = ({
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => router.push("/")}
-              className="px-6 py-3 bg-primaryColor text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
+              className="px-6 py-3 bg-primaryColor cursor-pointer text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
             >
               <Home className="w-5 h-5" />
               Back to Home
             </button>
             <button
               onClick={() => setShowAnswers(true)}
-              className="px-6 py-3 bg-secColor text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
+              className="px-6 py-3 bg-secColor text-white font-semibold cursor-pointer rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
             >
               <Eye className="w-5 h-5" />
               View Answers
