@@ -206,6 +206,7 @@ const ExamResults: React.FC<ExamResultsProps> = ({
         gradedResults={gradedResults}
         onBack={() => setShowAnswers(false)}
         title={title}
+        userId={user?.id || null}
       />
     );
   }
@@ -356,11 +357,19 @@ const ExamResults: React.FC<ExamResultsProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                // For logged-in users, redirect to user account page (where they can see all their exam results)
+                // For guest users, redirect to home page
+                if (user?.id) {
+                  router.push("/user-account/exam-results");
+                } else {
+                  router.push("/");
+                }
+              }}
               className="px-6 py-3 bg-primaryColor cursor-pointer text-white font-semibold rounded-md hover:opacity-90 transition flex items-center justify-center gap-2"
             >
               <Home className="w-5 h-5" />
-              Back to Home
+              {user?.id ? "View All Results" : "Back to Home"}
             </button>
             <button
               onClick={() => setShowAnswers(true)}
@@ -386,7 +395,8 @@ const AnswersView: React.FC<{
   };
   onBack: () => void;
   title: string;
-}> = ({ results, gradedResults, onBack, title }) => {
+  userId?: string | null;
+}> = ({ results, gradedResults, onBack, title, userId }) => {
   const router = useRouter();
 
   // Prepare question data with user answers and correct answers
@@ -435,11 +445,19 @@ const AnswersView: React.FC<{
                   Back to Results
                 </button>
                 <button
-                  onClick={() => router.push("/")}
+                  onClick={() => {
+                    // For logged-in users, redirect to user account page
+                    // For guest users, redirect to home page
+                    if (userId) {
+                      router.push("/user-account/exam-results");
+                    } else {
+                      router.push("/");
+                    }
+                  }}
                   className="px-4 py-2 bg-white/20 text-white font-semibold rounded-md hover:bg-white/30 transition flex items-center gap-2"
                 >
                   <Home className="w-4 h-4" />
-                  Home
+                  {userId ? "All Results" : "Home"}
                 </button>
               </div>
             </div>
