@@ -29,10 +29,10 @@ const Hero = () => {
 										</div>
 									</div>
 								</div>
-								<span className='text-black relative z-10'>BAR EXAM</span>
+								<span className='text-white relative z-10'>BAR EXAM</span>
 							</span>
 						</h1>
-						<p className="relative top-[-24px] md:top-[-38px] lg:top-[-38px] xl:top-[-40px] text-[15.5px] sm:text-xl md:text-[30.5px] lg:text-[24.7px] xl:text-[30.6px] text-black opacity-90 font-semibold">
+						<p className="relative top-[-24px] md:top-[-38px] lg:top-[-38px] xl:top-[-40px] text-[15.5px] sm:text-xl md:text-[30.5px] lg:text-[24.7px] xl:text-[30.6px] text-white opacity-90 font-semibold">
 							LAW SOCIETY OF ONTARIO BAR EXAM
 						</p>
 					</div>
