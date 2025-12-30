@@ -80,6 +80,14 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
+  const getExamName = (exam: { examType: string; examSet: string | null }) => {
+    // Always generate name from examType and examSet (ignore title field)
+    // This ensures consistent naming based on backend data
+    const type = exam.examType === "BARRISTER" ? "Barrister" : "Solicitor";
+    const set = exam.examSet === "SET_A" ? "Set A" : exam.examSet === "SET_B" ? "Set B" : "";
+    return `${type} ${set}`.trim();
+  };
+
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
@@ -299,27 +307,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="text-base font-semibold text-gray-900 mb-2">
-                        {item.examTitle ||
-                          `${item.exam.examType} ${item.exam.examSet || ""}`}
+                        {getExamName(item.exam)}
                       </h4>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="font-medium">Exam Type:</span>
-                          <span>{item.exam.examType}</span>
-                        </div>
-                        {item.exam.examSet && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="font-medium">Exam Set:</span>
-                            <span>{item.exam.examSet}</span>
-                          </div>
-                        )}
-                        {item.exam.title && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="font-medium">Title:</span>
-                            <span>{item.exam.title}</span>
-                          </div>
-                        )}
-                      </div>
                     </div>
                     <div className="ml-4 text-right">
                       <div className="text-lg font-bold text-gray-900">

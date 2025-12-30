@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Layout } from "@/components";
 import Container from "@/components/shared/Container";
 import AccountSidebar from "@/components/UserAccSection/AccountSidebar";
 import { FileText, Calendar, CheckCircle, XCircle, Clock, TrendingUp } from "lucide-react";
 import { toast } from "react-toastify";
 import Loader from "@/components/shared/Loader";
-import ExamResultDetailsModal from "@/components/shared/ExamResultDetailsModal";
 
 interface Exam {
   id: string;
@@ -32,12 +32,11 @@ interface ExamAttempt {
 }
 
 const UserExamResultsPage = () => {
+  const router = useRouter();
   const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAttempt, setSelectedAttempt] = useState<ExamAttempt | null>(null);
 
   const fetchAttempts = useCallback(async () => {
     try {
@@ -89,10 +88,28 @@ const UserExamResultsPage = () => {
   };
 
   const getExamName = (exam: Exam) => {
-    if (exam.title) return exam.title;
+    // Always generate name from examType and examSet (ignore title field)
+    // This ensures consistent naming based on backend data
     const type = exam.examType === "BARRISTER" ? "Barrister" : "Solicitor";
     const set = exam.examSet === "SET_A" ? "Set A" : exam.examSet === "SET_B" ? "Set B" : "";
     return `${type} ${set}`.trim();
+  };
+
+  const handleViewResults = (attempt: ExamAttempt) => {
+    // Redirect to exam results page with attemptId
+    // The ExamResults component will fetch from backend using attemptId
+    const params = new URLSearchParams({
+      attemptId: attempt.id,
+      examType: attempt.exam.examType.toLowerCase(),
+      examSet: attempt.exam.examSet 
+        ? attempt.exam.examSet.toLowerCase().replace('_', '-')
+        : 'set-a',
+      total: attempt.totalQuestions.toString(),
+      answered: attempt.answeredCount.toString(),
+      title: getExamName(attempt.exam),
+    });
+    
+    router.push(`/exam-results?${params.toString()}`);
   };
 
   return (
@@ -136,10 +153,7 @@ const UserExamResultsPage = () => {
                         <div
                           key={attempt.id}
                           className="border border-borderBg rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => {
-                            setSelectedAttempt(attempt);
-                            setIsModalOpen(true);
-                          }}
+                          onClick={() => handleViewResults(attempt)}
                         >
                           {/* Header */}
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -244,17 +258,6 @@ const UserExamResultsPage = () => {
           </div>
         </Container>
       </section>
-
-      {/* Exam Result Details Modal */}
-      <ExamResultDetailsModal
-        attempt={selectedAttempt}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedAttempt(null);
-        }}
-        showUserInfo={false}
-      />
     </Layout>
   );
 };

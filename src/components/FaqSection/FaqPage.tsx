@@ -77,39 +77,22 @@ const FaqPage = (props: Props) => {
               General Inquiries
             </h2>
             <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="general-1" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
+              <AccordionItem value="general-2" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
                 <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  How do I access the exams after I purchase them?
+                  What is the difference between free and paid exams?
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
                   <div className="flex flex-col gap-3">
                     <p>
-                      After completing your purchase, you&apos;ll receive an email confirmation with access instructions. 
-                      Log in to your account and navigate to the &quot;My Exams&quot; section.
+                      Our free mini exams provide a sample of our question format and quality, allowing you to 
+                      practice with unlimited attempts. These are perfect for getting familiar with our platform 
+                      and question style.
                     </p>
                     <p>
-                      All purchased exams will be available in your dashboard immediately after purchase. 
-                      You can access them from any device with internet connectivity.
-                    </p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-
-              <AccordionItem value="general-3" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
-                <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  How many attempts do I have for the purchased exams?
-                </AccordionTrigger>
-                <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
-                  <div className="flex flex-col gap-3">
-                    <p>
-                      Each purchased exam (Barrister Exam Set A, Set B, Solicitor Exam Set A, Set B) 
-                      allows for two (2) attempts only. This simulates the real exam environment and helps 
-                      you practice under realistic conditions.
-                    </p>
-                    <p>
-                      The free mini exams have unlimited attempts, allowing you to practice as much as needed 
-                      before purchasing the full exam sets.
+                      The paid full exams (Barrister Set A/B, Solicitor Set A/B) contain 160 comprehensive questions 
+                      each, completely different from the free exams. They include timed exam conditions (4.5 hours), 
+                      limited attempts (2 per purchase), and detailed explanations - providing a realistic exam simulation 
+                      aligned with 2025-2026 LSO materials.
                     </p>
                   </div>
                 </AccordionContent>
@@ -205,19 +188,20 @@ const FaqPage = (props: Props) => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="general-9" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
+              <AccordionItem value="general-10" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
                 <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  What features does the LSO Bar Exam testing platform have?
+                  How long do I have access to purchased exams?
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
                   <div className="flex flex-col gap-3">
                     <p>
-                      Our platform includes timed exams (4.5 hours for full exams), automatic answer saving, 
-                      detailed explanations for each question, and comprehensive answer review after completion.
+                      Once you purchase an exam, you have permanent access to it through your account. You can 
+                      access your purchased exams at any time, from any device, as long as you have an active account.
                     </p>
                     <p>
-                      Additional features include progress tracking, the ability to pause and resume exams, 
-                      and access to all questions aligned with the 2025-2026 LSO Barrister and Solicitor indexing materials.
+                      However, each purchased exam has a limit of 2 attempts. After completing both attempts, 
+                      you can review your results and answers, but cannot take the exam again unless you make 
+                      another purchase.
                     </p>
                   </div>
                 </AccordionContent>

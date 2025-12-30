@@ -76,10 +76,15 @@ export async function GET(
       const correctOption = question.options.find((opt) => opt.isCorrect);
       const userSelectedOption = question.options.find((opt) => opt.id === userAnswerId);
 
+      // Type assertion to allow optional category field (for future schema updates)
+      // When category is added to Prisma schema, this will automatically work
+      const questionWithCategory = question as typeof question & { category?: string };
+
       return {
         id: question.id,
         questionNumber: questionNumber,
         question: question.question,
+        category: questionWithCategory.category || "General", // Use category if available, fallback to "General"
         options: question.options.map((option) => ({
           id: option.id,
           text: option.text,

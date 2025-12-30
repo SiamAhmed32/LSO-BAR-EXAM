@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import Container from "@/components/shared/Container";
 import { SectionHeading } from "@/components/shared";
 import ExamCard from "@/components/shared/ExamCard";
@@ -332,11 +333,26 @@ const PaidPage = (props: Props) => {
   };
 
   return (
-    <section className="py-12">
-      <Container>
-        <SectionHeading className="text-center  mb-10 sm:mb-12 md:mb-16 text-primaryText">
-          {"Paid Practice Exam Timed"}
-        </SectionHeading>
+    <section id="paid-exams" className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-primaryBg to-white relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-secColor/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-primaryColor/5 rounded-full -ml-48 -mb-48 blur-3xl"></div>
+      
+      <Container className="relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+          viewport={{ once: true }}
+          className="text-center mb-10 sm:mb-12 md:mb-16"
+        >
+          <SectionHeading className="text-primaryText mb-4">
+            {"Paid Practice Exam Timed"}
+          </SectionHeading>
+          <p className="text-base sm:text-lg md:text-xl text-primaryText/70 max-w-2xl mx-auto">
+            Comprehensive practice exams with timed conditions. Perfect your skills before the real exam.
+          </p>
+        </motion.div>
 
         {isLoadingMeta ? (
           // Section Loader - shows while fetching price/duration metadata
@@ -356,7 +372,7 @@ const PaidPage = (props: Props) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-[75%] mx-auto">
-            {PAID_EXAMS.map((exam) => {
+            {PAID_EXAMS.map((exam, index) => {
               // Find detailed purchased exam info
               const purchasedExamDetail = purchasedExamsDetailed.find(
                 (p) => p.frontendId === exam.id
@@ -425,35 +441,54 @@ const PaidPage = (props: Props) => {
                   ];
 
               return (
-                <ExamCard
+                <motion.div
                   key={exam.id}
-                  title={exam.title}
-                  features={dynamicFeatures}
-                  price={meta.price}
-                  duration={meta.examTime}
-                  buttonText={buttonText}
-                  href={isPurchased && hasRemainingAttempts ? beginHref : "#"}
-                  isLoading={addingToCart[exam.id] || removingFromCart[exam.id] || false}
-                  onButtonClick={
-                    isPurchased && hasRemainingAttempts
-                      ? undefined
-                      : isInCart
-                      ? () =>
-                          handleRemoveFromCart(
-                            exam.id,
-                            exam.examType,
-                            exam.pricingKey
-                          )
-                      : () =>
-                          handleAddToCart(
-                            exam.id,
-                            exam.title,
-                            meta.price,
-                            exam.examType,
-                            exam.pricingKey
-                          )
-                  }
-                />
+                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    delay: index * 0.15,
+                    duration: 0.5,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15,
+                  }}
+                  viewport={{ once: true }}
+                  whileHover={{ 
+                    y: -8, 
+                    scale: 1.02,
+                    transition: { duration: 0.2 }
+                  }}
+                  className="h-full"
+                >
+                  <ExamCard
+                    title={exam.title}
+                    features={dynamicFeatures}
+                    price={meta.price}
+                    duration={meta.examTime}
+                    buttonText={buttonText}
+                    href={isPurchased && hasRemainingAttempts ? beginHref : "#"}
+                    isLoading={addingToCart[exam.id] || removingFromCart[exam.id] || false}
+                    onButtonClick={
+                      isPurchased && hasRemainingAttempts
+                        ? undefined
+                        : isInCart
+                        ? () =>
+                            handleRemoveFromCart(
+                              exam.id,
+                              exam.examType,
+                              exam.pricingKey
+                            )
+                        : () =>
+                            handleAddToCart(
+                              exam.id,
+                              exam.title,
+                              meta.price,
+                              exam.examType,
+                              exam.pricingKey
+                            )
+                    }
+                  />
+                </motion.div>
               );
             })}
           </div>

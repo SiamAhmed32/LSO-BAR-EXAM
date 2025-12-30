@@ -347,5 +347,55 @@ export const examApi = {
     const result = await response.json();
     return result.data;
   },
+
+  // Get exam attempt details with questions and answers
+  async getExamAttempt(attemptId: string): Promise<{
+    attempt: {
+      id: string;
+      userId: string;
+      examId: string;
+      totalQuestions: number;
+      answeredCount: number;
+      correctCount: number;
+      incorrectCount: number;
+      unansweredCount: number;
+      score: number;
+      submittedAt: string;
+      exam: {
+        id: string;
+        examType: string;
+        examSet: string | null;
+        title: string | null;
+        pricingType: string;
+      };
+    };
+    questions: Array<{
+      id: string;
+      questionNumber: number;
+      question: string;
+      options: Array<{
+        id: string;
+        text: string;
+        isCorrect: boolean;
+        isUserSelected: boolean;
+      }>;
+      userAnswerId: string | null;
+      correctAnswerId: string | null;
+      isCorrect: boolean;
+    }>;
+  }> {
+    const response = await fetch(`/api/exams/attempts/${attemptId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch exam attempt');
+    }
+
+    const result = await response.json();
+    return result.data;
+  },
 };
 

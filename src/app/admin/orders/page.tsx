@@ -130,6 +130,14 @@ const AdminOrdersPage = () => {
     });
   };
 
+  const getExamName = (exam: { examType: string; examSet: string | null }) => {
+    // Always generate name from examType and examSet (ignore title field)
+    // This ensures consistent naming based on backend data
+    const type = exam.examType === "BARRISTER" ? "Barrister" : "Solicitor";
+    const set = exam.examSet === "SET_A" ? "Set A" : exam.examSet === "SET_B" ? "Set B" : "";
+    return `${type} ${set}`.trim();
+  };
+
   const columns: Column<Order>[] = [
     {
       key: "id",
@@ -162,7 +170,7 @@ const AdminOrdersPage = () => {
           </p>
           <p className="text-xs text-primaryText/70">
             {item.orderItems
-              .map((oi) => oi.examTitle || `${oi.exam.examType} ${oi.exam.examSet || ""}`)
+              .map((oi) => getExamName(oi.exam))
               .join(", ")}
           </p>
         </div>

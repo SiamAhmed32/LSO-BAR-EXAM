@@ -163,7 +163,8 @@ const ExamResultDetailsModal: React.FC<ExamResultDetailsModalProps> = ({
   };
 
   const getExamName = (exam: Exam) => {
-    if (exam.title) return exam.title;
+    // Always generate name from examType and examSet (ignore title field)
+    // This ensures consistent naming based on backend data
     const type = exam.examType === "BARRISTER" ? "Barrister" : "Solicitor";
     const set = exam.examSet === "SET_A" ? "Set A" : exam.examSet === "SET_B" ? "Set B" : "";
     return `${type} ${set}`.trim();

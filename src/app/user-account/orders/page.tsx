@@ -121,6 +121,14 @@ const UserOrdersPage = () => {
     });
   };
 
+  const getExamName = (exam: { examType: string; examSet: string | null }) => {
+    // Always generate name from examType and examSet (ignore title field)
+    // This ensures consistent naming based on backend data
+    const type = exam.examType === "BARRISTER" ? "Barrister" : "Solicitor";
+    const set = exam.examSet === "SET_A" ? "Set A" : exam.examSet === "SET_B" ? "Set B" : "";
+    return `${type} ${set}`.trim();
+  };
+
   return (
     <Layout>
       <section className="pt-24 pb-12 lg:pt-28 lg:pb-16 bg-primaryBg min-h-screen">
@@ -214,13 +222,7 @@ const UserOrdersPage = () => {
                                 >
                                   <div>
                                     <p className="text-sm font-medium text-primaryText">
-                                      {item.examTitle ||
-                                        `${item.exam.examType} ${
-                                          item.exam.examSet || ""
-                                        }`}
-                                    </p>
-                                    <p className="text-xs text-primaryText/70">
-                                      {item.exam.examType} - {item.exam.examSet || "N/A"}
+                                      {getExamName(item.exam)}
                                     </p>
                                   </div>
                                   <span className="text-sm font-semibold text-primaryText">

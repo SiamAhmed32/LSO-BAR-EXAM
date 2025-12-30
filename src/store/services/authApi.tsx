@@ -2,17 +2,15 @@ import { TOKEN_NAME, URL } from '@/lib/constants';
 import { LoginBodyType, LoginPayloadType } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-// Get BASE_URL with proper fallback - ensure it's always a valid backend URL
-const envBackend = process.env.NEXT_PUBLIC_BACKEND;
-const fallbackUrl = 'http://localhost:5000';
-const BASE_URL = envBackend || URL.api || fallbackUrl;
+// For Next.js API routes, use empty string to use current origin (works for both local and deployment)
+// This ensures:
+// - Locally: /api/auth/login → http://localhost:3000/api/auth/login
+// - Deployment: /api/auth/login → https://lso-bar-exam.vercel.app/api/auth/login
+// Empty string makes URLs relative, which automatically uses the current origin
+const BASE_URL = '';
 
-// Note: If using Next.js API routes, localhost:3000 is correct
-// If using a separate backend server, use a different port (e.g., localhost:5000)
-
-console.log('AuthApi - NEXT_PUBLIC_BACKEND env:', envBackend);
-console.log('AuthApi - URL.api:', URL.api);
-console.log('AuthApi - Final BASE_URL:', BASE_URL);
+// Note: Other endpoints in this file (like auth/change-password, user-api/*) may be legacy or external APIs
+// If they need a different baseUrl, they should be updated to use full URLs or moved to a separate API service
 
 const tags = ['self'];
 
@@ -30,7 +28,7 @@ export interface RootState {
 export const authApi = createApi({
 	reducerPath: 'authApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${BASE_URL}`,
+		baseUrl: BASE_URL, // Empty string = use current origin (works for both local and deployment)
 		prepareHeaders: (headers, { getState }) => {
 			const state = getState() as RootState;
 			const token = state?.auth?.token || localStorage.getItem(TOKEN_NAME);

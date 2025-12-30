@@ -484,11 +484,16 @@ export const cartSlice = createSlice({
 				if (action.payload && Array.isArray(action.payload)) {
 					console.log("🛒 CartSlice: Loading cart items from backend", action.payload);
 					action.payload.forEach((item: any) => {
+						// Generate exam name from examType and examSet (ignore title field)
+						const type = item.examType === "BARRISTER" ? "Barrister" : "Solicitor";
+						const set = item.examSet === "SET_A" ? "Set A" : item.examSet === "SET_B" ? "Set B" : "";
+						const examName = `${type} ${set}`.trim();
+						
 						const cartItem: CartItem = {
 							uniqueId: `${item.examId}-no-variation`,
 							id: item.examId,
 							_id: item.examId,
-							name: item.title || `${item.examType} ${item.examSet}`,
+							name: examName,
 							price: item.price,
 							unitPrice: item.price,
 							vat: 0,

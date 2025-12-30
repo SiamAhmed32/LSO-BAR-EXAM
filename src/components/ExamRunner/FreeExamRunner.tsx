@@ -206,9 +206,10 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
     
     // Submit exam results to database (for both paid and free exams, if user is logged in)
     // This allows results to appear in the user's profile/dashboard
+    let attemptId: string | null = null;
     if (examId && user?.id) {
       try {
-        await examApi.submitExam({
+        const submitResult = await examApi.submitExam({
           examId: examId,
           totalQuestions,
           answeredCount,
@@ -218,7 +219,8 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
           score,
           answers, // Store user answers as JSON
         });
-        console.log("✅ Exam submitted successfully to database");
+        attemptId = submitResult.attemptId;
+        console.log("✅ Exam submitted successfully to database, attemptId:", attemptId);
       } catch (error: any) {
         console.error("❌ Failed to submit exam to database:", error);
         // Don't block the flow if submission fails, but log the error
@@ -236,6 +238,11 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
       answered: answeredCount.toString(),
       title: title,
     });
+    
+    // Add attemptId if available (for logged-in users to fetch from backend)
+    if (attemptId) {
+      resultsParams.set("attemptId", attemptId);
+    }
     
     // Store answers and correct answers in sessionStorage for results page
     // Use user-specific key to separate guest results from logged-in user results

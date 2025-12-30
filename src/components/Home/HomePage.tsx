@@ -5,6 +5,8 @@ import WhoPage from "./WhoWeAre/WhoPage";
 import BarExamTutoringPage from "./BarExamTutoring/BarExamTutoringPage";
 import FreePractice from "./FreePractices/FreePractice";
 import PaidPage from "./PaidPractices/PaidPage";
+import HowItWorks from "../HowItWorks/HowItWorks";
+import FaqPreview from "./FaqPreview/FaqPreview";
 
 type Props = {};
 
@@ -12,10 +14,12 @@ const HomePage = (props: Props) => {
   return (
     <>
       <Hero />
-      <WhoPage />
+      <PaidPage />
       <BarExamTutoringPage />
       <FreePractice />
-      <PaidPage />
+      <WhoPage />
+      <HowItWorks isFullPage={false} />
+      <FaqPreview />
     </>
   );
 };
