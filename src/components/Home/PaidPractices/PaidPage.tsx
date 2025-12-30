@@ -333,7 +333,7 @@ const PaidPage = (props: Props) => {
   };
 
   return (
-    <section id="paid-exams" className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-primaryBg to-white relative overflow-hidden">
+    <section id="paid-exams" className="py-12 sm:py-16 md:py-20 lg:py-20 bg-gradient-to-b from-primaryBg to-white relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-secColor/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-primaryColor/5 rounded-full -ml-48 -mb-48 blur-3xl"></div>

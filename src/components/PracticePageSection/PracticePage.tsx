@@ -17,8 +17,8 @@ const PracticePage = (props: Props) => {
         <div className="relative top-[-64px]">
 
         </div> */}
-          <FreePractice />
-          <PaidPage />
+        <PaidPage />
+        <FreePractice />
       </Container>
     </section>
   );

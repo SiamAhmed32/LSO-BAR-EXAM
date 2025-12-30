@@ -45,7 +45,7 @@ const Hero = () => {
 						</p>
 						
 						{/* CTA Button */}
-						<motion.div
+						{/* <motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.3, duration: 0.5 }}
@@ -59,7 +59,7 @@ const Hero = () => {
 								<span>View Practice Exams</span>
 								<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
 							</Link>
-						</motion.div>
+						</motion.div> */}
 					</motion.div>
 
 					{/* Right Side - Hero Image with Circular Cutout Animation */}
