@@ -14,10 +14,10 @@ const HomePage = (props: Props) => {
   return (
     <>
       <Hero />
-      <PaidPage />
+      <WhoPage />
       <BarExamTutoringPage />
       <FreePractice />
-      <WhoPage />
+      <PaidPage />
       <HowItWorks isFullPage={false} />
       <FaqPreview />
     </>

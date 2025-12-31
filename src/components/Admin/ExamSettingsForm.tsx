@@ -149,7 +149,7 @@ const ExamSettingsForm: React.FC<ExamSettingsFormProps> = ({
 
         <Box>
           <label htmlFor='price' className='block text-sm font-medium text-gray-700 mb-1'>
-            Price (USD)
+            Price (CAD)
           </label>
           <InputField
             name='price'

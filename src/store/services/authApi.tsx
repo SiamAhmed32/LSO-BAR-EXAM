@@ -41,7 +41,7 @@ export const authApi = createApi({
 	}),
 	tagTypes: tags,
 	endpoints: builder => ({
-		// ✅ login uses Next.js API route
+		// ✅ login uses Next.js API route (legacy password-based, kept for backward compatibility)
 		login: builder.mutation<LoginPayloadType, LoginBodyType>({
 			query: ({ email, password }) => ({
 				url: `/api/auth/login`,
@@ -51,12 +51,31 @@ export const authApi = createApi({
 			invalidatesTags: ['self'],
 		}),
 
-		// ✅ register uses Next.js API route (signup) and maps username to name
-		register: builder.mutation<any, any>({
-			query: ({ username, email, password }) => ({
-				url: `/api/auth/signup`,
+		// ✅ Send OTP to email
+		sendOTP: builder.mutation<{ success: boolean; message: string }, { email: string }>({
+			query: ({ email }) => ({
+				url: `/api/auth/send-otp`,
 				method: 'POST',
-				body: { name: username, email, password }, // Map username to name for API
+				body: { email },
+			}),
+		}),
+
+		// ✅ Verify OTP and login
+		verifyOTP: builder.mutation<LoginPayloadType, { email: string; otp: string }>({
+			query: ({ email, otp }) => ({
+				url: `/api/auth/verify-otp`,
+				method: 'POST',
+				body: { email, otp },
+			}),
+			invalidatesTags: ['self'],
+		}),
+
+		// ✅ register uses Next.js API route (verify-signup-otp) with OTP verification
+		register: builder.mutation<any, any>({
+			query: ({ username, email, password, otp }) => ({
+				url: `/api/auth/verify-signup-otp`,
+				method: 'POST',
+				body: { name: username, email, password, otp }, // Map username to name for API
 			}),
 			invalidatesTags: ['self'],
 		}),
@@ -139,11 +158,11 @@ export const authApi = createApi({
 				method: 'GET',
 			}),
 		}),
-		resetPassword: builder.mutation({
-			query: ({ token, password }) => ({
-				url: `auth/reset`, // ✅ unchanged
+		resetPassword: builder.mutation<{ success: boolean; message: string }, { email: string; otp: string; password: string }>({
+			query: ({ email, otp, password }) => ({
+				url: `/api/auth/reset-password`,
 				method: 'POST',
-				body: { token, password },
+				body: { email, otp, password },
 			}),
 		}),
 	}),
@@ -151,6 +170,8 @@ export const authApi = createApi({
 
 export const {
 	useLoginMutation,
+	useSendOTPMutation,
+	useVerifyOTPMutation,
 	useGetSelfQuery,
 	useUpdatePreferencesMutation,
 	useRegisterMutation,

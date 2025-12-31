@@ -44,7 +44,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 			{/* Price & Duration */}
 			{typeof price === 'number' && (
 				<p className="mt-2 text-2xl sm:text-3xl font-extrabold text-secColor tracking-tight relative z-10">
-					${price.toFixed(2)} <span className="text-sm font-semibold text-primaryText/80">USD</span>
+					${price.toFixed(2)} <span className="text-sm font-semibold text-primaryText/80">CAD</span>
 				</p>
 			)}
 			{duration && (

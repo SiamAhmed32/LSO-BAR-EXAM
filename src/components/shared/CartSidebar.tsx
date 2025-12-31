@@ -193,7 +193,7 @@ export default function CartSidebar({
                             {item.name}
                           </h3>
                           <p className="text-lg font-bold text-primaryColor">
-                            ${item.price.toFixed(2)} USD
+                            ${item.price.toFixed(2)} CAD
                           </p>
                           {item.qty > 1 && (
                             <p className="text-xs text-primaryText/70 mt-1">
@@ -231,7 +231,7 @@ export default function CartSidebar({
                   <div className="flex justify-between text-base font-bold">
                     <span className="text-primaryText">Total:</span>
                     <span className="text-primaryColor">
-                      ${total.toFixed(2)} USD
+                      ${total.toFixed(2)} CAD
                     </span>
                   </div>
                 </div>

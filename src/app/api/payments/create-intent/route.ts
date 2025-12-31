@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       data: {
         orderId: order.id,
         amount: totalAmount,
-        currency: "usd",
+        currency: "cad",
         status: "PENDING",
       },
     });
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Create Stripe Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(totalAmount * 100), // Convert to cents
-      currency: "usd",
+      currency: "cad",
       automatic_payment_methods: {
         enabled: true,
       },

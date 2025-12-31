@@ -21,7 +21,7 @@ export const WHITE_COLOR = '#fff';
 export const TEXT_GRAY_COLOR = '#000';
 const PADDING_TOAST_X = 2;
 
-export const currencySign = 'USD';
+export const currencySign = 'CAD';
 
 export const toastStyle = {
 	bg: 'black',
