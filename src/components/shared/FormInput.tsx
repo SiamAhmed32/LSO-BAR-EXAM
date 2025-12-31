@@ -10,6 +10,7 @@ type FormInputProps = {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  maxLength?: number;
 };
 
 const FormInput = ({
@@ -22,6 +23,7 @@ const FormInput = ({
   required = false,
   disabled = false,
   className = '',
+  maxLength,
 }: FormInputProps) => {
   return (
     <input
@@ -33,6 +35,7 @@ const FormInput = ({
       placeholder={placeholder}
       required={required}
       disabled={disabled}
+      maxLength={maxLength}
       className={`border border-borderBg rounded-none focus:outline-none focus:border-primaryColor focus:ring-2 focus:ring-primaryColor px-4 py-3 w-full text-foreground hover:border-primaryColor transition-colors ${className}`}
     />
   );
