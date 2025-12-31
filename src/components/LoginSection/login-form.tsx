@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import FormInput from '@/components/shared/FormInput';
 import Label from '@/components/shared/Label';
@@ -11,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { login as loginAction } from '@/store/slices/authSlice';
 import Loader from '@/components/shared/Loader';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 interface LoginFormProps extends React.ComponentProps<'div'> {
@@ -70,46 +72,79 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
   return (
     <>
-      <div className={cn('flex flex-col gap-6', className)} {...props}>
-        <div className="bg-white border border-borderBg shadow-sm rounded-lg">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className={cn('flex flex-col gap-6', className)}
+        {...props}
+      >
+        <div className="bg-primaryCard border border-borderBg shadow-lg rounded-xl overflow-hidden">
           {/* Card Header */}
-          <div className="p-6 border-b border-borderBg">
-            <h2 className="text-2xl font-bold text-primaryText mb-2">
-              Login to your account
-            </h2>
-            <p className="text-sm text-primaryText opacity-70">
-              Enter your email below to login to your account
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="p-6 sm:p-8 border-b border-borderBg bg-gradient-to-r from-primaryColor/5 to-transparent"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-primaryColor/10 rounded-lg">
+                <LogIn className="w-5 h-5 sm:w-6 sm:h-6 text-primaryColor" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-primaryText">
+                Welcome Back
+              </h2>
+            </div>
+            <p className="text-sm sm:text-base text-primaryText/70">
+              Sign in to continue your exam preparation journey
             </p>
-          </div>
+          </motion.div>
 
           {/* Card Content */}
-          <div className="p-6">
+          <div className="p-6 sm:p-8">
             <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-5 sm:gap-6">
                 {/* Email Field */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email</Label>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  className="flex flex-col gap-2"
+                >
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-secColor" />
+                    Email Address
+                  </Label>
                   <FormInput
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="transition-all focus:ring-2 focus:ring-primaryColor/20"
                   />
-                </div>
+                </motion.div>
 
                 {/* Password Field */}
-                <div className="flex flex-col gap-2">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="flex flex-col gap-2"
+                >
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-secColor" />
+                      Password
+                    </Label>
                     <button
                       type="button"
                       onClick={() => setShowForgotPasswordModal(true)}
-                      className="text-sm text-primaryColor underline-offset-4 hover:underline"
+                      className="text-sm text-primaryColor hover:text-buttonHover underline-offset-4 hover:underline transition-colors"
                     >
-                      Forgot your password?
+                      Forgot password?
                     </button>
                   </div>
                   <div className="relative">
@@ -121,12 +156,14 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="pr-10"
+                      className="pr-10 transition-all focus:ring-2 focus:ring-primaryColor/20"
                     />
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-primaryText hover:text-primaryColor transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-primaryText/60 hover:text-primaryColor transition-colors"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
@@ -134,32 +171,42 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                       ) : (
                         <Eye className="w-5 h-5" />
                       )}
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Submit Button */}
-                <div className="flex flex-col gap-3">
-                  <button
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.4 }}
+                  className="flex flex-col gap-4 pt-2"
+                >
+                  <motion.button
                     type="submit"
                     disabled={isLoading || isRedirecting}
-                    className="w-full px-4 py-3 bg-primaryColor text-white font-bold cursor-pointer rounded-md hover:opacity-90 transition-opacity disabled:opacity-50  disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    whileHover={{ scale: isLoading || isRedirecting ? 1 : 1.02 }}
+                    whileTap={{ scale: isLoading || isRedirecting ? 1 : 0.98 }}
+                    className="w-full px-4 py-3 sm:py-3.5 bg-primaryColor text-white font-bold cursor-pointer rounded-lg hover:bg-buttonHover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                   >
                     {(isLoading || isRedirecting) && <Loader size="sm" />}
-                    {isLoading ? 'Logging in...' : isRedirecting ? 'Redirecting...' : 'Login'}
-                  </button>
-                  <p className="text-sm text-center text-primaryText cursor-pointer opacity-70">
+                    {isLoading ? 'Logging in...' : isRedirecting ? 'Redirecting...' : 'Sign In'}
+                  </motion.button>
+                  <p className="text-sm text-center text-primaryText/70">
                     Don&apos;t have an account?{' '}
-                    <a href="/register" className="text-primaryColor hover:underline">
-                      Register
-                    </a>
+                    <Link
+                      href="/register"
+                      className="text-primaryColor font-semibold hover:text-buttonHover underline-offset-4 hover:underline transition-colors"
+                    >
+                      Create an account
+                    </Link>
                   </p>
-                </div>
+                </motion.div>
               </div>
             </form>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Forgot Password Modal */}
       <ForgotPasswordModal

@@ -42,7 +42,7 @@ const FreePractice = (props: Props) => {
             features={[
               "No Timer",
               "Updated to 2025/2026",
-              "Answers wit Explanations",
+              "Answers with Explanations",
             ]}
             buttonText={isBarristerInProgress ? "Resume Exam" : "Begin 50 Barrister Questions"}
             href="/barrister-free-exam"
@@ -52,7 +52,7 @@ const FreePractice = (props: Props) => {
             features={[
               "No Timer",
               "Updated to 2025/2026",
-              "Answers wit Explanations",
+              "Answers with Explanations",
             ]}
             buttonText={isSolicitorInProgress ? "Resume Exam" : "Begin 50 Solicitor Questions"}
             href="/solicitor-free-exam"

@@ -51,7 +51,7 @@ const BarExamTutoringPage = () => {
 												1 on 1 Private Tutoring
 											</p>
 											<p className="text-secColor font-bold text-lg sm:text-xl md:text-2xl">
-												$40 per hour
+												$40 CAD per hour
 											</p>
 										</div>
 									</div>
@@ -71,7 +71,7 @@ const BarExamTutoringPage = () => {
 												Full tutoring for the whole of Barrister or Solicitor
 											</p>
 											<p className="text-secColor font-bold text-lg sm:text-xl md:text-2xl">
-												$2500 each exam
+												$2500 CAD each exam
 											</p>
 										</div>
 									</div>
@@ -91,7 +91,7 @@ const BarExamTutoringPage = () => {
 												Personalized study schedules & Plan
 											</p>
 											<p className="text-secColor font-bold text-lg sm:text-xl md:text-2xl">
-												$200
+												$200 CAD
 											</p>
 										</div>
 									</div>
