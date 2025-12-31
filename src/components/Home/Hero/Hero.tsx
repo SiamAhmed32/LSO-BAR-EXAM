@@ -26,7 +26,7 @@ const Hero = () => {
 	}, []);
 
 	return (
-		<section className="bg-primaryColor py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32 relative overflow-hidden">
+		<section className="bg-primaryColor py-20 sm:py-20 md:py-24 lg:py-28 xl:py-32 relative overflow-hidden">
 			{/* Subtle background pattern */}
 			<div className="absolute inset-0 opacity-5">
 				<div className="absolute inset-0" style={{
