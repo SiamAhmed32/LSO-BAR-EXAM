@@ -138,7 +138,6 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={cn('flex flex-col gap-6', className)}
-      {...props}
     >
       <div className="bg-primaryCard border border-borderBg shadow-lg rounded-xl overflow-hidden">
         {/* Card Header */}
