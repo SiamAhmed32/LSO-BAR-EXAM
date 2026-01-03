@@ -55,6 +55,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                   examType: true,
                   examSet: true,
                   title: true,
+                  attemptCount: true,
                 },
               },
             },
@@ -78,6 +79,47 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.order.count({ where }),
     ]);
 
+    // Calculate remaining attempts for each order item
+    const ordersWithAttempts = await Promise.all(
+      orders.map(async (order) => {
+        const orderItemsWithAttempts = await Promise.all(
+          order.orderItems.map(async (item) => {
+            // Only calculate for paid exams with attempt limits
+            if (item.exam.attemptCount === null || item.exam.attemptCount === 0) {
+              return {
+                ...item,
+                remainingAttempts: null, // Unlimited
+                usedAttempts: 0,
+                totalAttempts: null,
+              };
+            }
+
+            // Count attempts made using this order item
+            const usedAttempts = await prisma.examAttempt.count({
+              where: {
+                orderItemId: item.id,
+                examId: item.examId,
+              },
+            });
+
+            const remainingAttempts = Math.max(0, item.exam.attemptCount - usedAttempts);
+
+            return {
+              ...item,
+              remainingAttempts,
+              usedAttempts,
+              totalAttempts: item.exam.attemptCount,
+            };
+          })
+        );
+
+        return {
+          ...order,
+          orderItems: orderItemsWithAttempts,
+        };
+      })
+    );
+
     const totalPages = Math.ceil(total / limit);
 
     // Calculate summary stats
@@ -98,7 +140,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         success: true,
         message: "Orders retrieved successfully",
         data: {
-          orders,
+          orders: ordersWithAttempts,
           pagination: {
             page,
             limit,

@@ -311,13 +311,13 @@ export function ContactForm({ className, ...props }: ContactFormProps) {
 
       {/* Contact Information */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-gray-50 p-4 rounded-lg text-center">
+          <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
+          <p className="text-sm text-gray-600">Ontario, Canada</p>
+        </div>
         <div className="bg-gray-50 p-4 rounded-lg text-center">
           <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
           <p className="text-sm text-gray-600">support@lsbarexam.com</p>
-        </div>
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <h3 className="font-semibold text-gray-900 mb-2">Phone</h3>
-          <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg text-center">
           <h3 className="font-semibold text-gray-900 mb-2">Response Time</h3>

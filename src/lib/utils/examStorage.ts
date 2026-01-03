@@ -60,7 +60,6 @@ export function clearUserExamProgress(userId: string | null): void {
     localStorage.removeItem(key);
   });
   
-  console.log(`🧹 Cleared ${keysToRemove.length} exam progress entries for user: ${userId || "guest"}`);
 }
 
 /**

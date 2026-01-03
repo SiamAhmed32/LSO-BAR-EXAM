@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/server/session";
 import { submitExamSchema } from "@/validation/exam.validation";
+import { createNotification } from "@/lib/notifications";
 
 // POST /api/exams/submit - Submit exam results
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -61,6 +62,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         id: true,
         attemptCount: true,
         pricingType: true,
+        examType: true,
+        examSet: true,
       },
     });
 
@@ -138,6 +141,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         unansweredCount,
         score,
         answers: answers as any, // Store as JSON
+      },
+      include: {
+        user: true,
+        exam: {
+          select: {
+            examType: true,
+            pricingType: true,
+            examSet: true,
+          },
+        },
+      },
+    });
+
+    // Create notification for exam attempt
+    const examSetLabel = examAttempt.exam.examSet
+      ? ` Set ${examAttempt.exam.examSet.replace("SET_", "")}`
+      : "";
+    await createNotification({
+      activityId: `attempt-${examAttempt.id}`,
+      activityType: "exam_attempt",
+      action: "Exam submitted",
+      description: `${examAttempt.user.name} submitted ${examAttempt.exam.examType} ${examAttempt.exam.pricingType}${examSetLabel} exam - Score: ${examAttempt.score.toFixed(1)}% (${examAttempt.correctCount}/${examAttempt.totalQuestions})`,
+      userId: examAttempt.user.name,
+      userEmail: examAttempt.user.email,
+      metadata: {
+        examType: examAttempt.exam.examType,
+        pricingType: examAttempt.exam.pricingType,
+        examSet: examAttempt.exam.examSet,
+        score: examAttempt.score,
+        correctCount: examAttempt.correctCount,
+        totalQuestions: examAttempt.totalQuestions,
       },
     });
 

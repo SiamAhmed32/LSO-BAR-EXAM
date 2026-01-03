@@ -22,6 +22,7 @@ import {
 	GraduationCap,
 	BookOpen,
 	Home,
+	Mail,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -44,6 +45,16 @@ const menuItems = [
 		title: 'Orders',
 		href: '/admin/orders',
 		icon: ShoppingCart,
+	},
+	{
+		title: 'Contacts',
+		href: '/admin/contacts',
+		icon: Mail,
+	},
+	{
+		title: 'Activity Log',
+		href: '/admin/activities',
+		icon: BarChart3,
 	},
 	{
 		title: 'Exam Results',

@@ -16,8 +16,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  carts     Cart[]
-  orders    Order[]
+  carts        Cart[]
+  orders       Order[]
   examAttempts ExamAttempt[]
 
   @@index([email])
@@ -62,22 +62,22 @@ model Exam {
   pricingType  PricingType
   price        Float?
   examTime     String?
-  attemptCount  Int?
+  attemptCount Int?
   examSet      ExamSet?
   title        String?
   description  String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-  
+
   questions    Question[]
   carts        Cart[]
   orderItems   OrderItem[]
   examAttempts ExamAttempt[]
 
+  @@unique([examType, pricingType, examSet])
   @@index([examType])
   @@index([pricingType])
   @@index([examSet])
-  @@unique([examType, pricingType, examSet])
   @@map("exams")
 }
 
@@ -87,11 +87,11 @@ model Question {
   question  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   options   Option[]
   cartItems Item[]
-  
+
   @@index([examId])
   @@map("questions")
 }
@@ -103,8 +103,8 @@ model Option {
   isCorrect  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([questionId])
   @@map("options")
@@ -116,10 +116,10 @@ model Cart {
   examId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  items     Item[]
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam  Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  items Item[]
 
   @@unique([userId, examId])
   @@index([userId])
@@ -134,8 +134,8 @@ model Item {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  cart     Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, questionId])
   @@index([cartId])
@@ -160,23 +160,23 @@ enum PaymentStatus {
 }
 
 model Order {
-  id            String        @id @default(uuid())
-  userId        String
-  totalAmount   Float
-  status        OrderStatus   @default(PENDING)
-  billingName   String
-  billingEmail  String
-  billingAddress String?
-  billingCity   String?
-  billingState  String?
+  id              String      @id @default(uuid())
+  userId          String
+  totalAmount     Float
+  status          OrderStatus @default(PENDING)
+  billingName     String
+  billingEmail    String
+  billingAddress  String?
+  billingCity     String?
+  billingState    String?
   billingPostcode String?
-  billingCountry String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderItems    OrderItem[]
-  payment       Payment?
+  billingCountry  String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  payment    Payment?
 
   @@index([userId])
   @@index([status])
@@ -191,9 +191,9 @@ model OrderItem {
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  exam         Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
   examAttempts ExamAttempt[]
 
   @@index([orderId])
@@ -202,17 +202,17 @@ model OrderItem {
 }
 
 model Payment {
-  id                String        @id @default(uuid())
-  orderId           String       @unique
-  stripePaymentId   String?      @unique
+  id                 String        @id @default(uuid())
+  orderId            String        @unique
+  stripePaymentId    String?       @unique
   stripeClientSecret String?
-  amount            Float
-  currency          String        @default("cad")
-  status            PaymentStatus @default(PENDING)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
-  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount             Float
+  currency           String        @default("cad")
+  status             PaymentStatus @default(PENDING)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([stripePaymentId])
@@ -221,28 +221,46 @@ model Payment {
 }
 
 model ExamAttempt {
-  id            String   @id @default(uuid())
-  userId        String
-  examId        String
-  orderItemId   String?  // Link attempt to the order item that granted access
-  totalQuestions Int
-  answeredCount  Int
-  correctCount   Int
-  incorrectCount Int
+  id              String   @id @default(uuid())
+  userId          String
+  examId          String
+  orderItemId     String? // Link attempt to the order item that granted access
+  totalQuestions  Int
+  answeredCount   Int
+  correctCount    Int
+  incorrectCount  Int
   unansweredCount Int
-  score          Float   // Percentage score
-  answers        Json    // Store user's answers as JSON
-  submittedAt    DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  orderItem     OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  score           Float // Percentage score
+  answers         Json // Store user's answers as JSON
+  submittedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam      Exam       @relation(fields: [examId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([examId])
   @@index([orderItemId])
   @@index([submittedAt])
   @@map("exam_attempts")
+}
+
+model Notification {
+  id           String   @id @default(uuid())
+  activityId   String // The ID from the activity (e.g., user-xxx, order-xxx)
+  activityType String // Type of activity (user, question, order, payment, exam_attempt, contact)
+  action       String // Action description
+  description  String // Full description
+  userId       String? // User related to the activity
+  userEmail    String? // User email
+  metadata     Json? // Additional metadata
+  createdAt    DateTime @default(now())
+  readBy       String[] // Array of admin user IDs who have read this notification
+
+  @@index([activityId])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("notifications")
 }
