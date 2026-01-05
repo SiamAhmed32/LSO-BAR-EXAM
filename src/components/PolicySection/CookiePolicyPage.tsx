@@ -167,8 +167,8 @@ const CookiePolicyPage = () => {
                 </p>
                 <div className="mt-4 space-y-2 text-sm sm:text-base text-primaryText/80">
                   <p>Email: <a href="mailto:support@lsbarexam.com" className="text-primaryColor hover:underline">support@lsbarexam.com</a></p>
-                  <p>Phone: <a href="tel:+15551234567" className="text-primaryColor hover:underline">+1 (555) 123-4567</a></p>
-                </div>
+                  <p>Location: Ontario, Canada</p>
+                  </div>
               </section>
             </div>
           </div>

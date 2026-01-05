@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/server/session";
+import { createNotification } from "@/lib/notifications";
 
 // PUT /api/orders/[orderId]/update-status - Update order status (for payment confirmation)
 export async function PUT(
@@ -62,7 +63,27 @@ export async function PUT(
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: updateData,
+      include: {
+        user: true,
+      },
     });
+
+    // Update order notification if status changed
+    if (status && status !== order.status) {
+      await createNotification({
+        activityId: `order-${updatedOrder.id}`,
+        activityType: "order",
+        action: `Order ${status.toLowerCase()}`,
+        description: `Order #${updatedOrder.id.substring(0, 8)}... for $${updatedOrder.totalAmount.toFixed(2)} - ${status}`,
+        userId: updatedOrder.billingName || updatedOrder.user.name,
+        userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+        metadata: {
+          orderId: updatedOrder.id,
+          amount: updatedOrder.totalAmount,
+          status: status,
+        },
+      });
+    }
 
     // Update payment status if provided
     if (paymentStatus) {
@@ -76,6 +97,23 @@ export async function PUT(
           where: { id: payment.id },
           data: { status: paymentStatus },
         });
+
+        // Update payment notification if status changed
+        if (paymentStatus !== payment.status) {
+          await createNotification({
+            activityId: `payment-${payment.id}`,
+            activityType: "payment",
+            action: `Payment ${paymentStatus.toLowerCase()}`,
+            description: `Payment of $${payment.amount.toFixed(2)} ${paymentStatus}`,
+            userId: updatedOrder.billingName || updatedOrder.user.name,
+            userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+            metadata: {
+              paymentId: payment.id,
+              amount: payment.amount,
+              status: paymentStatus,
+            },
+          });
+        }
       } else {
         console.warn(`Payment not found for order ${order.id}`);
       }

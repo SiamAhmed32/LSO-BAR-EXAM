@@ -134,9 +134,9 @@ const AdminUsers = () => {
 			<Box className='mb-8'>
 				<h1 className='text-3xl font-bold text-primaryText mb-2 flex items-center gap-3'>
 					<Users className='w-8 h-8' />
-					User Management
+					User 
 				</h1>
-				<p className='text-gray-600'>Manage and monitor all users</p>
+				<p className='text-gray-600'>Monitor all users</p>
 			</Box>
 
 			{isLoading ? (

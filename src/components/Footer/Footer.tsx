@@ -104,15 +104,7 @@ const Footer = () => {
 										support@lsbarexam.com
 									</a>
 								</li>
-								<li className="flex items-start gap-3">
-									<Phone className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
-									<a
-										href="tel:+15551234567"
-										className="text-sm text-primaryText hover:text-secColor transition-colors"
-									>
-										+1 (555) 123-4567
-									</a>
-								</li>
+								
 								<li className="flex items-start gap-3">
 									<MapPin className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
 									<span className="text-sm text-primaryText">

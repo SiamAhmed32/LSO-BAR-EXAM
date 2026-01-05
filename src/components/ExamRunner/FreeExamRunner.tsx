@@ -315,7 +315,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
                 <span>Answered</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-3 w-3 rounded-full bg-secColor" />
+                <span className="inline-flex h-3 w-3 rounded-full bg-orange-500" />
                 <span>Bookmarked</span>
               </div>
             </div>
@@ -335,7 +335,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
                   text = "text-primaryText";
                 }
                 if (isBookmarked && !isCurrent) {
-                  bg = "bg-secColor/30";
+                  bg = "bg-orange-500/30";
                 }
 
                 return (
@@ -361,7 +361,7 @@ const FreeExamRunner: React.FC<FreeExamRunnerProps> = ({
                 <Bookmark
                   className={`h-4 w-4 ${
                     bookmarked.has(currentQuestion.id)
-                      ? "fill-primaryColor stroke-primaryColor"
+                      ? "fill-orange-500 stroke-orange-500"
                       : ""
                   }`}
                 />

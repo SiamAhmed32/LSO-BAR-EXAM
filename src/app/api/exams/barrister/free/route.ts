@@ -164,12 +164,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const { question, options } = result.data;
+    const { question, explanation, options } = result.data;
 
     const createdQuestion = await prisma.question.create({
       data: {
         examId: exam.id,
         question,
+        explanation: explanation || null,
         options: {
           create: options.map((opt) => ({
             text: opt.text,

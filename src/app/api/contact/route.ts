@@ -5,6 +5,7 @@ import { getSession } from "@/lib/server/session";
 import { ratelimit } from "@/lib/server/ratelimit";
 import { contactValidationSchema } from "@/validation/contact.validation";
 import { NextRequest, NextResponse } from "next/server";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -44,6 +45,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message,
         isRead: false,
       },
+    });
+
+    // Create notification for contact form submission
+    await createNotification({
+      activityId: `contact-${contactInfo.id}`,
+      activityType: "contact",
+      action: "Contact form submitted",
+      description: `${name} submitted a contact form`,
+      userId: name,
+      userEmail: email,
+      metadata: {},
     });
 
     // Send confirmation email to user

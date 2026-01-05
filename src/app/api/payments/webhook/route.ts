@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import Stripe from "stripe";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = await request.text();
@@ -84,12 +85,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
 
           // Update order status
-          await prisma.order.update({
+          const updatedOrder = await prisma.order.update({
             where: { id: payment.orderId },
             data: { status: "COMPLETED" },
+            include: { user: true },
           });
 
           console.log("Updated payment and order status to SUCCEEDED/COMPLETED");
+
+          // Update order notification to reflect completed status
+          await createNotification({
+            activityId: `order-${updatedOrder.id}`,
+            activityType: "order",
+            action: "Order completed",
+            description: `Order #${updatedOrder.id.substring(0, 8)}... for $${updatedOrder.totalAmount.toFixed(2)} - COMPLETED`,
+            userId: updatedOrder.billingName || updatedOrder.user.name,
+            userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+            metadata: {
+              orderId: updatedOrder.id,
+              amount: updatedOrder.totalAmount,
+              status: "COMPLETED",
+            },
+          });
+
+          // Create notification for successful payment
+          await createNotification({
+            activityId: `payment-${payment.id}`,
+            activityType: "payment",
+            action: "Payment succeeded",
+            description: `Payment of $${payment.amount.toFixed(2)} succeeded`,
+            userId: updatedOrder.billingName || updatedOrder.user.name,
+            userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+            metadata: {
+              paymentId: payment.id,
+              amount: payment.amount,
+              status: "SUCCEEDED",
+            },
+          });
 
           // Clear user's carts after successful payment
           const deletedCarts = await prisma.cart.deleteMany({
@@ -116,9 +148,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             data: { status: "FAILED" },
           });
 
-          await prisma.order.update({
+          const updatedOrder = await prisma.order.update({
             where: { id: payment.orderId },
             data: { status: "FAILED" },
+            include: { user: true },
+          });
+
+          // Update order notification to reflect failed status
+          await createNotification({
+            activityId: `order-${updatedOrder.id}`,
+            activityType: "order",
+            action: "Order failed",
+            description: `Order #${updatedOrder.id.substring(0, 8)}... for $${updatedOrder.totalAmount.toFixed(2)} - FAILED`,
+            userId: updatedOrder.billingName || updatedOrder.user.name,
+            userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+            metadata: {
+              orderId: updatedOrder.id,
+              amount: updatedOrder.totalAmount,
+              status: "FAILED",
+            },
+          });
+
+          // Create notification for failed payment
+          await createNotification({
+            activityId: `payment-${payment.id}`,
+            activityType: "payment",
+            action: "Payment failed",
+            description: `Payment of $${payment.amount.toFixed(2)} failed`,
+            userId: updatedOrder.billingName || updatedOrder.user.name,
+            userEmail: updatedOrder.billingEmail || updatedOrder.user.email,
+            metadata: {
+              paymentId: payment.id,
+              amount: payment.amount,
+              status: "FAILED",
+            },
           });
         }
         break;

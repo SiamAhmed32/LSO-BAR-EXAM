@@ -3,6 +3,7 @@ import { Question } from '@/components/Admin';
 export interface ApiQuestion {
   id: string;
   question: string;
+  explanation?: string | null;
   options: Array<{
     id: string;
     text: string;
@@ -44,6 +45,7 @@ export const convertApiQuestionToQuestion = (apiQuestion: ApiQuestion): Question
   return {
     id: apiQuestion.id,
     question: apiQuestion.question,
+    explanation: apiQuestion.explanation || undefined,
     options: apiQuestion.options.map((opt) => ({
       id: opt.id,
       text: opt.text,
@@ -56,6 +58,7 @@ export const convertApiQuestionToQuestion = (apiQuestion: ApiQuestion): Question
 export const convertQuestionToApiFormat = (question: Question) => {
   return {
     question: question.question,
+    explanation: question.explanation || undefined,
     options: question.options.map((opt) => ({
       text: opt.text,
       isCorrect: opt.isCorrect,
@@ -373,6 +376,7 @@ export const examApi = {
       id: string;
       questionNumber: number;
       question: string;
+      explanation?: string | null;
       options: Array<{
         id: string;
         text: string;

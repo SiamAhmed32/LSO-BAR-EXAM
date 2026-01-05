@@ -373,7 +373,6 @@ export const cartSlice = createSlice({
 					// Ensure userId is set
 					state.userId = newUserId;
 					calculateTotals(state);
-					console.log("🛒 CartSlice: Loaded cart for user", newUserId, "with", state.cartItems.length, "items");
 				} else {
 					// New user, clear cart
 					state.cartItems = [];
@@ -383,7 +382,6 @@ export const cartSlice = createSlice({
 					state.vat = 0;
 					state.shipping = 0;
 					state.discount = 0;
-					console.log("🛒 CartSlice: No cart found for user", newUserId, "- starting with empty cart");
 				}
 			} else {
 				// Guest user, clear cart
@@ -394,7 +392,6 @@ export const cartSlice = createSlice({
 				state.vat = 0;
 				state.shipping = 0;
 				state.discount = 0;
-				console.log("🛒 CartSlice: Guest user - cart cleared");
 			}
 		},
 		
@@ -433,7 +430,6 @@ export const cartSlice = createSlice({
 			const userId = state.userId || null;
 			const cartKey = getUserCartKey(userId);
 			localStorage.removeItem(cartKey);
-			console.log("🛒 CartSlice: Cleared cart from localStorage for", userId || 'guest');
 		}
 		// Note: userId is kept here, but setUserId(null) will be called on logout to clear it
 	},
@@ -477,12 +473,10 @@ export const cartSlice = createSlice({
 				// Get existing cart items from Redux state (which was initialized from localStorage)
 				// This preserves items that were added before logout
 				const existingCartItems = state.cartItems.length > 0 ? [...state.cartItems] : [];
-				console.log("🛒 CartSlice: Existing cart items from localStorage/state:", existingCartItems.length, existingCartItems.map(i => i.name));
-				
+			
 				// Load cart items from backend (backend now supports multiple carts per user)
 				const backendItems: CartItem[] = [];
 				if (action.payload && Array.isArray(action.payload)) {
-					console.log("🛒 CartSlice: Loading cart items from backend", action.payload);
 					action.payload.forEach((item: any) => {
 						// Generate exam name from examType and examSet (ignore title field)
 						const type = item.examType === "BARRISTER" ? "Barrister" : "Solicitor";
@@ -513,7 +507,6 @@ export const cartSlice = createSlice({
 						(item) => item.id === backendItem.id || item._id === backendItem.id || item.uniqueId === backendItem.uniqueId
 					);
 					if (!exists) {
-						console.log("🛒 CartSlice: Adding backend item to cart:", backendItem.name);
 						mergedItems.push(backendItem);
 					} else {
 						console.log("🛒 CartSlice: Backend item already exists, skipping:", backendItem.name);
@@ -524,7 +517,6 @@ export const cartSlice = createSlice({
 				state.cartItems = mergedItems;
 				calculateTotals(state);
 				saveStateToLocalStorage(state);
-				console.log("🛒 CartSlice: Cart restored with", state.cartItems.length, "items total (preserved", existingCartItems.length, "from localStorage, added", backendItems.length, "from backend)");
 			})
 			.addCase(loadUserCartFromBackend.rejected, (state) => {
 				state.isLoading = false;

@@ -26,9 +26,6 @@ export const examApi = createApi({
 				},
 			}),
 			transformResponse: (response: ApiResponse<QuestionsResponse>) => {
-				console.log('📥 Barrister Free Exam - API Response:', response);
-				console.log('📊 Barrister Free Exam - Questions Count:', response.data?.questions?.length || 0);
-				console.log('📋 Barrister Free Exam - All Questions:', response.data?.questions);
 				return response.data;
 			},
 			providesTags: ['questions'],
@@ -45,10 +42,7 @@ export const examApi = createApi({
 				},
 			}),
 			transformResponse: (response: ApiResponse<QuestionsResponse>) => {
-				console.log('📥 Solicitor Free Exam - API Response:', response);
-				console.log('📊 Solicitor Free Exam - Questions Count:', response.data?.questions?.length || 0);
-				console.log('📋 Solicitor Free Exam - All Questions:', response.data?.questions);
-				return response.data;
+			return response.data;
 			},
 			providesTags: ['questions'],
 			keepUnusedDataFor: 60 * 60 * 24, // Cache for 24 hours - prevents refetch on refresh

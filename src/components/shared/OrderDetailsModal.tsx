@@ -16,6 +16,7 @@ import {
   XCircle,
   Clock,
   FileText,
+  RotateCcw,
 } from "lucide-react";
 
 interface OrderItem {
@@ -29,6 +30,9 @@ interface OrderItem {
     examSet: string | null;
     title: string | null;
   };
+  remainingAttempts?: number | null;
+  usedAttempts?: number;
+  totalAttempts?: number | null;
 }
 
 interface Payment {
@@ -309,6 +313,29 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <h4 className="text-base font-semibold text-gray-900 mb-2">
                         {getExamName(item.exam)}
                       </h4>
+                      {/* Show remaining attempts if available */}
+                      {item.totalAttempts !== null && item.totalAttempts !== undefined && (
+                        <div className="mt-2 flex items-center gap-2 text-sm">
+                          <RotateCcw className="w-4 h-4 text-blue-600" />
+                          <span className="text-gray-700">
+                            <span className="font-medium">
+                              {item.remainingAttempts ?? 0} of {item.totalAttempts}
+                            </span>{" "}
+                            attempts remaining
+                            {item.usedAttempts !== undefined && item.usedAttempts > 0 && (
+                              <span className="text-gray-500 ml-1">
+                                ({item.usedAttempts} used)
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      {item.totalAttempts === null && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                          <RotateCcw className="w-4 h-4" />
+                          <span>Unlimited attempts</span>
+                        </div>
+                      )}
                     </div>
                     <div className="ml-4 text-right">
                       <div className="text-lg font-bold text-gray-900">

@@ -23,6 +23,9 @@ interface OrderItem {
     examSet: string | null;
     title: string | null;
   };
+  remainingAttempts?: number | null;
+  usedAttempts?: number;
+  totalAttempts?: number | null;
 }
 
 interface Payment {
@@ -173,6 +176,19 @@ const AdminOrdersPage = () => {
               .map((oi) => getExamName(oi.exam))
               .join(", ")}
           </p>
+          {/* Show remaining attempts for each item */}
+          {item.orderItems.some((oi) => oi.totalAttempts !== null && oi.totalAttempts !== undefined) && (
+            <div className="mt-1 space-y-1">
+              {item.orderItems.map((oi) => {
+                if (oi.totalAttempts === null || oi.totalAttempts === undefined) return null;
+                return (
+                  <p key={oi.id} className="text-xs text-blue-600">
+                    {getExamName(oi.exam)}: {oi.remainingAttempts ?? 0} / {oi.totalAttempts} attempts
+                  </p>
+                );
+              })}
+            </div>
+          )}
         </div>
       ),
     },

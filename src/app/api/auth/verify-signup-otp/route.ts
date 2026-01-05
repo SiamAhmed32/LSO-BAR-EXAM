@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { createSession, setSessionCookie } from "@/lib/server/session";
 import { ratelimit } from "@/lib/server/ratelimit";
+import { createNotification } from "@/lib/notifications";
 
 const verifySignupOTPSchema = z.object({
   name: z.string().min(3).max(50),
@@ -77,6 +78,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Create session
     const sessionId = await createSession(user);
     await setSessionCookie(sessionId);
+
+    // Create notification for user registration
+    await createNotification({
+      activityId: `user-${user.id}`,
+      activityType: "user",
+      action: "User registered",
+      description: `${user.name} (${user.email}) registered as ${user.role}`,
+      userId: user.id,
+      userEmail: user.email,
+      metadata: { role: user.role },
+    });
 
     return NextResponse.json(
       {

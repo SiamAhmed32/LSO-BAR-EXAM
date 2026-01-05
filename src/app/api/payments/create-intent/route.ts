@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/server/session";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -142,6 +143,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         stripeClientSecret: paymentIntent.client_secret,
       },
     });
+
+    // Get order with user info for notification
+    const orderWithUser = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: { user: true },
+    });
+
+    // Create notification for order creation
+    if (orderWithUser) {
+      await createNotification({
+        activityId: `order-${order.id}`,
+        activityType: "order",
+        action: `Order ${order.status.toLowerCase()}`,
+        description: `Order #${order.id.substring(0, 8)}... for $${order.totalAmount.toFixed(2)} - ${order.status}`,
+        userId: orderWithUser.billingName || orderWithUser.user.name,
+        userEmail: orderWithUser.billingEmail || orderWithUser.user.email,
+        metadata: {
+          orderId: order.id,
+          amount: order.totalAmount,
+          status: order.status,
+        },
+      });
+    }
 
     return NextResponse.json(
       {
