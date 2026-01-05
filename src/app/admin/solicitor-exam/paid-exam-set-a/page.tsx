@@ -176,16 +176,19 @@ const SolicitorPaidExam = () => {
 			),
 		},
 		{
-			key: 'correctAnswer',
-			header: 'Correct Answer',
-			render: (item) => {
-				const correctOption = item.options.find((opt) => opt.isCorrect);
-				return (
-					<span className='text-sm text-green-600 font-medium w-[25vw] text-wrap break-words'>
-						{correctOption?.text || 'Not set'}
-					</span>
-				);
-			},
+			key: 'explanation',
+			header: 'Explanation',
+			render: (item) => (
+				<Box className='text-wrap break-words w-[25vw]'>
+					{item.explanation ? (
+						<p className='text-sm text-gray-600 line-clamp-3' title={item.explanation}>
+							{item.explanation}
+						</p>
+					) : (
+						<span className='text-sm text-gray-400 italic'>No explanation</span>
+					)}
+				</Box>
+			),
 		},
 		{
 			key: 'actions',

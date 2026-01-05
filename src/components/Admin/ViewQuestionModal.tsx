@@ -77,19 +77,19 @@ const ViewQuestionModal: React.FC<ViewQuestionModalProps> = ({
 
 					{/* Content */}
 					<Box className='p-6 overflow-y-auto flex-1'>
-						{/* Question */}
-						<Box className='mb-6'>
-							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								Question
-							</label>
-							<Box className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
-								<p className='text-gray-900 text-base leading-relaxed'>
-									{question.question}
-								</p>
-							</Box>
+					{/* Question */}
+					<Box className='mb-6'>
+						<label className='block text-sm font-semibold text-gray-700 mb-2'>
+							Question
+						</label>
+						<Box className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
+							<p className='text-gray-900 text-base leading-relaxed'>
+								{question.question}
+							</p>
 						</Box>
+					</Box>
 
-						{/* Options */}
+					{/* Options */}
 						<Box>
 							<label className='block text-sm font-semibold text-gray-700 mb-3'>
 								Options ({question.options.length})
@@ -152,6 +152,20 @@ const ViewQuestionModal: React.FC<ViewQuestionModalProps> = ({
 									'No correct answer set'}
 							</p>
 						</Box>
+
+						{/* Explanation */}
+						{question.explanation && (
+							<Box className='mt-6'>
+								<label className='block text-sm font-semibold text-gray-700 mb-2'>
+									Explanation
+								</label>
+								<Box className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+									<p className='text-gray-900 text-base leading-relaxed whitespace-pre-wrap'>
+										{question.explanation}
+									</p>
+								</Box>
+							</Box>
+						)}
 					</Box>
 
 					{/* Footer */}

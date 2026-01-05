@@ -6,6 +6,7 @@ import BarExamTutoringPage from "./BarExamTutoring/BarExamTutoringPage";
 import FreePractice from "./FreePractices/FreePractice";
 import PaidPage from "./PaidPractices/PaidPage";
 import HowItWorks from "../HowItWorks/HowItWorks";
+import Testimonials from "./Testimonials/Testimonials";
 import FaqPreview from "./FaqPreview/FaqPreview";
 
 type Props = {};
@@ -19,6 +20,7 @@ const HomePage = (props: Props) => {
       <FreePractice />
       <PaidPage />
       <HowItWorks isFullPage={false} />
+      <Testimonials />
       <FaqPreview />
     </>
   );

@@ -166,13 +166,14 @@ export async function PUT(
       );
     }
 
-    const { question, options } = result.data;
+    const { question, explanation, options } = result.data;
 
     // Update question and options
     const updatedQuestion = await prisma.question.update({
       where: { id: questionId },
       data: {
         question,
+        explanation: explanation || null,
         options: {
           deleteMany: {},
           create: options.map((opt) => ({

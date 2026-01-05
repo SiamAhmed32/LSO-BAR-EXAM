@@ -8,6 +8,7 @@ import AdminCustomButton from './AdminCustomButton';
 export interface Question {
 	id: string;
 	question: string;
+	explanation?: string;
 	options: Option[];
 }
 
@@ -31,6 +32,9 @@ const ExamForm: React.FC<ExamFormProps> = ({
 	const [questionText, setQuestionText] = useState(
 		initialData?.question || ''
 	);
+	const [explanation, setExplanation] = useState(
+		initialData?.explanation || ''
+	);
 	const [options, setOptions] = useState<Option[]>(
 		initialData?.options || [
 			{ id: Date.now().toString() + '-1', text: '', isCorrect: false },
@@ -42,9 +46,11 @@ const ExamForm: React.FC<ExamFormProps> = ({
 	useEffect(() => {
 		if (initialData) {
 			setQuestionText(initialData.question);
+			setExplanation(initialData.explanation || '');
 			setOptions(initialData.options);
 		} else {
 			setQuestionText('');
+			setExplanation('');
 			setOptions([
 				{ id: Date.now().toString() + '-1', text: '', isCorrect: false },
 				{ id: Date.now().toString() + '-2', text: '', isCorrect: false },
@@ -82,6 +88,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
 		const question: Question = {
 			id: initialData?.id || Date.now().toString(),
 			question: questionText,
+			explanation: explanation || undefined,
 			options: options,
 		};
 		onSubmit(question);
@@ -102,6 +109,23 @@ const ExamForm: React.FC<ExamFormProps> = ({
 					className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-button focus:border-transparent outline-none'
 					placeholder='Enter your question'
 				/>
+			</Box>
+
+			{/* Explanation */}
+			<Box>
+				<label className='block text-sm font-medium text-gray-700 mb-2'>
+					Explanation
+				</label>
+				<textarea
+					value={explanation}
+					onChange={(e) => setExplanation(e.target.value)}
+					rows={4}
+					className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-button focus:border-transparent outline-none'
+					placeholder='Enter explanation for this question and answer (optional)'
+				/>
+				<p className='text-xs text-gray-500 mt-1'>
+					Provide a detailed explanation about the question and the correct answer
+				</p>
 			</Box>
 
 			{/* Options */}

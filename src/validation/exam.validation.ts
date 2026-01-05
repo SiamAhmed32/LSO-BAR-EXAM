@@ -7,6 +7,7 @@ export const optionSchema = z.object({
 
 export const questionSchema = z.object({
   question: z.string().min(1, "Question text is required"),
+  explanation: z.string().optional(),
   options: z
     .array(optionSchema)
     .min(2, "At least 2 options are required")
@@ -26,6 +27,7 @@ export const createExamSchema = z.object({
 
 export const createQuestionSchema = z.object({
   question: z.string().min(1, "Question text is required"),
+  explanation: z.string().optional(),
   options: z
     .array(optionSchema)
     .min(2, "At least 2 options are required")
@@ -37,6 +39,7 @@ export const createQuestionSchema = z.object({
 
 export const updateQuestionSchema = z.object({
   question: z.string().min(1, "Question text is required").optional(),
+  explanation: z.string().optional(),
   options: z
     .array(optionSchema)
     .min(2, "At least 2 options are required")

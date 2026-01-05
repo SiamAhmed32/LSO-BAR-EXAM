@@ -196,12 +196,86 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       throw dbError;
     }
-  } catch (error: any) {
+    } catch (error: any) {
     console.error("Notifications POST Error:", error);
     return NextResponse.json(
       {
         error: "Internal Server Error",
         message: "Failed to create notification",
+        details: process.env.NODE_ENV === "development" ? error.message : undefined,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Mark all notifications as read
+export async function PATCH(request: NextRequest): Promise<NextResponse> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "You are not authorized to access this resource",
+        },
+        { status: 401 }
+      );
+    }
+
+    const { success } = await ratelimit.limit(session.id);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests", message: "Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    try {
+      // Get all notifications
+      const notifications = await prisma.notification.findMany();
+
+      // Update all notifications to include current admin in readBy array
+      const updatePromises = notifications.map((notification) => {
+        const readBy = [...notification.readBy];
+        if (!readBy.includes(session.id)) {
+          readBy.push(session.id);
+        }
+        return prisma.notification.update({
+          where: { id: notification.id },
+          data: { readBy },
+        });
+      });
+
+      await Promise.all(updatePromises);
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "All notifications marked as read",
+        },
+        { status: 200 }
+      );
+    } catch (dbError: any) {
+      // Handle case where notifications table doesn't exist yet
+      if (dbError?.code === "P2021" || dbError?.message?.includes("does not exist")) {
+        console.warn("Notifications table does not exist yet.");
+        return NextResponse.json(
+          {
+            error: "Database Error",
+            message: "Notifications table does not exist. Please run database migration first.",
+          },
+          { status: 503 }
+        );
+      }
+      throw dbError;
+    }
+  } catch (error: any) {
+    console.error("Mark All Notifications Read Error:", error);
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        message: "Failed to mark all notifications as read",
         details: process.env.NODE_ENV === "development" ? error.message : undefined,
       },
       { status: 500 }

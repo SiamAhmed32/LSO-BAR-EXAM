@@ -132,6 +132,36 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 		}
 	};
 
+	const markAllAsRead = async () => {
+		try {
+			const response = await fetch('/api/admin/notifications', {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to mark all notifications as read');
+			}
+
+			// Update all notifications to read
+			setNotifications((prev) =>
+				prev.map((n) => ({ ...n, isRead: true }))
+			);
+
+			// Reset unread count
+			setUnreadCount(0);
+			onUnreadCountChange?.(0);
+			
+			toast.success('All notifications marked as read');
+		} catch (error) {
+			console.error('Error marking all notifications as read:', error);
+			toast.error('Failed to mark all notifications as read');
+		}
+	};
+
 	const getActivityIcon = (type: string) => {
 		switch (type) {
 			case 'user':
@@ -193,14 +223,24 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 			className='absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[500px] flex flex-col'
 		>
 			{/* Header */}
-			<Box className='p-4 border-b border-gray-200 flex items-center justify-between'>
-				<h3 className='text-lg font-semibold text-primaryText'>Notifications</h3>
-				<button
-					onClick={onClose}
-					className='text-gray-400 hover:text-primaryText transition-colors'
-				>
-					<X className='w-5 h-5' />
-				</button>
+			<Box className='p-4 border-b border-gray-200'>
+				<Box className='flex items-center justify-between mb-3'>
+					<h3 className='text-lg font-semibold text-primaryText'>Notifications</h3>
+					<button
+						onClick={onClose}
+						className='text-gray-400 hover:text-primaryText transition-colors'
+					>
+						<X className='w-5 h-5' />
+					</button>
+				</Box>
+				{unreadCount > 0 && (
+					<button
+						onClick={markAllAsRead}
+						className='w-full text-xs text-primaryColor hover:text-buttonHover font-medium py-1.5 px-3 rounded-md hover:bg-primaryColor/10 transition-colors'
+					>
+						Mark all as read
+					</button>
+				)}
 			</Box>
 
 			{/* Notifications List */}

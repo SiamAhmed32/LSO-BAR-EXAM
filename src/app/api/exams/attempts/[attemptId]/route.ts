@@ -84,6 +84,7 @@ export async function GET(
         id: question.id,
         questionNumber: questionNumber,
         question: question.question,
+        explanation: question.explanation || null,
         category: questionWithCategory.category || "General", // Use category if available, fallback to "General"
         options: question.options.map((option) => ({
           id: option.id,
