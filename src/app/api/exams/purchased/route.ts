@@ -17,11 +17,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get all COMPLETED orders with SUCCEEDED payment for this user
+    // Get all COMPLETED orders with SUCCEEDED payment for this user (exclude CANCELLED)
     const orders = await prisma.order.findMany({
       where: {
         userId: session.id,
-        status: "COMPLETED",
+        status: "COMPLETED", // Explicitly exclude CANCELLED orders
         payment: {
           status: "SUCCEEDED",
         },
@@ -88,13 +88,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       purchasedExams.map(async (exam) => {
         if (!exam.examSet) return null;
 
-        // Find the most recent order item for this exam
+        // Find the most recent order item for this exam (exclude CANCELLED orders)
         const mostRecentOrderItem = await prisma.orderItem.findFirst({
           where: {
             examId: exam.id,
             order: {
               userId: session.id,
-              status: "COMPLETED",
+              status: "COMPLETED", // Explicitly exclude CANCELLED orders
               payment: {
                 status: "SUCCEEDED",
               },

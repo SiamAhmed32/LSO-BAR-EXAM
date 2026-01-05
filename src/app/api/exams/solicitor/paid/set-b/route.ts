@@ -58,11 +58,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Skip purchase check for admins
     if (session.role !== "ADMIN") {
-      // Check if user has purchased this exam
+      // Check if user has purchased this exam (exclude CANCELLED orders)
       const orders = await prisma.order.findMany({
         where: {
           userId: session.id,
-          status: "COMPLETED",
+          status: "COMPLETED", // Explicitly exclude CANCELLED orders
           payment: {
             status: "SUCCEEDED",
           },
@@ -86,17 +86,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       // Check remaining attempts if exam has attempt limit (based on most recent purchase)
       if (exam.attemptCount !== null && exam.attemptCount > 0) {
-      // Find the most recent order item for this exam
+      // Find the most recent order item for this exam (exclude CANCELLED orders)
       const mostRecentOrderItem = await prisma.orderItem.findFirst({
         where: {
           examId: exam.id,
-          order: {
-            userId: session.id,
-            status: "COMPLETED",
-            payment: {
-              status: "SUCCEEDED",
+            order: {
+              userId: session.id,
+              status: "COMPLETED", // Explicitly exclude CANCELLED orders
+              payment: {
+                status: "SUCCEEDED",
+              },
             },
-          },
         },
         orderBy: {
           createdAt: "desc",

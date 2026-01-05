@@ -86,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           examId: examId,
           order: {
             userId: session.id,
-            status: "COMPLETED",
+            status: "COMPLETED", // Explicitly exclude CANCELLED orders
             payment: {
               status: "SUCCEEDED",
             },
