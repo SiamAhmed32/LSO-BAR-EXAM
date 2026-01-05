@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Box } from "@/components/shared";
 import {
   AdminTable,
   Column,
   AdminCustomButton,
   TableSkeleton,
+  ConfirmModal,
 } from "@/components/Admin";
-import { ShoppingBag, Search, Filter, Download } from "lucide-react";
+import { ShoppingBag, Search, Filter, Download, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import OrderDetailsModal from "@/components/shared/OrderDetailsModal";
 
@@ -69,12 +70,11 @@ const AdminOrdersPage = () => {
   const [stats, setStats] = useState<any>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [currentPage, statusFilter, searchQuery]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams({
@@ -103,7 +103,11 @@ const AdminOrdersPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchQuery]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -115,11 +119,55 @@ const AdminOrdersPage = () => {
         return "bg-green-100 text-green-800";
       case "FAILED":
         return "bg-red-100 text-red-800";
+      case "CANCELLED":
+        return "bg-gray-100 text-gray-800";
       case "PENDING":
       case "PROCESSING":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleCancelOrder = (order: Order, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setOrderToCancel(order);
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!orderToCancel) return;
+
+    try {
+      setIsCancelling(true);
+      const response = await fetch(`/api/admin/orders/${orderToCancel.id}/cancel`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to cancel order");
+      }
+
+      toast.success("Order cancelled successfully. All exam attempts for this order are now disabled.");
+      setIsCancelModalOpen(false);
+      setOrderToCancel(null);
+      fetchOrders(); // Refresh orders list
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to cancel order");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleCloseCancelModal = () => {
+    if (!isCancelling) {
+      setIsCancelModalOpen(false);
+      setOrderToCancel(null);
     }
   };
 
@@ -142,15 +190,7 @@ const AdminOrdersPage = () => {
   };
 
   const columns: Column<Order>[] = [
-    {
-      key: "id",
-      header: "Order ID",
-      render: (item) => (
-        <span className="text-sm font-mono text-primaryText">
-          {item.id.substring(0, 8)}...
-        </span>
-      ),
-    },
+   
     {
       key: "user",
       header: "Customer",
@@ -171,11 +211,7 @@ const AdminOrdersPage = () => {
           <p className="text-sm text-primaryText">
             {item.orderItems.length} exam(s)
           </p>
-          <p className="text-xs text-primaryText/70">
-            {item.orderItems
-              .map((oi) => getExamName(oi.exam))
-              .join(", ")}
-          </p>
+       
           {/* Show remaining attempts for each item */}
           {item.orderItems.some((oi) => oi.totalAttempts !== null && oi.totalAttempts !== undefined) && (
             <div className="mt-1 space-y-1">
@@ -238,6 +274,24 @@ const AdminOrdersPage = () => {
         <span className="text-sm text-primaryText/70">
           {formatDate(item.createdAt)}
         </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (item) => (
+        <Box className="flex items-center gap-2">
+          {item.status !== "CANCELLED" && (
+            <AdminCustomButton
+              onClick={(e) => handleCancelOrder(item, e)}
+              variant="icon"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              title="Cancel Order"
+            >
+              <XCircle className="w-4 h-4" />
+            </AdminCustomButton>
+          )}
+        </Box>
       ),
     },
   ];
@@ -347,6 +401,22 @@ const AdminOrdersPage = () => {
           setSelectedOrder(null);
         }}
         showUserInfo={true}
+      />
+
+      {/* Cancel Order Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isCancelModalOpen}
+        onClose={handleCloseCancelModal}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Order"
+        message={`Are you sure you want to cancel this order? This action will disable all exam attempts associated with this order.${
+          orderToCancel
+            ? `\n\nOrder ID: ${orderToCancel.id.substring(0, 8)}...\nAmount: $${orderToCancel.totalAmount.toFixed(2)}`
+            : ""
+        }`}
+        confirmText="Cancel Order"
+        cancelText="Keep Order"
+        isLoading={isCancelling}
       />
     </Box>
   );
