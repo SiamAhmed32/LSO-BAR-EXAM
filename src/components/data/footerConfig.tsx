@@ -26,14 +26,14 @@ export const footerData = {
     },
     {
       type: 'phone',
-      value: "+1 (555) 000-0000",
-      href: "tel:+15550000000",
+      value: "(416) 991-9912",
+      href: "tel:+14169919912",
       icon: Phone
     },
     {
       type: 'email',
-      value: "contact@example.com",
-      href: "mailto:contact@example.com",
+      value: "lsobarexamteam@gmail.com",
+      href: "mailto:lsobarexamteam@gmail.com",
       icon: Mail
     }
   ],

@@ -166,7 +166,8 @@ const CookiePolicyPage = () => {
                   If you have any questions about our use of cookies or this Cookie Policy, please contact us at:
                 </p>
                 <div className="mt-4 space-y-2 text-sm sm:text-base text-primaryText/80">
-                  <p>Email: <a href="mailto:support@lsbarexam.com" className="text-primaryColor hover:underline">support@lsbarexam.com</a></p>
+                  <p>Email: <a href="mailto:lsobarexamteam@gmail.com" className="text-primaryColor hover:underline">lsobarexamteam@gmail.com</a></p>
+                  <p>Phone: <a href="tel:+14169919912" className="text-primaryColor hover:underline">(416) 991-9912</a></p>
                   <p>Location: Ontario, Canada</p>
                   </div>
               </section>

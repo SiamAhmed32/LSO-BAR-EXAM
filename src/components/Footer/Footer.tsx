@@ -98,13 +98,21 @@ const Footer = () => {
 								<li className="flex items-start gap-3">
 									<Mail className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
 									<a
-										href="mailto:support@lsbarexam.com"
+										href="mailto:lsobarexamteam@gmail.com"
 										className="text-sm text-primaryText hover:text-secColor transition-colors"
 									>
-										support@lsbarexam.com
+										lsobarexamteam@gmail.com
 									</a>
 								</li>
-								
+								<li className="flex items-start gap-3">
+									<Phone className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
+									<a
+										href="tel:+14169919912"
+										className="text-sm text-primaryText hover:text-secColor transition-colors"
+									>
+										(416) 991-9912
+									</a>
+								</li>
 								<li className="flex items-start gap-3">
 									<MapPin className="w-5 h-5 text-secColor mt-0.5 flex-shrink-0" />
 									<span className="text-sm text-primaryText">

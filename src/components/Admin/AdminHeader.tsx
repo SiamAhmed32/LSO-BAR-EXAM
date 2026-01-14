@@ -100,7 +100,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 								{user?.name || 'Admin User'}
 							</p>
 							<p className='text-xs text-gray-500'>
-								{user?.email || 'admin@example.com'}
+								{user?.email || 'lsobarexamteam@gmail.com'}
 							</p>
 						</Box>
 					</Box>

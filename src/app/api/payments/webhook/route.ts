@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { createNotification } from "@/lib/notifications";
+import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendPaymentFailureAlertEmail } from "@/lib/utils/email";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = await request.text();
@@ -88,7 +89,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const updatedOrder = await prisma.order.update({
             where: { id: payment.orderId },
             data: { status: "COMPLETED" },
-            include: { user: true },
+            include: { 
+              user: true,
+              orderItems: true,
+            },
           });
 
           console.log("Updated payment and order status to SUCCEEDED/COMPLETED");
@@ -129,6 +133,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
 
           console.log(`Cleared ${deletedCarts.count} cart items for user ${payment.order.userId}`);
+
+          // Send order confirmation email to customer
+          console.log(`Attempting to send order confirmation email to ${updatedOrder.billingEmail}`);
+          try {
+            await sendOrderConfirmationEmail(updatedOrder);
+          } catch (error) {
+            console.error("Failed to send order confirmation email:", error);
+            // Don't fail the webhook if email fails
+          }
+
+          // Send admin notification email
+          console.log("Attempting to send admin order notification email");
+          try {
+            await sendAdminOrderNotificationEmail(updatedOrder);
+          } catch (error) {
+            console.error("Failed to send admin order notification email:", error);
+            // Don't fail the webhook if email fails
+          }
         } else {
           console.error("Payment not found for payment intent:", paymentIntent.id);
         }
@@ -151,8 +173,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const updatedOrder = await prisma.order.update({
             where: { id: payment.orderId },
             data: { status: "FAILED" },
-            include: { user: true },
+            include: { 
+              user: true,
+              orderItems: true,
+            },
           });
+
+          // Get failure reason from Stripe
+          const failureReason = paymentIntent.last_payment_error?.message || "Payment processing failed";
 
           // Update order notification to reflect failed status
           await createNotification({
@@ -183,6 +211,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               status: "FAILED",
             },
           });
+
+          // Send payment failure alert email to admin
+          try {
+            await sendPaymentFailureAlertEmail(updatedOrder, failureReason);
+          } catch (error) {
+            console.error("Failed to send payment failure alert email:", error);
+            // Don't fail the webhook if email fails
+          }
         }
         break;
       }

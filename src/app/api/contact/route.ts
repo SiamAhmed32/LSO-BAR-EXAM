@@ -159,7 +159,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     emailPromises.push(
       transport
         .sendMail({
-          from: "chayansd5656@gmail.com",
+          from: "lsobarexamteam@gmail.com",
           to: email,
           subject: "Thank you for contacting us - We'll be in touch soon!",
           html: userEmailContent,
@@ -174,8 +174,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     emailPromises.push(
       transport
         .sendMail({
-          from: "noreply@lsbarexam.com",
-          to: "chayansd5656@gmail.com",
+          from: "lsobarexamteam@gmail.com",
+          to: "lsobarexamteam@gmail.com",
           subject: `New Contact Form Submission from ${name}`,
           html: adminEmailContent,
         })

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/server/session";
 import { createNotification } from "@/lib/notifications";
+import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/utils/email";
 
 // PUT /api/orders/[orderId]/update-status - Update order status (for payment confirmation)
 export async function PUT(
@@ -65,6 +66,7 @@ export async function PUT(
       data: updateData,
       include: {
         user: true,
+        orderItems: true,
       },
     });
 
@@ -116,6 +118,29 @@ export async function PUT(
         }
       } else {
         console.warn(`Payment not found for order ${order.id}`);
+      }
+    }
+
+    // Send emails if order is being marked as COMPLETED and payment is SUCCEEDED
+    if (status === "COMPLETED" && paymentStatus === "SUCCEEDED" && order.status !== "COMPLETED") {
+      console.log(`Order ${orderId} completed - sending confirmation emails`);
+      
+      // Send order confirmation email to customer
+      try {
+        await sendOrderConfirmationEmail(updatedOrder);
+        console.log(`Order confirmation email sent to ${updatedOrder.billingEmail}`);
+      } catch (error) {
+        console.error("Failed to send order confirmation email:", error);
+        // Don't fail the request if email fails
+      }
+
+      // Send admin notification email
+      try {
+        await sendAdminOrderNotificationEmail(updatedOrder);
+        console.log("Admin order notification email sent");
+      } catch (error) {
+        console.error("Failed to send admin order notification email:", error);
+        // Don't fail the request if email fails
       }
     }
 
