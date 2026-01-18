@@ -326,5 +326,35 @@ export const cartApi = {
       };
     }
   },
+
+  // Clear entire cart (removes all exams)
+  async clearCart(): Promise<CartApiResponse> {
+    try {
+      const response = await fetch("/api/cart/clear", {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || "Failed to clear cart",
+        };
+      }
+
+      return {
+        success: true,
+        message: "Cart cleared successfully",
+      };
+    } catch (error) {
+      console.error("Clear cart error:", error);
+      return {
+        success: false,
+        error: "Failed to clear cart",
+      };
+    }
+  },
 };
 

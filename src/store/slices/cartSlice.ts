@@ -10,6 +10,45 @@ const getUserCartKey = (userId?: string | null): string => {
 	return `${CART_NAME}_${userId}`;
 };
 
+// Helper to clean up old/empty cart keys from localStorage
+const cleanupOldCartKeys = (currentUserId?: string | null): void => {
+	if (typeof window === 'undefined') return;
+	
+	const currentCartKey = getUserCartKey(currentUserId);
+	const keysToRemove: string[] = [];
+	
+	// Find all APP_CART keys
+	for (let i = 0; i < localStorage.length; i++) {
+		const key = localStorage.key(i);
+		if (key && key.startsWith(CART_NAME)) {
+			// Keep current user's cart, remove others
+			if (key !== currentCartKey) {
+				try {
+					const cartData = localStorage.getItem(key);
+					if (cartData) {
+						const parsed = JSON.parse(cartData);
+						// Remove if empty or if it's from a different user
+						if (!parsed.cartItems || parsed.cartItems.length === 0) {
+							keysToRemove.push(key);
+						}
+					} else {
+						keysToRemove.push(key);
+					}
+				} catch {
+					// If parsing fails, remove the key
+					keysToRemove.push(key);
+				}
+			}
+		}
+	}
+	
+	// Remove old/empty cart keys
+	keysToRemove.forEach(key => {
+		localStorage.removeItem(key);
+		console.log(`🧹 Cleaned up old cart key: ${key}`);
+	});
+};
+
 export type CartItem = {
 	uniqueId: string;
 	id: string;
@@ -356,25 +395,44 @@ export const cartSlice = createSlice({
 				saveStateToLocalStorage(state);
 			}
 			
-			// Update userId
-			state.userId = newUserId;
+			// Clean up old/empty cart keys when user changes
+			if (typeof window !== 'undefined' && state.userId !== newUserId) {
+				cleanupOldCartKeys(newUserId);
+			}
 			
-			// Load cart for new user from localStorage
+			// Update userId and user field
+			state.userId = newUserId;
+			state.user = newUserId ? newUserId : 'guest'; // Set user field based on userId
+			
+			// For authenticated users: Don't load from localStorage here
+			// Backend sync (loadUserCartFromBackend) will be the source of truth
+			// This prevents stale localStorage data from appearing after payment
 			if (newUserId) {
-				const userCart = loadStateFromLocalStorage(newUserId);
-				if (userCart && userCart.cartItems && userCart.cartItems.length > 0) {
-					state.cartItems = userCart.cartItems;
-					state.subTotal = userCart.subTotal || 0;
-					state.total = userCart.total || 0;
-					state.totalItems = userCart.totalItems || 0;
-					state.vat = userCart.vat || 0;
-					state.shipping = userCart.shipping || 0;
-					state.discount = userCart.discount || 0;
-					// Ensure userId is set
-					state.userId = newUserId;
+				// For authenticated users, clear cart state initially
+				// Backend sync will populate it correctly
+				state.cartItems = [];
+				state.subTotal = 0;
+				state.total = 0;
+				state.totalItems = 0;
+				state.vat = 0;
+				state.shipping = 0;
+				state.discount = 0;
+				state.user = newUserId; // Set user field
+				// Note: loadUserCartFromBackend will load the actual cart from backend
+			} else {
+				// Guest user: load from localStorage (no backend sync for guests)
+				const guestCart = loadStateFromLocalStorage(null);
+				if (guestCart && guestCart.cartItems && guestCart.cartItems.length > 0) {
+					state.cartItems = guestCart.cartItems;
+					state.subTotal = guestCart.subTotal || 0;
+					state.total = guestCart.total || 0;
+					state.totalItems = guestCart.totalItems || 0;
+					state.vat = guestCart.vat || 0;
+					state.shipping = guestCart.shipping || 0;
+					state.discount = guestCart.discount || 0;
 					calculateTotals(state);
 				} else {
-					// New user, clear cart
+					// Guest user, clear cart
 					state.cartItems = [];
 					state.subTotal = 0;
 					state.total = 0;
@@ -383,15 +441,7 @@ export const cartSlice = createSlice({
 					state.shipping = 0;
 					state.discount = 0;
 				}
-			} else {
-				// Guest user, clear cart
-				state.cartItems = [];
-				state.subTotal = 0;
-				state.total = 0;
-				state.totalItems = 0;
-				state.vat = 0;
-				state.shipping = 0;
-				state.discount = 0;
+				state.user = 'guest'; // Set user field
 			}
 		},
 		
@@ -470,33 +520,49 @@ export const cartSlice = createSlice({
 			.addCase(loadUserCartFromBackend.fulfilled, (state, action) => {
 				state.isLoading = false;
 			
+				// Update user field to match userId (fixes "guest" issue when logged in)
+				if (state.userId) {
+					state.user = state.userId;
+				}
+			
 				// Load cart items from backend (backend is the source of truth for authenticated users)
 				const backendItems: CartItem[] = [];
 				if (action.payload && Array.isArray(action.payload)) {
 					action.payload.forEach((item: any) => {
-						// Generate exam name from examType and examSet (ignore title field)
-						const type = item.examType === "BARRISTER" ? "Barrister" : "Solicitor";
-						const set = item.examSet === "SET_A" ? "Set A" : item.examSet === "SET_B" ? "Set B" : "";
+						// Handle both lowercase (from API) and uppercase (legacy) formats
+						const examType = (item.examType || "").toLowerCase();
+						const examSet = (item.examSet || "").toLowerCase();
+						
+						// Generate exam name from examType and examSet
+						const type = examType === "barrister" ? "Barrister" : examType === "solicitor" ? "Solicitor" : "";
+						const set = examSet === "set-a" ? "Set A" : examSet === "set-b" ? "Set B" : examSet === "set_a" ? "Set A" : examSet === "set_b" ? "Set B" : "";
 						const examName = `${type} ${set}`.trim();
 						
-						const cartItem: CartItem = {
-							uniqueId: `${item.examId}-no-variation`,
-							id: item.examId,
-							_id: item.examId,
-							name: examName,
-							price: item.price,
-							unitPrice: item.price,
-							vat: 0,
-							qty: 1,
-						};
-						backendItems.push(cartItem);
+						if (examName && item.examId) {
+							const cartItem: CartItem = {
+								uniqueId: `${item.examId}-no-variation`,
+								id: item.examId,
+								_id: item.examId,
+								name: examName,
+								price: item.price || 0,
+								unitPrice: item.price || 0,
+								vat: 0,
+								qty: 1,
+							};
+							backendItems.push(cartItem);
+						}
 					});
+				}
+				
+				// Clean up old/empty cart keys when loading from backend
+				if (typeof window !== 'undefined') {
+					cleanupOldCartKeys(state.userId);
 				}
 				
 				// Use backend cart as source of truth for authenticated users
 				// BACKEND ALWAYS OVERRIDES localStorage (this fixes the stale cart issue)
 				if (backendItems.length === 0) {
-					// Backend cart is empty - clear everything (user purchased items)
+					// Backend cart is empty - clear everything (user purchased items or cart was cleared)
 					// This overrides any localStorage items that might have been loaded by setUserId
 					state.cartItems = [];
 					state.subTotal = 0;
@@ -505,6 +571,7 @@ export const cartSlice = createSlice({
 					state.vat = 0;
 					state.shipping = 0;
 					state.discount = 0;
+					
 					// Clear localStorage to keep it in sync (for current user and any old keys)
 					if (typeof window !== 'undefined') {
 						if (state.userId) {

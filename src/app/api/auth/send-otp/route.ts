@@ -34,14 +34,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Check if OTP already exists (prevent spam)
+    // Check if OTP already exists - if it does, delete it and allow resending
+    // This allows users to request a new OTP if they didn't receive the previous one
     try {
       const existingOTP = await hasOTP(email);
       if (existingOTP) {
-        return NextResponse.json(
-          { error: "OTP already sent", message: "Please check your email or wait a few minutes before requesting a new OTP" },
-          { status: 400 }
-        );
+        // Delete the old OTP to allow sending a new one
+        const { deleteOTP } = await import("@/lib/utils/otp");
+        await deleteOTP(email);
+        console.log(`Old OTP cleared for ${email}, sending new OTP`);
       }
     } catch (redisError: any) {
       // If Redis check fails, log but continue (don't block OTP sending)
