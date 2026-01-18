@@ -35,12 +35,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if OTP already exists (prevent spam)
-    const existingOTP = await hasOTP(email);
-    if (existingOTP) {
-      return NextResponse.json(
-        { error: "OTP already sent", message: "Please check your email or wait a few minutes before requesting a new OTP" },
-        { status: 400 }
-      );
+    try {
+      const existingOTP = await hasOTP(email);
+      if (existingOTP) {
+        return NextResponse.json(
+          { error: "OTP already sent", message: "Please check your email or wait a few minutes before requesting a new OTP" },
+          { status: 400 }
+        );
+      }
+    } catch (redisError: any) {
+      // If Redis check fails, log but continue (don't block OTP sending)
+      console.warn("Redis OTP check failed, continuing anyway:", redisError);
+      // Continue to send OTP even if Redis check fails
     }
 
     // Check if user exists (for login) - optional, we can send OTP even if user doesn't exist
@@ -62,8 +68,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   } catch (error: any) {
     console.error("Send OTP Error:", error);
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      response: error?.response,
+      stack: error?.stack,
+    });
+    
+    // Return a cleaner error message
+    const errorMessage = error?.message || "Failed to send OTP";
+    const isEmailError = errorMessage.includes("email") || errorMessage.includes("APP_PASSWORD") || errorMessage.includes("Email service");
+    
     return NextResponse.json(
-      { error: "Internal Server Error", message: error.message || "Failed to send OTP" },
+      { 
+        error: "Internal Server Error", 
+        message: isEmailError 
+          ? errorMessage 
+          : "Failed to send OTP. Please check your email configuration or try again later." 
+      },
       { status: 500 }
     );
   }

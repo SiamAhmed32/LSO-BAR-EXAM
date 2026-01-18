@@ -28,6 +28,12 @@ interface OrderData {
  * Send OTP email to user
  */
 export async function sendOTPEmail(email: string, name?: string): Promise<string> {
+  // Check if email is configured
+  if (!process.env.APP_PASSWORD) {
+    console.warn("⚠️ APP_PASSWORD not set - cannot send OTP email");
+    throw new Error("Email service is not configured. Please contact support.");
+  }
+
   const otp = generateOTP();
   
   // Store OTP in Redis
@@ -92,9 +98,25 @@ export async function sendOTPEmail(email: string, name?: string): Promise<string
     await transport.sendMail(mailOptions);
     // In development, return OTP for testing. In production, return empty string
     return process.env.NODE_ENV === "development" ? otp : "";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending OTP email:", error);
-    throw new Error("Failed to send OTP email");
+    console.error("Email error details:", {
+      message: error?.message,
+      code: error?.code,
+      response: error?.response,
+      command: error?.command,
+    });
+    
+    // Provide more specific error messages
+    if (error?.code === "EAUTH" || error?.responseCode === 535) {
+      throw new Error("Email authentication failed. Please check APP_PASSWORD configuration.");
+    } else if (error?.code === "ECONNECTION" || error?.code === "ETIMEDOUT") {
+      throw new Error("Failed to connect to email server. Please try again later.");
+    } else if (error?.message) {
+      throw new Error(`Failed to send OTP email: ${error.message}`);
+    } else {
+      throw new Error("Failed to send OTP email. Please check email configuration.");
+    }
   }
 }
 

@@ -75,7 +75,12 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
       setCountdown(60); // 60 seconds cooldown
     } catch (error: any) {
       console.error('Send OTP - Error:', error);
-      toast.error(error?.data?.error || error?.data?.message || 'Failed to send OTP. Please try again.');
+      console.error('Error status:', error?.status);
+      console.error('Error data:', error?.data);
+      
+      // Handle RTK Query error structure
+      const errorMessage = error?.data?.message || error?.data?.error || error?.message || 'Failed to send OTP. Please try again.';
+      toast.error(errorMessage);
     }
   };
 

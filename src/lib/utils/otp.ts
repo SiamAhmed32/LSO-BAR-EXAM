@@ -44,9 +44,15 @@ export async function verifyOTP(email: string, otp: string): Promise<boolean> {
  * Check if OTP exists for email (for rate limiting)
  */
 export async function hasOTP(email: string): Promise<boolean> {
-  const key = `otp:${email}`;
-  const exists = await redis.exists(key);
-  return exists === 1;
+  try {
+    const key = `otp:${email}`;
+    const exists = await redis.exists(key);
+    return exists === 1;
+  } catch (error) {
+    console.error("Error checking OTP existence:", error);
+    // If Redis fails, return false to allow OTP sending (fail-open)
+    return false;
+  }
 }
 
 /**

@@ -469,12 +469,8 @@ export const cartSlice = createSlice({
 			})
 			.addCase(loadUserCartFromBackend.fulfilled, (state, action) => {
 				state.isLoading = false;
-				
-				// Get existing cart items from Redux state (which was initialized from localStorage)
-				// This preserves items that were added before logout
-				const existingCartItems = state.cartItems.length > 0 ? [...state.cartItems] : [];
 			
-				// Load cart items from backend (backend now supports multiple carts per user)
+				// Load cart items from backend (backend is the source of truth for authenticated users)
 				const backendItems: CartItem[] = [];
 				if (action.payload && Array.isArray(action.payload)) {
 					action.payload.forEach((item: any) => {
@@ -497,24 +493,34 @@ export const cartSlice = createSlice({
 					});
 				}
 				
-				// Merge: Keep ALL existing items, add backend items if not already present
-				// This preserves multiple items that were in localStorage
-				const mergedItems: CartItem[] = [...existingCartItems];
-				
-				backendItems.forEach((backendItem) => {
-					// Check if this item already exists in cart (by id or _id)
-					const exists = mergedItems.some(
-						(item) => item.id === backendItem.id || item._id === backendItem.id || item.uniqueId === backendItem.uniqueId
-					);
-					if (!exists) {
-						mergedItems.push(backendItem);
-					} else {
-						console.log("🛒 CartSlice: Backend item already exists, skipping:", backendItem.name);
+				// Use backend cart as source of truth for authenticated users
+				// BACKEND ALWAYS OVERRIDES localStorage (this fixes the stale cart issue)
+				if (backendItems.length === 0) {
+					// Backend cart is empty - clear everything (user purchased items)
+					// This overrides any localStorage items that might have been loaded by setUserId
+					state.cartItems = [];
+					state.subTotal = 0;
+					state.total = 0;
+					state.totalItems = 0;
+					state.vat = 0;
+					state.shipping = 0;
+					state.discount = 0;
+					// Clear localStorage to keep it in sync (for current user and any old keys)
+					if (typeof window !== 'undefined') {
+						if (state.userId) {
+							const cartKey = getUserCartKey(state.userId);
+							localStorage.removeItem(cartKey);
+						}
+						// Also clear guest cart if it exists
+						const guestCartKey = getUserCartKey(null);
+						localStorage.removeItem(guestCartKey);
 					}
-				});
+				} else {
+					// Backend has items - use backend as source of truth, ignore localStorage
+					// This ensures backend always takes precedence
+					state.cartItems = [...backendItems];
+				}
 				
-				// Update state with merged items (preserves all items from localStorage + adds backend items)
-				state.cartItems = mergedItems;
 				calculateTotals(state);
 				saveStateToLocalStorage(state);
 			})
