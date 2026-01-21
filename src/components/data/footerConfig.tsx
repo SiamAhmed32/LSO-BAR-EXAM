@@ -24,12 +24,7 @@ export const footerData = {
       value: "Your Address Here",
       icon: MapPin
     },
-    {
-      type: 'phone',
-      value: "(416) 991-9912",
-      href: "tel:+14169919912",
-      icon: Phone
-    },
+
     {
       type: 'email',
       value: "lsobarexamteam@gmail.com",

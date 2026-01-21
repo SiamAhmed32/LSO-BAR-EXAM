@@ -75,7 +75,7 @@ export const stores = [
 	{
 		storeName: 'Store Name',
 		location: 'Your Store Address Here',
-		phone: '(416) 991-9912',
+
 		email: 'lsobarexamteam@gmail.com',
 		mapLink: '',
 	},

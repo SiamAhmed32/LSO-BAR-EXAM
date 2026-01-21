@@ -212,7 +212,7 @@ export async function sendOrderConfirmationEmail(order: OrderData): Promise<void
 
             <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
             <p style="color: #95a5a6; font-size: 12px; text-align: center; margin: 0;">
-              This is an automated confirmation email. If you have any questions, please contact us at <a href="mailto:lsobarexamteam@gmail.com" style="color: #3498db;">lsobarexamteam@gmail.com</a> or call us at <a href="tel:+14169919912" style="color: #3498db;">(416) 991-9912</a>.
+              This is an automated confirmation email. If you have any questions, please contact us at <a href="mailto:lsobarexamteam@gmail.com" style="color: #3498db;">lsobarexamteam@gmail.com</a>.
             </p>
             <p style="color: #95a5a6; font-size: 12px; text-align: center; margin: 10px 0 0 0;">
               &copy; ${new Date().getFullYear()} LSO Bar Exam. All rights reserved.
@@ -250,7 +250,7 @@ export async function sendOrderConfirmationEmail(order: OrderData): Promise<void
       ${order.billingPostcode ? `Postal Code: ${order.billingPostcode}` : ''}
       ${order.billingCountry ? `Country: ${order.billingCountry}` : ''}
       
-      If you have any questions, please contact us at lsobarexamteam@gmail.com or call us at (416) 991-9912.
+      If you have any questions, please contact us at lsobarexamteam@gmail.com.
       
       © ${new Date().getFullYear()} LSO Bar Exam. All rights reserved.
     `,

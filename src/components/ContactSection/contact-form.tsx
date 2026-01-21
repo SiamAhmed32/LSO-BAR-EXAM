@@ -301,7 +301,7 @@ export function ContactForm({ className, ...props }: ContactFormProps) {
               {/* Help Text */}
               <div className="text-center">
                 <p className="text-xs text-gray-500">
-                  We'll respond within 24-48 hours. For urgent matters, please call us at <a href="tel:+14169919912" className="text-primaryColor hover:underline">(416) 991-9912</a>.
+                  We'll respond within 24-48 hours.
                 </p>
               </div>
             </div>
@@ -319,12 +319,7 @@ export function ContactForm({ className, ...props }: ContactFormProps) {
           <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
           <p className="text-sm text-gray-600">lsobarexamteam@gmail.com</p>
         </div>
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <h3 className="font-semibold text-gray-900 mb-2">Phone</h3>
-          <a href="tel:+14169919912" className="text-sm text-gray-600 hover:text-primaryColor">
-            (416) 991-9912
-          </a>
-        </div>
+
       </div>
     </div>
   );

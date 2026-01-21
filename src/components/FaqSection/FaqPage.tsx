@@ -153,13 +153,12 @@ const FaqPage = (props: Props) => {
 
               <AccordionItem value="general-7" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
                 <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
-                  Which Professional Responsibility set is more applicable to the Barrister or Solicitor exam?
+                 How do your practice questions compare to the real exam?
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
                   <div className="flex flex-col gap-3">
                     <p>
-                      Professional Responsibility questions are relevant to both Barrister and Solicitor exams, 
-                      as ethical conduct is fundamental to both practice areas.
+                      Our exams are modelled on the current Ontario bar exam format (length, style, difficulty and subject distribution), and include detailed answer explanations to help build competence and confidence.
                     </p>
                     <p>
                       We recommend practicing all three Professional Responsibility question sets regardless of 
@@ -202,6 +201,19 @@ const FaqPage = (props: Props) => {
                       However, each purchased exam has a limit of 2 attempts. After completing both attempts, 
                       you can review your results and answers, but cannot take the exam again unless you make 
                       another purchase.
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="general-11" className="border border-borderBg rounded-lg mb-3 bg-primaryCard">
+                <AccordionTrigger className="px-4 sm:px-6 py-4 text-left font-semibold text-primaryText hover:text-primaryColor bg-secColor/10 hover:bg-secColor/20 transition-colors">
+                  Do you need to secure articling before writing the exams?
+                </AccordionTrigger>
+                <AccordionContent className="px-4 sm:px-6 pb-4 text-primaryText">
+                  <div className="flex flex-col gap-3">
+                    <p>
+                      No — you can sit the licensing exams before you have secured articles. Passing the exams is one of the requirements for licensing, but you don&apos;t need articles completed first.
                     </p>
                   </div>
                 </AccordionContent>

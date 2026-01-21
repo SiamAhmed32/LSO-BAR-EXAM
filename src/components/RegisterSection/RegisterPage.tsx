@@ -13,7 +13,7 @@ const RegisterPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-md sm:max-w-lg"
+          className="w-full max-w-md sm:max-w-lg py-8"
         >
           <RegisterForm />
         </motion.div>

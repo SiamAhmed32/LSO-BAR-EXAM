@@ -15,24 +15,30 @@ const topFaqs = [
     question: 'How do I access the exams after I purchase them?',
     answer: `Log in to your account and navigate to "My Account". All purchased exams will be available in your dashboard immediately after purchase. You can access them from any device.`,
     icon: CheckCircle2,
-    bgGradient: 'from-secColor/5 to-primaryCard',
-    iconBg: 'bg-secColor/20',
+    // ORIGINAL LIGHT THEME: bgGradient: 'from-secColor/5 to-primaryCard',
+    // ORIGINAL LIGHT THEME: iconBg: 'bg-secColor/20',
+    bgGradient: 'from-gray-900 via-gray-800 to-black',
+    iconBg: 'bg-secColor/30',
   },
   {
     id: 'faq-2',
     question: 'How many attempts do I have for the purchased exams?',
     answer: `Each purchased exam allows for two (2) attempts only. This simulates the real exam environment. Free mini exams have unlimited attempts for practice.`,
     icon: CheckCircle2,
-    bgGradient: 'from-primaryColor/5 to-primaryCard',
-    iconBg: 'bg-primaryColor/20',
+    // ORIGINAL LIGHT THEME: bgGradient: 'from-primaryColor/5 to-primaryCard',
+    // ORIGINAL LIGHT THEME: iconBg: 'bg-primaryColor/20',
+    bgGradient: 'from-gray-900 via-gray-800 to-black',
+    iconBg: 'bg-primaryColor/30',
   },
   {
     id: 'faq-3',
     question: 'What features does the LSO Bar Exam testing platform have?',
     answer: `Our platform includes timed exams (4.5 hours), automatic answer saving, detailed explanations, and comprehensive answer review. You can pause and resume exams, and track your progress.`,
     icon: CheckCircle2,
-    bgGradient: 'from-secColor/8 to-primaryCard',
-    iconBg: 'bg-secColor/25',
+    // ORIGINAL LIGHT THEME: bgGradient: 'from-secColor/8 to-primaryCard',
+    // ORIGINAL LIGHT THEME: iconBg: 'bg-secColor/25',
+    bgGradient: 'from-gray-900 via-gray-800 to-black',
+    iconBg: 'bg-secColor/35',
   },
 ];
 
@@ -75,17 +81,22 @@ const FaqPreview = () => {
                   }}
                   viewport={{ once: true }}
                   whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                  className={`bg-gradient-to-br ${faq.bgGradient} border border-borderBg rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-6 sm:p-8 relative overflow-hidden`}
+                  // ORIGINAL LIGHT THEME: className={`bg-gradient-to-br ${faq.bgGradient} border border-borderBg rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-6 sm:p-8 relative overflow-hidden`}
+                  className={`bg-gradient-to-br ${faq.bgGradient} border border-gray-700/50 rounded-xl shadow-2xl hover:shadow-secColor/20 transition-all duration-500 p-6 sm:p-8 relative overflow-hidden backdrop-blur-sm`}
                 >
-                  {/* Decorative accent */}
-                  <div className={`absolute top-0 right-0 w-32 h-32 ${faq.iconBg} rounded-full -mr-16 -mt-16 opacity-50`}></div>
+                  {/* Decorative accent - DARK THEME */}
+                  <div className={`absolute top-0 right-0 w-40 h-40 ${faq.iconBg} rounded-full -mr-20 -mt-20 blur-2xl opacity-60`}></div>
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-primaryColor/15 rounded-full -ml-16 -mb-16 blur-xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-secColor/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
                   {/* Question Header */}
                   <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6 relative z-10">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 ${faq.iconBg} rounded-full flex items-center justify-center flex-shrink-0 border-2 border-secColor/30`}>
-                      <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primaryColor" />
+                    {/* ORIGINAL LIGHT THEME: <div className={`w-10 h-10 sm:w-12 sm:h-12 ${faq.iconBg} rounded-full flex items-center justify-center flex-shrink-0 border-2 border-secColor/30`}> */}
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 ${faq.iconBg} rounded-full flex items-center justify-center flex-shrink-0 border-2 border-secColor/50`}>
+                      <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-secColor" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-primaryText flex-1 leading-tight">
+                    {/* ORIGINAL LIGHT THEME: <h3 className="text-lg sm:text-xl font-semibold text-primaryText flex-1 leading-tight"> */}
+                    <h3 className="text-lg sm:text-xl font-semibold text-white flex-1 leading-tight">
                       {faq.question}
                     </h3>
                   </div>
@@ -94,7 +105,8 @@ const FaqPreview = () => {
                   <div className="pl-0 sm:pl-14 sm:pl-16 relative z-10">
                     <div className="flex items-start gap-3">
                       <Icon className="w-5 h-5 text-secColor flex-shrink-0 mt-0.5" />
-                      <p className="text-primaryText/80 text-sm sm:text-base leading-relaxed">
+                      {/* ORIGINAL LIGHT THEME: <p className="text-primaryText/80 text-sm sm:text-base leading-relaxed"> */}
+                      <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
                         {faq.answer}
                       </p>
                     </div>
@@ -115,23 +127,27 @@ const FaqPreview = () => {
               }}
               viewport={{ once: true }}
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-gradient-to-br from-secColor/10 via-secColor/5 to-primaryCard border-2 border-secColor/30 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+              // ORIGINAL LIGHT THEME: className="bg-gradient-to-br from-secColor/10 via-secColor/5 to-primaryCard border-2 border-secColor/30 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+              className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border-2 border-secColor/40 rounded-xl shadow-2xl hover:shadow-secColor/30 transition-all duration-500 relative overflow-hidden backdrop-blur-sm"
             >
-              {/* Decorative accent */}
-              <div className="absolute top-0 left-0 w-40 h-40 bg-secColor/15 rounded-full -ml-20 -mt-20"></div>
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-primaryColor/10 rounded-full -mr-16 -mb-16"></div>
+              {/* Decorative accent - DARK THEME */}
+              <div className="absolute top-0 left-0 w-40 h-40 bg-secColor/25 rounded-full -ml-20 -mt-20 blur-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-primaryColor/20 rounded-full -mr-16 -mb-16 blur-xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-secColor/10 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
               
               <Link
                 href="/faq"
                 className="flex flex-col items-center justify-center h-full p-6 sm:p-8 min-h-[200px] sm:min-h-[220px] group relative z-10"
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-secColor/25 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-secColor/35 transition-colors border-2 border-secColor/40">
-                  <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 text-primaryColor" />
+                {/* ORIGINAL LIGHT THEME: <div className="w-16 h-16 sm:w-20 sm:h-20 bg-secColor/25 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-secColor/35 transition-colors border-2 border-secColor/40"> */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-secColor/40 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-secColor/50 transition-colors border-2 border-secColor/60">
+                  <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 text-secColor" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-primaryText mb-3 sm:mb-4 text-center">
+                {/* ORIGINAL LIGHT THEME: <h3 className="text-xl sm:text-2xl font-bold text-primaryText mb-3 sm:mb-4 text-center"> */}
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 text-center">
                   View All FAQs
                 </h3>
-                <div className="inline-flex items-center gap-2 text-primaryColor font-semibold group-hover:gap-3 transition-all">
+                <div className="inline-flex items-center gap-2 text-secColor font-semibold group-hover:gap-3 transition-all">
                   <span>Explore More</span>
                   <ArrowRight className="w-5 h-5" />
                 </div>
