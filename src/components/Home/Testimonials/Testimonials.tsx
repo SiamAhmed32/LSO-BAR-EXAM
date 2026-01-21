@@ -81,13 +81,13 @@ const Testimonials = () => {
               <SectionHeading className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6">
                 What Our Students Say
               </SectionHeading>
-              <p className="text-base sm:text-lg md:text-xl text-primaryText/80 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-primaryText/80 max-w-3xl mx-auto leading-relaxed pr-0 sm:pr-24 md:pr-28">
                 Real feedback from candidates who have used our exam preparation platform
               </p>
             </div>
             
-            {/* Navigation Buttons - Top Right */}
-            <div className="absolute top-24 sm:top-10 md:top-20 right-0 flex items-center gap-2">
+            {/* Navigation Buttons - Centered below text on mobile, absolute top-right on larger screens */}
+            <div className="flex items-center justify-center gap-2 mt-6 sm:mt-0 sm:absolute sm:top-10 md:top-20 sm:right-0">
               <button
                 className="swiper-button-prev-custom w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-borderBg shadow-sm hover:shadow-md hover:bg-primaryColor hover:text-white hover:border-primaryColor transition-all duration-300 flex items-center justify-center text-primaryText group"
                 aria-label="Previous testimonial"
